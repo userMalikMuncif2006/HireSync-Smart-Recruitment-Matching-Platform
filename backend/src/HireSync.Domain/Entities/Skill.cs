@@ -1,3 +1,5 @@
+using HireSync.Domain.Rules;
+
 namespace HireSync.Domain.Entities;
 
 public sealed class Skill
@@ -12,10 +14,17 @@ public sealed class Skill
     {
     }
 
-    public Skill(Guid id, string name, string normalizedName)
+    public Skill(Guid id, string name)
     {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Skill ID cannot be empty.",
+                nameof(id));
+        }
+
         Id = id;
-        Name = name;
-        NormalizedName = normalizedName;
+        Name = SkillNameNormalizer.CanonicalizeDisplayName(name);
+        NormalizedName = SkillNameNormalizer.Normalize(Name);
     }
 }
