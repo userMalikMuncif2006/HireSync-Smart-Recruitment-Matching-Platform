@@ -17,7 +17,7 @@ public class AuthControllerContractTests
         var userId = Guid.NewGuid();
 
         var controller = CreateController(
-            new AuthenticatedIdentity(
+            identity: new AuthenticatedIdentity(
                 userId,
                 "user@example.com",
                 RoleNames.JobSeeker,
@@ -41,7 +41,7 @@ public class AuthControllerContractTests
     [Fact]
     public async Task Login_returns_401_for_invalid_credentials()
     {
-        var controller = CreateController(null);
+        var controller = CreateController(identity: null);
 
         var result = await controller.Login(
             new LoginRequest(
@@ -58,7 +58,7 @@ public class AuthControllerContractTests
     public async Task Login_returns_403_for_suspended_user()
     {
         var controller = CreateController(
-            new AuthenticatedIdentity(
+            identity: new AuthenticatedIdentity(
                 Guid.NewGuid(),
                 "employer@example.com",
                 RoleNames.Employer,
@@ -76,18 +76,97 @@ public class AuthControllerContractTests
         Assert.Equal(403, problem.StatusCode);
     }
 
-    private static AuthController CreateController(
-        AuthenticatedIdentity? identity)
+    [Fact]
+    public async Task RegisterJobSeeker_returns_201_for_success()
     {
+        var userId = Guid.NewGuid();
+
+        var controller = CreateController(
+            identity: null,
+            creationResult: IdentityUserCreationResult.Success(
+                userId,
+                "seeker@example.com",
+                "Test Seeker"));
+
+        var result = await controller.RegisterJobSeeker(
+            new RegisterJobSeekerRequest(
+                "seeker@example.com",
+                "ValidPassword123!",
+                "Test Seeker"),
+            CancellationToken.None);
+
+        var created = Assert.IsType<ObjectResult>(result.Result);
+        var response =
+            Assert.IsType<RegisterJobSeekerResponse>(created.Value);
+
+        Assert.Equal(201, created.StatusCode);
+        Assert.Equal(userId, response.UserId);
+        Assert.Equal("seeker@example.com", response.Email);
+        Assert.Equal(RoleNames.JobSeeker, response.Role);
+    }
+
+    [Fact]
+    public async Task RegisterJobSeeker_returns_409_for_duplicate_email()
+    {
+        var controller = CreateController(
+            identity: null,
+            creationResult: IdentityUserCreationResult.Failure(
+                IdentityUserCreationFailure.EmailAlreadyExists));
+
+        var result = await controller.RegisterJobSeeker(
+            new RegisterJobSeekerRequest(
+                "existing@example.com",
+                "ValidPassword123!",
+                "Existing User"),
+            CancellationToken.None);
+
+        var problem = Assert.IsType<ObjectResult>(result.Result);
+
+        Assert.Equal(409, problem.StatusCode);
+    }
+
+    [Fact]
+    public async Task RegisterJobSeeker_returns_400_for_invalid_input()
+    {
+        var controller = CreateController(identity: null);
+
+        var result = await controller.RegisterJobSeeker(
+            new RegisterJobSeekerRequest(
+                "",
+                "ValidPassword123!",
+                "Test User"),
+            CancellationToken.None);
+
+        var problem = Assert.IsType<ObjectResult>(result.Result);
+
+        Assert.Equal(400, problem.StatusCode);
+    }
+
+    private static AuthController CreateController(
+        AuthenticatedIdentity? identity,
+        IdentityUserCreationResult? creationResult = null)
+    {
+        var identityService = new FakeIdentityService(
+            identity,
+            creationResult ??
+            IdentityUserCreationResult.Failure(
+                IdentityUserCreationFailure.ValidationFailed));
+
         var authService = new AuthService(
-            new FakeIdentityService(identity),
+            identityService,
             new FakeTokenService());
 
-        return new AuthController(authService);
+        var registrationService =
+            new RegistrationService(identityService);
+
+        return new AuthController(
+            authService,
+            registrationService);
     }
 
     private sealed class FakeIdentityService(
-        AuthenticatedIdentity? identity)
+        AuthenticatedIdentity? identity,
+        IdentityUserCreationResult creationResult)
         : IIdentityService
     {
         public Task<AuthenticatedIdentity?> ValidateCredentialsAsync(
@@ -105,9 +184,7 @@ public class AuthControllerContractTests
             string role,
             CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(
-                IdentityUserCreationResult.Failure(
-                    IdentityUserCreationFailure.ValidationFailed));
+            return Task.FromResult(creationResult);
         }
     }
 

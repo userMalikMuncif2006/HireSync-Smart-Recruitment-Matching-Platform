@@ -10,10 +10,14 @@ namespace HireSync.Api.Controllers;
 public sealed class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
+    private readonly RegistrationService _registrationService;
 
-    public AuthController(AuthService authService)
+    public AuthController(
+        AuthService authService,
+        RegistrationService registrationService)
     {
         _authService = authService;
+        _registrationService = registrationService;
     }
 
     [AllowAnonymous]
@@ -45,6 +49,53 @@ public sealed class AuthController : ControllerBase
                 statusCode: StatusCodes.Status401Unauthorized,
                 title: "Invalid credentials",
                 detail: "The email or password is incorrect.")
+        };
+    }
+
+    [AllowAnonymous]
+    [HttpPost("register/jobseeker")]
+    [ProducesResponseType(
+        typeof(RegisterJobSeekerResponse),
+        StatusCodes.Status201Created)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<RegisterJobSeekerResponse>>
+        RegisterJobSeeker(
+            [FromBody] RegisterJobSeekerRequest request,
+            CancellationToken cancellationToken)
+    {
+        var result =
+            await _registrationService.RegisterJobSeekerAsync(
+                request,
+                cancellationToken);
+
+        if (result.Succeeded)
+        {
+            return StatusCode(
+                StatusCodes.Status201Created,
+                result.Response);
+        }
+
+        return result.FailureReason switch
+        {
+            RegistrationFailureReason.EmailAlreadyExists => Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Email already registered",
+                detail: "An account with this email already exists."),
+
+            RegistrationFailureReason.IdentityValidationFailed => Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Registration failed",
+                detail: "The account details did not satisfy the identity requirements."),
+
+            _ => Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid registration request",
+                detail: "Email, password and display name are required.")
         };
     }
 }

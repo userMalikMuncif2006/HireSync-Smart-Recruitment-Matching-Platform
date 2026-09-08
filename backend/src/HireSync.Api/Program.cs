@@ -74,6 +74,7 @@ builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<RegistrationService>();
 
 // JWT authentication
 builder.Services
