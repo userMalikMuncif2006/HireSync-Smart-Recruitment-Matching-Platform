@@ -97,6 +97,18 @@ public class AuthControllerContractTests
         {
             return Task.FromResult(identity);
         }
+
+        public Task<IdentityUserCreationResult> CreateUserAsync(
+            string email,
+            string password,
+            string displayName,
+            string role,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(
+                IdentityUserCreationResult.Failure(
+                    IdentityUserCreationFailure.ValidationFailed));
+        }
     }
 
     private sealed class FakeTokenService : ITokenService

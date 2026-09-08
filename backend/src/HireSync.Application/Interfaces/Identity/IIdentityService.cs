@@ -6,4 +6,11 @@ public interface IIdentityService
         string email,
         string password,
         CancellationToken cancellationToken = default);
+
+    Task<IdentityUserCreationResult> CreateUserAsync(
+        string email,
+        string password,
+        string displayName,
+        string role,
+        CancellationToken cancellationToken = default);
 }
