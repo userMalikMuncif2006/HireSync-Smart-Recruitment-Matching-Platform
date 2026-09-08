@@ -1,6 +1,8 @@
+using HireSync.Application.Interfaces.Identity;
 using HireSync.Application.Interfaces.Persistence;
 using HireSync.Application.Interfaces.Security;
 using HireSync.Application.Interfaces.Time;
+using HireSync.Application.Services;
 using HireSync.Infrastructure.Data;
 using HireSync.Infrastructure.Identity;
 using HireSync.Infrastructure.Services;
@@ -70,6 +72,8 @@ var jwtSettings = new JwtSettings
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
+builder.Services.AddScoped<IIdentityService, IdentityService>();
+builder.Services.AddScoped<AuthService>();
 
 // JWT authentication
 builder.Services
@@ -80,13 +84,10 @@ builder.Services
         {
             ValidateIssuer = true,
             ValidIssuer = jwtIssuer,
-
             ValidateAudience = true,
             ValidAudience = jwtAudience,
-
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(jwtSigningKeyBytes),
-
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
