@@ -71,8 +71,11 @@ var jwtSettings = new JwtSettings
 
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton<IClock, SystemClock>();
+
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
+builder.Services.AddScoped<IAccessTokenStateValidator, AccessTokenStateValidator>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
+
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RegistrationService>();
 
@@ -81,16 +84,66 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        // Preserve HireSync claim names exactly:
+        // sub, email, role, token_version, jti
+        options.MapInboundClaims = false;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidIssuer = jwtIssuer,
+
             ValidateAudience = true,
             ValidAudience = jwtAudience,
+
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(jwtSigningKeyBytes),
+
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+
+            NameClaimType = "email",
+            RoleClaimType = "role"
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var principal = context.Principal;
+
+                var userIdValue =
+                    principal?.FindFirst("sub")?.Value;
+
+                var role =
+                    principal?.FindFirst("role")?.Value;
+
+                var tokenVersionValue =
+                    principal?.FindFirst("token_version")?.Value;
+
+                if (!Guid.TryParse(userIdValue, out var userId) ||
+                    string.IsNullOrWhiteSpace(role) ||
+                    !int.TryParse(tokenVersionValue, out var tokenVersion))
+                {
+                    context.Fail("Token state claims are invalid.");
+                    return;
+                }
+
+                var validator =
+                    context.HttpContext.RequestServices
+                        .GetRequiredService<IAccessTokenStateValidator>();
+
+                var isValid = await validator.IsValidAsync(
+                    userId,
+                    role,
+                    tokenVersion,
+                    context.HttpContext.RequestAborted);
+
+                if (!isValid)
+                {
+                    context.Fail("Token is no longer valid.");
+                }
+            }
         };
     });
 
