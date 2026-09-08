@@ -1,5 +1,6 @@
 using HireSync.Application.Interfaces.Email;
 using HireSync.Application.Interfaces.Identity;
+using HireSync.Application.Interfaces.Otp;
 using HireSync.Application.Interfaces.Persistence;
 using HireSync.Application.Interfaces.Security;
 using HireSync.Application.Interfaces.Time;
@@ -7,6 +8,7 @@ using HireSync.Application.Services;
 using HireSync.Infrastructure.Data;
 using HireSync.Infrastructure.Email;
 using HireSync.Infrastructure.Identity;
+using HireSync.Infrastructure.Otp;
 using HireSync.Infrastructure.Services;
 using HireSync.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -121,6 +123,7 @@ builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IEmailOtpCodeHasher, HmacEmailOtpCodeHasher>();
 builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<IEmailOtpChallengeStore, EmailOtpChallengeStore>();
 builder.Services.AddScoped<IAccessTokenStateValidator, AccessTokenStateValidator>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 
