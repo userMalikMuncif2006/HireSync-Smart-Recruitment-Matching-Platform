@@ -1,5 +1,6 @@
 using HireSync.Application.Interfaces.Persistence;
 using HireSync.Application.Security;
+using HireSync.Domain.Entities;
 using HireSync.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -15,6 +16,9 @@ public class HireSyncDbContext
         : base(options)
     {
     }
+
+    public DbSet<EmailOtpChallenge> EmailOtpChallenges =>
+        Set<EmailOtpChallenge>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -43,6 +47,40 @@ public class HireSyncDbContext
 
             entity.HasIndex(user => user.NormalizedEmail)
                 .IsUnique();
+        });
+
+        builder.Entity<EmailOtpChallenge>(entity =>
+        {
+            entity.ToTable("EmailOtpChallenges");
+
+            entity.HasKey(challenge => challenge.Id);
+
+            entity.Property(challenge => challenge.Email)
+                .HasMaxLength(256)
+                .IsRequired();
+
+            entity.Property(challenge => challenge.Purpose)
+                .HasConversion<byte>();
+
+            entity.Property(challenge => challenge.CodeHash)
+                .HasMaxLength(44)
+                .IsRequired();
+
+            entity.Property(challenge => challenge.CreatedAtUtc)
+                .HasPrecision(3);
+
+            entity.Property(challenge => challenge.ExpiresAtUtc)
+                .HasPrecision(3);
+
+            entity.Property(challenge => challenge.ConsumedAtUtc)
+                .HasPrecision(3);
+
+            entity.HasIndex(challenge => new
+            {
+                challenge.Email,
+                challenge.Purpose,
+                challenge.CreatedAtUtc
+            });
         });
 
         builder.Entity<IdentityRole<Guid>>().HasData(
