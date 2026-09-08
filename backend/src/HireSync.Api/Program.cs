@@ -1,9 +1,11 @@
+using HireSync.Application.Interfaces.Email;
 using HireSync.Application.Interfaces.Identity;
 using HireSync.Application.Interfaces.Persistence;
 using HireSync.Application.Interfaces.Security;
 using HireSync.Application.Interfaces.Time;
 using HireSync.Application.Services;
 using HireSync.Infrastructure.Data;
+using HireSync.Infrastructure.Email;
 using HireSync.Infrastructure.Identity;
 using HireSync.Infrastructure.Services;
 using HireSync.Infrastructure.Security;
@@ -79,12 +81,46 @@ var otpSecuritySettings = new OtpSecuritySettings
     HashingKey = otpHashingKey
 };
 
+var smtpHost = builder.Configuration["Smtp:Host"]
+    ?? throw new InvalidOperationException("SMTP host is not configured.");
+
+var smtpPortValue = builder.Configuration["Smtp:Port"]
+    ?? throw new InvalidOperationException("SMTP port is not configured.");
+
+if (!int.TryParse(smtpPortValue, out var smtpPort))
+{
+    throw new InvalidOperationException("SMTP port is invalid.");
+}
+
+var smtpUsername = builder.Configuration["Smtp:Username"]
+    ?? throw new InvalidOperationException("SMTP username is not configured.");
+
+var smtpPassword = builder.Configuration["Smtp:Password"]
+    ?? throw new InvalidOperationException("SMTP password is not configured.");
+
+var smtpFromEmail = builder.Configuration["Smtp:FromEmail"]
+    ?? throw new InvalidOperationException("SMTP from email is not configured.");
+
+var smtpFromName =
+    builder.Configuration["Smtp:FromName"] ?? "HireSync";
+
+var smtpEmailSettings = new SmtpEmailSettings
+{
+    Host = smtpHost,
+    Port = smtpPort,
+    Username = smtpUsername,
+    Password = smtpPassword,
+    FromEmail = smtpFromEmail,
+    FromName = smtpFromName
+};
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton(otpSecuritySettings);
+builder.Services.AddSingleton(smtpEmailSettings);
 builder.Services.AddSingleton<IClock, SystemClock>();
 
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IEmailOtpCodeHasher, HmacEmailOtpCodeHasher>();
+builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IAccessTokenStateValidator, AccessTokenStateValidator>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 
