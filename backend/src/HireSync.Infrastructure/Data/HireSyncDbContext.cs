@@ -1,4 +1,5 @@
 using HireSync.Application.Interfaces.Persistence;
+using HireSync.Application.Security;
 using HireSync.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -43,5 +44,28 @@ public class HireSyncDbContext
             entity.HasIndex(user => user.NormalizedEmail)
                 .IsUnique();
         });
+
+        builder.Entity<IdentityRole<Guid>>().HasData(
+            new IdentityRole<Guid>
+            {
+                Id = IdentitySeedIds.JobSeekerRoleId,
+                Name = RoleNames.JobSeeker,
+                NormalizedName = "JOBSEEKER",
+                ConcurrencyStamp = "20000000-0000-0000-0000-000000000001"
+            },
+            new IdentityRole<Guid>
+            {
+                Id = IdentitySeedIds.EmployerRoleId,
+                Name = RoleNames.Employer,
+                NormalizedName = "EMPLOYER",
+                ConcurrencyStamp = "20000000-0000-0000-0000-000000000002"
+            },
+            new IdentityRole<Guid>
+            {
+                Id = IdentitySeedIds.AdministratorRoleId,
+                Name = RoleNames.Administrator,
+                NormalizedName = "ADMINISTRATOR",
+                ConcurrencyStamp = "20000000-0000-0000-0000-000000000003"
+            });
     }
 }
