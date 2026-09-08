@@ -1,7 +1,9 @@
-using System.Text;
 using HireSync.Application.Interfaces.Persistence;
+using HireSync.Application.Interfaces.Security;
+using HireSync.Application.Interfaces.Time;
 using HireSync.Infrastructure.Data;
 using HireSync.Infrastructure.Identity;
+using HireSync.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +31,7 @@ builder.Services
     .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<HireSyncDbContext>();
 
-// JWT authentication
+// JWT settings
 var jwtSigningKey = builder.Configuration["Jwt:SigningKey"]
     ?? throw new InvalidOperationException("JWT signing key is not configured.");
 
@@ -39,6 +41,37 @@ var jwtIssuer = builder.Configuration["Jwt:Issuer"]
 var jwtAudience = builder.Configuration["Jwt:Audience"]
     ?? throw new InvalidOperationException("JWT audience is not configured.");
 
+byte[] jwtSigningKeyBytes;
+
+try
+{
+    jwtSigningKeyBytes = Convert.FromBase64String(jwtSigningKey);
+}
+catch (FormatException exception)
+{
+    throw new InvalidOperationException(
+        "JWT signing key must be valid Base64.",
+        exception);
+}
+
+if (jwtSigningKeyBytes.Length < 32)
+{
+    throw new InvalidOperationException(
+        "JWT signing key must contain at least 256 bits.");
+}
+
+var jwtSettings = new JwtSettings
+{
+    SigningKey = jwtSigningKey,
+    Issuer = jwtIssuer,
+    Audience = jwtAudience
+};
+
+builder.Services.AddSingleton(jwtSettings);
+builder.Services.AddSingleton<IClock, SystemClock>();
+builder.Services.AddScoped<ITokenService, JwtTokenService>();
+
+// JWT authentication
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -52,8 +85,7 @@ builder.Services
             ValidAudience = jwtAudience,
 
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSigningKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(jwtSigningKeyBytes),
 
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
