@@ -6,6 +6,7 @@ using HireSync.Application.Services;
 using HireSync.Infrastructure.Data;
 using HireSync.Infrastructure.Identity;
 using HireSync.Infrastructure.Services;
+using HireSync.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -69,10 +70,21 @@ var jwtSettings = new JwtSettings
     Audience = jwtAudience
 };
 
+var otpHashingKey = builder.Configuration["Otp:HashingKey"]
+    ?? throw new InvalidOperationException(
+        "OTP hashing key is not configured.");
+
+var otpSecuritySettings = new OtpSecuritySettings
+{
+    HashingKey = otpHashingKey
+};
+
 builder.Services.AddSingleton(jwtSettings);
+builder.Services.AddSingleton(otpSecuritySettings);
 builder.Services.AddSingleton<IClock, SystemClock>();
 
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
+builder.Services.AddSingleton<IEmailOtpCodeHasher, HmacEmailOtpCodeHasher>();
 builder.Services.AddScoped<IAccessTokenStateValidator, AccessTokenStateValidator>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 
