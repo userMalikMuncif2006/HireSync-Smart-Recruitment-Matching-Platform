@@ -1,5 +1,7 @@
 using HireSync.Application.Interfaces.Persistence;
 using HireSync.Infrastructure.Data;
+using HireSync.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,12 @@ builder.Services.AddDbContext<HireSyncDbContext>(options =>
 
 builder.Services.AddScoped<IHireSyncDbContext>(serviceProvider =>
     serviceProvider.GetRequiredService<HireSyncDbContext>());
+
+// ASP.NET Core Identity
+builder.Services
+    .AddIdentityCore<ApplicationUser>()
+    .AddRoles<IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<HireSyncDbContext>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
