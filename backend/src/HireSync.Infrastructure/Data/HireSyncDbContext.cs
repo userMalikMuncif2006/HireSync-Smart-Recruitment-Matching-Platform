@@ -75,6 +75,9 @@ public class HireSyncDbContext
             entity.Property(challenge => challenge.ConsumedAtUtc)
                 .HasPrecision(3);
 
+            entity.Property(challenge => challenge.FailedAttempts)
+                .HasDefaultValue(0);
+
             entity.HasIndex(challenge => new
             {
                 challenge.Email,

@@ -73,12 +73,48 @@ public sealed class EmailOtpChallenge
 
     public DateTime? ConsumedAtUtc { get; private set; }
 
+    public int FailedAttempts { get; private set; }
+
     public bool IsExpired(DateTime nowUtc)
     {
         return nowUtc >= ExpiresAtUtc;
     }
 
     public bool IsConsumed => ConsumedAtUtc.HasValue;
+
+    public bool HasReachedAttemptLimit(int maxAttempts)
+    {
+        if (maxAttempts <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(maxAttempts));
+        }
+
+        return FailedAttempts >= maxAttempts;
+    }
+
+    public void RegisterFailedAttempt(int maxAttempts)
+    {
+        if (maxAttempts <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(maxAttempts));
+        }
+
+        if (IsConsumed)
+        {
+            throw new InvalidOperationException(
+                "OTP challenge has already been consumed.");
+        }
+
+        if (HasReachedAttemptLimit(maxAttempts))
+        {
+            throw new InvalidOperationException(
+                "OTP challenge attempt limit has been reached.");
+        }
+
+        FailedAttempts++;
+    }
 
     public void MarkConsumed(DateTime consumedAtUtc)
     {

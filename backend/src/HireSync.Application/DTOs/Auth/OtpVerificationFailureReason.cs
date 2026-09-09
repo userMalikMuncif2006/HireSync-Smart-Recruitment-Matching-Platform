@@ -4,5 +4,6 @@ public enum OtpVerificationFailureReason
 {
     InvalidCode = 1,
     Expired = 2,
-    AlreadyUsed = 3
+    AlreadyUsed = 3,
+    AttemptsExceeded = 4
 }
