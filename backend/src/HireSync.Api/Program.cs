@@ -1,3 +1,5 @@
+using HireSync.Application.Interfaces.Admin;
+using HireSync.Infrastructure.Admin;
 using HireSync.Application.Interfaces.Email;
 using HireSync.Application.Interfaces.Identity;
 using HireSync.Application.Interfaces.Otp;
@@ -130,6 +132,7 @@ builder.Services.AddScoped<IIdentityService, IdentityService>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RegistrationService>();
+builder.Services.AddScoped<IEmployerVerificationAdminService, EmployerVerificationAdminService>();
 builder.Services.AddScoped<IEmailOtpService, EmailOtpService>();
 
 // JWT authentication
