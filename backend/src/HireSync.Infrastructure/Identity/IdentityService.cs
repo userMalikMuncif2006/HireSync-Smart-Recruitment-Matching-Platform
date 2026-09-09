@@ -112,6 +112,10 @@ public sealed class IdentityService : IIdentityService
             Email = normalizedEmail,
             DisplayName = displayName.Trim(),
             AccountStatus = AccountStatus.Active,
+            EmployerVerificationStatus =
+                role == RoleNames.Employer
+                    ? HireSync.Domain.Enums.EmployerVerificationStatus.Pending
+                    : null,
             TokenVersion = 1,
             CreatedAtUtc = now,
             UpdatedAtUtc = now

@@ -33,6 +33,10 @@ public class HireSyncDbContext
             entity.Property(user => user.AccountStatus)
                 .HasConversion<byte>();
 
+            entity.Property(user => user.EmployerVerificationStatus)
+                .HasConversion<byte?>()
+                .HasColumnType("tinyint");
+
             entity.Property(user => user.TokenVersion)
                 .HasDefaultValue(1);
 

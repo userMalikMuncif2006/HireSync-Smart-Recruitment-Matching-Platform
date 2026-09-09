@@ -9,6 +9,8 @@ public sealed class ApplicationUser : IdentityUser<Guid>
 
     public AccountStatus AccountStatus { get; set; } = AccountStatus.Active;
 
+    public EmployerVerificationStatus? EmployerVerificationStatus { get; set; }
+
     public int TokenVersion { get; set; } = 1;
 
     public DateTime CreatedAtUtc { get; set; }
