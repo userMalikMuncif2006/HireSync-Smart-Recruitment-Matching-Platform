@@ -1,3 +1,4 @@
+using HireSync.Infrastructure.Identity;
 using HireSync.Application.Interfaces.Admin;
 using HireSync.Infrastructure.Admin;
 using HireSync.Application.Interfaces.Email;
@@ -9,7 +10,6 @@ using HireSync.Application.Interfaces.Time;
 using HireSync.Application.Services;
 using HireSync.Infrastructure.Data;
 using HireSync.Infrastructure.Email;
-using HireSync.Infrastructure.Identity;
 using HireSync.Infrastructure.Otp;
 using HireSync.Infrastructure.Services;
 using HireSync.Infrastructure.Security;
@@ -205,11 +205,43 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+var administratorSeedSettings =
+    new AdministratorSeedSettings
+    {
+        Enabled =
+            builder.Configuration.GetValue<bool>(
+                "AdminSeed:Enabled"),
+
+        Email =
+            builder.Configuration["AdminSeed:Email"]
+            ?? string.Empty,
+
+        Password =
+            builder.Configuration["AdminSeed:Password"]
+            ?? string.Empty,
+
+        DisplayName =
+            builder.Configuration["AdminSeed:DisplayName"]
+            ?? "HireSync Administrator"
+    };
+
+builder.Services.AddSingleton(administratorSeedSettings);
+builder.Services.AddScoped<AdministratorSeeder>();
+
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var administratorSeeder =
+        scope.ServiceProvider
+            .GetRequiredService<AdministratorSeeder>();
+
+    await administratorSeeder.SeedAsync();
+}
 
 // HTTP pipeline
 if (app.Environment.IsDevelopment())
