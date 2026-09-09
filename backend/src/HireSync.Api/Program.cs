@@ -122,6 +122,7 @@ builder.Services.AddSingleton<IClock, SystemClock>();
 
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IEmailOtpCodeHasher, HmacEmailOtpCodeHasher>();
+builder.Services.AddSingleton<IEmailOtpCodeGenerator, SecureEmailOtpCodeGenerator>();
 builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IEmailOtpChallengeStore, EmailOtpChallengeStore>();
 builder.Services.AddScoped<IAccessTokenStateValidator, AccessTokenStateValidator>();
