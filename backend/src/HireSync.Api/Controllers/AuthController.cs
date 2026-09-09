@@ -14,15 +14,18 @@ public sealed class AuthController : ControllerBase
     private readonly AuthService _authService;
     private readonly RegistrationService _registrationService;
     private readonly IEmailOtpService _emailOtpService;
+    private readonly AdministratorActivationService _administratorActivationService;
 
     public AuthController(
         AuthService authService,
         RegistrationService registrationService,
-        IEmailOtpService emailOtpService)
+        IEmailOtpService emailOtpService,
+        AdministratorActivationService administratorActivationService)
     {
         _authService = authService;
         _registrationService = registrationService;
         _emailOtpService = emailOtpService;
+        _administratorActivationService = administratorActivationService;
     }
 
     [AllowAnonymous]
@@ -160,6 +163,137 @@ public sealed class AuthController : ControllerBase
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Invalid verification code",
                 detail: "The verification code is invalid.")
+        };
+    }
+
+    [AllowAnonymous]
+    [HttpPost("admin/activation/otp/request")]
+    [ProducesResponseType(typeof(AdministratorActivationRequestResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
+    public async Task<ActionResult<AdministratorActivationRequestResult>>
+        RequestAdministratorActivationOtp(
+            [FromBody] AdministratorActivationRequest request,
+            CancellationToken cancellationToken)
+    {
+        var result =
+            await _administratorActivationService.RequestOtpAsync(
+                request,
+                cancellationToken);
+
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        if (result.FailureReason ==
+            AdministratorActivationRequestFailureReason.CooldownActive)
+        {
+            if (result.RetryAfterSeconds.HasValue)
+            {
+                Response.Headers["Retry-After"] =
+                    result.RetryAfterSeconds.Value.ToString();
+            }
+
+            return Problem(
+                statusCode: StatusCodes.Status429TooManyRequests,
+                title: "Administrator activation OTP cooldown active",
+                detail: "Please wait before requesting another activation code.");
+        }
+
+        return result.FailureReason switch
+        {
+            AdministratorActivationRequestFailureReason.InvalidCredentials =>
+                Problem(
+                    statusCode: StatusCodes.Status401Unauthorized,
+                    title: "Invalid Administrator credentials",
+                    detail: "The Administrator credentials are invalid."),
+
+            AdministratorActivationRequestFailureReason.Suspended =>
+                Problem(
+                    statusCode: StatusCodes.Status403Forbidden,
+                    title: "Account suspended",
+                    detail: "This Administrator account is suspended."),
+
+            AdministratorActivationRequestFailureReason.AlreadyActivated =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Administrator already activated",
+                    detail: "This Administrator account has already completed first activation."),
+
+            _ => Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Administrator activation OTP request failed",
+                detail: "The activation code could not be requested.")
+        };
+    }
+
+    [AllowAnonymous]
+    [HttpPost("admin/activation/otp/verify")]
+    [ProducesResponseType(typeof(AdministratorActivationVerificationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<AdministratorActivationVerificationResult>>
+        VerifyAdministratorActivationOtp(
+            [FromBody] AdministratorActivationVerifyRequest request,
+            CancellationToken cancellationToken)
+    {
+        var result =
+            await _administratorActivationService.VerifyOtpAsync(
+                request,
+                cancellationToken);
+
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return result.FailureReason switch
+        {
+            AdministratorActivationVerificationFailureReason.InvalidCredentials =>
+                Problem(
+                    statusCode: StatusCodes.Status401Unauthorized,
+                    title: "Invalid Administrator credentials"),
+
+            AdministratorActivationVerificationFailureReason.Suspended =>
+                Problem(
+                    statusCode: StatusCodes.Status403Forbidden,
+                    title: "Account suspended"),
+
+            AdministratorActivationVerificationFailureReason.AlreadyActivated =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Administrator already activated"),
+
+            AdministratorActivationVerificationFailureReason.AlreadyUsed =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Activation code already used"),
+
+            AdministratorActivationVerificationFailureReason.AttemptsExceeded =>
+                Problem(
+                    statusCode: StatusCodes.Status429TooManyRequests,
+                    title: "Activation attempt limit reached"),
+
+            AdministratorActivationVerificationFailureReason.Expired =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Activation code expired"),
+
+            AdministratorActivationVerificationFailureReason.PersistenceFailed =>
+                Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Administrator activation failed"),
+
+            _ => Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid activation code")
         };
     }
     [AllowAnonymous]
