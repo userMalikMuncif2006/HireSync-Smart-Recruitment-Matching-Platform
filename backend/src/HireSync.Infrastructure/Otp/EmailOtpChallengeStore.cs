@@ -28,7 +28,7 @@ public sealed class EmailOtpChallengeStore
             cancellationToken);
     }
 
-    public Task<EmailOtpChallenge?> GetLatestUnconsumedAsync(
+    public Task<EmailOtpChallenge?> GetLatestAsync(
         string email,
         EmailOtpPurpose purpose,
         CancellationToken cancellationToken = default)
@@ -43,8 +43,7 @@ public sealed class EmailOtpChallengeStore
         return _dbContext.EmailOtpChallenges
             .Where(challenge =>
                 challenge.Email == email.Trim() &&
-                challenge.Purpose == purpose &&
-                challenge.ConsumedAtUtc == null)
+                challenge.Purpose == purpose)
             .OrderByDescending(challenge =>
                 challenge.CreatedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);

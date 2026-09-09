@@ -9,7 +9,7 @@ public interface IEmailOtpChallengeStore
         EmailOtpChallenge challenge,
         CancellationToken cancellationToken = default);
 
-    Task<EmailOtpChallenge?> GetLatestUnconsumedAsync(
+    Task<EmailOtpChallenge?> GetLatestAsync(
         string email,
         EmailOtpPurpose purpose,
         CancellationToken cancellationToken = default);
