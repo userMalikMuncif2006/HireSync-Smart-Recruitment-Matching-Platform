@@ -50,6 +50,11 @@ public sealed class AuthController : ControllerBase
                 title: "Account suspended",
                 detail: "This account is currently suspended."),
 
+            LoginFailureReason.AdministratorActivationRequired => Problem(
+                statusCode: StatusCodes.Status403Forbidden,
+                title: "Administrator activation required",
+                detail: "This Administrator account must complete first activation before signing in."),
+
             _ => Problem(
                 statusCode: StatusCodes.Status401Unauthorized,
                 title: "Invalid credentials",

@@ -7,4 +7,5 @@ public sealed record AuthenticatedIdentity(
     string Email,
     string Role,
     int TokenVersion,
-    AccountStatus AccountStatus);
+    AccountStatus AccountStatus,
+    bool EmailConfirmed = true);

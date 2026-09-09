@@ -3,7 +3,8 @@ namespace HireSync.Application.DTOs.Auth;
 public enum LoginFailureReason
 {
     InvalidCredentials = 1,
-    Suspended = 2
+    Suspended = 2,
+    AdministratorActivationRequired = 3
 }
 
 public sealed record LoginResult

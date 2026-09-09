@@ -1,6 +1,7 @@
 using HireSync.Application.DTOs.Auth;
 using HireSync.Application.Interfaces.Identity;
 using HireSync.Application.Interfaces.Security;
+using HireSync.Application.Security;
 using HireSync.Domain.Enums;
 
 namespace HireSync.Application.Services;
@@ -45,6 +46,16 @@ public sealed class AuthService
         {
             return LoginResult.Failure(
                 LoginFailureReason.Suspended);
+        }
+
+        if (string.Equals(
+                identity.Role,
+                RoleNames.Administrator,
+                StringComparison.Ordinal) &&
+            !identity.EmailConfirmed)
+        {
+            return LoginResult.Failure(
+                LoginFailureReason.AdministratorActivationRequired);
         }
 
         var token = _tokenService.CreateAccessToken(

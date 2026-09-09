@@ -371,6 +371,29 @@ public class AuthControllerContractTests
         Assert.Equal(400, problem.StatusCode);
         Assert.Equal(0, otpService.VerificationCallCount);
     }
+    [Fact]
+    public async Task Login_returns_403_for_unactivated_administrator()
+    {
+        var controller = CreateController(
+            identity: new AuthenticatedIdentity(
+                Guid.NewGuid(),
+                "admin@example.com",
+                RoleNames.Administrator,
+                1,
+                AccountStatus.Active,
+                false));
+
+        var result = await controller.Login(
+            new LoginRequest(
+                "admin@example.com",
+                "ValidPassword123!"),
+            CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(result.Result);
+
+        Assert.Equal(403, problem.StatusCode);
+    }
     private static AuthController CreateController(
         AuthenticatedIdentity? identity,
         IdentityUserCreationResult? creationResult = null,

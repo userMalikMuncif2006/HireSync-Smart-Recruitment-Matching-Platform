@@ -71,7 +71,8 @@ public sealed class IdentityService : IIdentityService
             user.Email,
             role,
             user.TokenVersion,
-            user.AccountStatus);
+            user.AccountStatus,
+            user.EmailConfirmed);
     }
 
     public async Task<IdentityUserCreationResult> CreateUserAsync(

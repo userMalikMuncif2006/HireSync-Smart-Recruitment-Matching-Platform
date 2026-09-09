@@ -84,6 +84,84 @@ public class AuthServiceTests
             result.FailureReason);
     }
 
+    [Fact]
+    public async Task LoginAsync_rejects_unactivated_administrator()
+    {
+        var identityService = new FakeIdentityService(
+            new AuthenticatedIdentity(
+                Guid.NewGuid(),
+                "admin@example.com",
+                RoleNames.Administrator,
+                1,
+                AccountStatus.Active,
+                false));
+
+        var service = new AuthService(
+            identityService,
+            new FakeTokenService());
+
+        var result = await service.LoginAsync(
+            new LoginRequest(
+                "admin@example.com",
+                "ValidPassword123!"));
+
+        Assert.False(result.Succeeded);
+        Assert.Equal(
+            LoginFailureReason.AdministratorActivationRequired,
+            result.FailureReason);
+    }
+
+    [Fact]
+    public async Task LoginAsync_allows_activated_administrator()
+    {
+        var identityService = new FakeIdentityService(
+            new AuthenticatedIdentity(
+                Guid.NewGuid(),
+                "admin@example.com",
+                RoleNames.Administrator,
+                1,
+                AccountStatus.Active,
+                true));
+
+        var service = new AuthService(
+            identityService,
+            new FakeTokenService());
+
+        var result = await service.LoginAsync(
+            new LoginRequest(
+                "admin@example.com",
+                "ValidPassword123!"));
+
+        Assert.True(result.Succeeded);
+        Assert.NotNull(result.Response);
+        Assert.Equal(
+            RoleNames.Administrator,
+            result.Response.Role);
+    }
+
+    [Fact]
+    public async Task LoginAsync_does_not_apply_admin_activation_gate_to_employer()
+    {
+        var identityService = new FakeIdentityService(
+            new AuthenticatedIdentity(
+                Guid.NewGuid(),
+                "employer@example.com",
+                RoleNames.Employer,
+                1,
+                AccountStatus.Active,
+                false));
+
+        var service = new AuthService(
+            identityService,
+            new FakeTokenService());
+
+        var result = await service.LoginAsync(
+            new LoginRequest(
+                "employer@example.com",
+                "ValidPassword123!"));
+
+        Assert.True(result.Succeeded);
+    }
     private sealed class FakeIdentityService(
         AuthenticatedIdentity? identity)
         : IIdentityService
