@@ -1,5 +1,7 @@
 using HireSync.Application.DTOs.Auth;
+using HireSync.Application.Interfaces.Otp;
 using HireSync.Application.Services;
+using HireSync.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,13 +13,16 @@ public sealed class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
     private readonly RegistrationService _registrationService;
+    private readonly IEmailOtpService _emailOtpService;
 
     public AuthController(
         AuthService authService,
-        RegistrationService registrationService)
+        RegistrationService registrationService,
+        IEmailOtpService emailOtpService)
     {
         _authService = authService;
         _registrationService = registrationService;
+        _emailOtpService = emailOtpService;
     }
 
     [AllowAnonymous]
@@ -52,6 +57,106 @@ public sealed class AuthController : ControllerBase
         };
     }
 
+    [AllowAnonymous]
+    [HttpPost("employer/otp/request")]
+    [ProducesResponseType(typeof(OtpRequestResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
+    public async Task<ActionResult<OtpRequestResult>> RequestEmployerOtp(
+        [FromBody] EmployerOtpRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid OTP request",
+                detail: "Email is required.");
+        }
+
+        var result = await _emailOtpService.RequestAsync(
+            request.Email,
+            EmailOtpPurpose.EmployerRegistration,
+            cancellationToken);
+
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        if (result.FailureReason ==
+            OtpRequestFailureReason.CooldownActive)
+        {
+            if (result.RetryAfterSeconds.HasValue)
+            {
+                Response.Headers["Retry-After"] =
+                    result.RetryAfterSeconds.Value.ToString();
+            }
+
+            return Problem(
+                statusCode: StatusCodes.Status429TooManyRequests,
+                title: "OTP request cooldown active",
+                detail: "Please wait before requesting another verification code.");
+        }
+
+        return Problem(
+            statusCode: StatusCodes.Status400BadRequest,
+            title: "OTP request failed",
+            detail: "The verification code could not be requested.");
+    }
+    [AllowAnonymous]
+    [HttpPost("employer/otp/verify")]
+    [ProducesResponseType(typeof(OtpVerificationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
+    public async Task<ActionResult<OtpVerificationResult>> VerifyEmployerOtp(
+        [FromBody] EmployerOtpVerifyRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email) ||
+            string.IsNullOrWhiteSpace(request.Code))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid OTP verification request",
+                detail: "Email and verification code are required.");
+        }
+
+        var result = await _emailOtpService.VerifyAsync(
+            request.Email,
+            EmailOtpPurpose.EmployerRegistration,
+            request.Code,
+            cancellationToken);
+
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return result.FailureReason switch
+        {
+            OtpVerificationFailureReason.AlreadyUsed => Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Verification code already used",
+                detail: "This verification code has already been consumed."),
+
+            OtpVerificationFailureReason.AttemptsExceeded => Problem(
+                statusCode: StatusCodes.Status429TooManyRequests,
+                title: "Verification attempt limit reached",
+                detail: "The maximum number of verification attempts has been reached."),
+
+            OtpVerificationFailureReason.Expired => Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Verification code expired",
+                detail: "The verification code has expired."),
+
+            _ => Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid verification code",
+                detail: "The verification code is invalid.")
+        };
+    }
     [AllowAnonymous]
     [HttpPost("register/jobseeker")]
     [ProducesResponseType(

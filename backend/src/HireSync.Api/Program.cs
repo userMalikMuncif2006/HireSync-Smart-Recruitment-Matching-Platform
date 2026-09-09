@@ -130,6 +130,7 @@ builder.Services.AddScoped<IIdentityService, IdentityService>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RegistrationService>();
+builder.Services.AddScoped<IEmailOtpService, EmailOtpService>();
 
 // JWT authentication
 builder.Services
