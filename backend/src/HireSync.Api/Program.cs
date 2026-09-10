@@ -121,6 +121,8 @@ builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton(otpSecuritySettings);
 builder.Services.AddSingleton(smtpEmailSettings);
 builder.Services.AddSingleton<IClock, SystemClock>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IEmailOtpCodeHasher, HmacEmailOtpCodeHasher>();
