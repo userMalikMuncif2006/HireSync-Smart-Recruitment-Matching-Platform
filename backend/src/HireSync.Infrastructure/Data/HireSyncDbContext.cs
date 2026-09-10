@@ -1,6 +1,7 @@
 using HireSync.Application.Interfaces.Persistence;
 using HireSync.Application.Security;
 using HireSync.Domain.Entities;
+using HireSync.Infrastructure.Data.Configurations;
 using HireSync.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -20,9 +21,22 @@ public class HireSyncDbContext
     public DbSet<EmailOtpChallenge> EmailOtpChallenges =>
         Set<EmailOtpChallenge>();
 
+    public DbSet<Skill> Skills =>
+        Set<Skill>();
+
+    public DbSet<JobSeekerProfile> JobSeekerProfiles =>
+        Set<JobSeekerProfile>();
+
+    public DbSet<JobSeekerSkill> JobSeekerSkills =>
+        Set<JobSeekerSkill>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.ApplyConfiguration(new SkillConfiguration());
+        builder.ApplyConfiguration(new JobSeekerProfileConfiguration());
+        builder.ApplyConfiguration(new JobSeekerSkillConfiguration());
 
         builder.Entity<ApplicationUser>(entity =>
         {
