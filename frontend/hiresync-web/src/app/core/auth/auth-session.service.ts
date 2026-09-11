@@ -49,8 +49,27 @@ export class AuthSessionService {
     this.sessionState.set(null);
   }
 
+  getValidSession(): LoginResponse | null {
+    const current = this.sessionState();
+
+    if (!current) {
+      return null;
+    }
+
+    if (this.isExpired(current.expiresAtUtc)) {
+      this.clearSession();
+      return null;
+    }
+
+    return current;
+  }
+
+  getValidAccessToken(): string | null {
+    return this.getValidSession()?.accessToken ?? null;
+  }
+
   hasRole(role: AuthRole): boolean {
-    return this.sessionState()?.role === role;
+    return this.getValidSession()?.role === role;
   }
 
   private readStoredSession(): LoginResponse | null {
