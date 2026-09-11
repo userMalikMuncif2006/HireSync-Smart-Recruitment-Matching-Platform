@@ -1,0 +1,146 @@
+<section class="profile-page">
+  <header>
+    <p class="eyebrow">Employer</p>
+    <h1>Company profile</h1>
+    <p>
+      Keep your company information complete and current before
+      publishing vacancies.
+    </p>
+  </header>
+
+  @if (isLoading()) {
+    <p class="state-message">Loading company profile...</p>
+  } @else if (errorMessage() && !profile()) {
+    <div class="state-message error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="loadProfile()">Try again</button>
+    </div>
+  } @else {
+    @if (profile(); as currentProfile) {
+    <div class="summary">
+      <div>
+        <span>Business email</span>
+        <strong>{{ currentProfile.businessEmail }}</strong>
+      </div>
+
+      <div>
+        <span>Verification</span>
+        <strong>{{ verificationStatusLabel() }}</strong>
+      </div>
+
+      <div>
+        <span>Profile complete</span>
+        <strong>
+          {{ currentProfile.isProfileComplete ? 'Yes' : 'No' }}
+        </strong>
+      </div>
+
+      <div>
+        <span>Vacancy ready</span>
+        <strong>
+          {{ currentProfile.isVacancyReady ? 'Yes' : 'No' }}
+        </strong>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <div class="field">
+        <label for="companyName">Company name</label>
+        <input
+          id="companyName"
+          type="text"
+          formControlName="companyName"
+        />
+      </div>
+
+      <div class="field">
+        <label for="description">Company description</label>
+        <textarea
+          id="description"
+          rows="6"
+          formControlName="description"
+        ></textarea>
+      </div>
+
+      <div class="field">
+        <label for="location">Location</label>
+        <input
+          id="location"
+          type="text"
+          formControlName="location"
+        />
+      </div>
+
+      <div class="field">
+        <label for="contactPersonName">Contact person name</label>
+        <input
+          id="contactPersonName"
+          type="text"
+          formControlName="contactPersonName"
+        />
+      </div>
+
+      <div class="field">
+        <label for="contactPersonDesignation">
+          Contact person designation
+        </label>
+        <input
+          id="contactPersonDesignation"
+          type="text"
+          formControlName="contactPersonDesignation"
+        />
+      </div>
+
+      <div class="field">
+        <label for="businessRegistrationNumber">
+          Business registration number
+        </label>
+        <input
+          id="businessRegistrationNumber"
+          type="text"
+          formControlName="businessRegistrationNumber"
+        />
+      </div>
+
+      <div class="field">
+        <label for="mobileNumber">Mobile number</label>
+        <input
+          id="mobileNumber"
+          type="text"
+          formControlName="mobileNumber"
+        />
+      </div>
+
+      <div class="field">
+        <label for="companyWebsite">Company website</label>
+        <input
+          id="companyWebsite"
+          type="url"
+          formControlName="companyWebsite"
+          placeholder="https://example.com"
+        />
+      </div>
+
+      @if (errorMessage()) {
+        <p class="form-message error" role="alert">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      @if (successMessage()) {
+        <p class="form-message success">
+          {{ successMessage() }}
+        </p>
+      }
+
+      <button
+        class="save-button"
+        type="submit"
+        [disabled]="isSaving()"
+      >
+        {{ isSaving() ? 'Saving...' : 'Save profile' }}
+      </button>
+    </form>
+    }
+  }
+</section>
