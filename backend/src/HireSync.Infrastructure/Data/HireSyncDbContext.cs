@@ -39,6 +39,15 @@ public class HireSyncDbContext
     public DbSet<VacancySkill> VacancySkills =>
         Set<VacancySkill>();
 
+    public DbSet<JobApplication> JobApplications =>
+        Set<JobApplication>();
+
+    public DbSet<Notification> Notifications =>
+        Set<Notification>();
+
+    public DbSet<ContactRequest> ContactRequests =>
+        Set<ContactRequest>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -60,6 +69,15 @@ public class HireSyncDbContext
 
         builder.ApplyConfiguration(
             new VacancySkillConfiguration());
+
+        builder.ApplyConfiguration(
+            new JobApplicationConfiguration());
+
+        builder.ApplyConfiguration(
+            new NotificationConfiguration());
+
+        builder.ApplyConfiguration(
+            new ContactRequestConfiguration());
 
         builder.Entity<ApplicationUser>(entity =>
         {
