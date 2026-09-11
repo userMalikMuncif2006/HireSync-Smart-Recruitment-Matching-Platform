@@ -4,6 +4,11 @@ namespace HireSync.Application.Interfaces.Employer;
 
 public interface IVacancyService
 {
+    Task<VacancyCreateResult> CreateOwnVacancyAsync(
+        Guid employerUserId,
+        CreateVacancyRequest request,
+        CancellationToken cancellationToken = default);
+
     Task<VacancyStatusUpdateResult> UpdateOwnVacancyStatusAsync(
         Guid employerUserId,
         Guid vacancyId,

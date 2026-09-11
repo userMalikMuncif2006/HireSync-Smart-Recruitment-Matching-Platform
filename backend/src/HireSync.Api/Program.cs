@@ -136,6 +136,7 @@ builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<IAdministratorActivationCompleter, AdministratorActivationCompleter>();
 builder.Services.AddScoped<IEmployerVerificationAdminService, EmployerVerificationAdminService>();
 builder.Services.AddScoped<IEmployerProfileService, EmployerProfileService>();
+builder.Services.AddScoped<IVacancyService, VacancyService>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RegistrationService>();

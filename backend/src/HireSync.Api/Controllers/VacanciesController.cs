@@ -19,6 +19,81 @@ public sealed class VacanciesController : ControllerBase
         _vacancyService = vacancyService;
     }
 
+    [HttpPost]
+    [ProducesResponseType(
+        typeof(VacancyDto),
+        StatusCodes.Status201Created)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<VacancyDto>>
+        CreateOwnVacancy(
+            [FromBody] CreateVacancyRequest request,
+            CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var employerUserId))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Invalid authenticated user",
+                detail: "The authenticated user identifier is invalid.");
+        }
+
+        var result =
+            await _vacancyService.CreateOwnVacancyAsync(
+                employerUserId,
+                request,
+                cancellationToken);
+
+        if (result.Succeeded)
+        {
+            return Created(
+                $"/api/v1/employer/vacancies/{result.Vacancy!.Id}",
+                result.Vacancy);
+        }
+
+        return result.FailureReason switch
+        {
+            VacancyCreateFailureReason.InvalidInput =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid vacancy",
+                    detail: "The submitted vacancy data is invalid."),
+
+            VacancyCreateFailureReason.InvalidRequiredSkills =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid required skills",
+                    detail: "One or more required skills are invalid."),
+
+            VacancyCreateFailureReason.EmployerNotReady =>
+                Problem(
+                    statusCode: StatusCodes.Status403Forbidden,
+                    title: "Employer is not ready to create vacancies",
+                    detail: "The Employer account and company profile must be eligible before creating a vacancy."),
+
+            VacancyCreateFailureReason.PersistenceFailed =>
+                Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Vacancy creation failed",
+                    detail: "The vacancy could not be saved."),
+
+            _ =>
+                Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Vacancy creation failed")
+        };
+    }
+
     [HttpPatch("{vacancyId:guid}/status")]
     [ProducesResponseType(
         typeof(VacancyStatusDto),

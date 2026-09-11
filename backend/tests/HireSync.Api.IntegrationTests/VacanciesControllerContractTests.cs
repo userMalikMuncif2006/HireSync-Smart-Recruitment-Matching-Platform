@@ -389,6 +389,16 @@ public class VacanciesControllerContractTests
 
         public UpdateVacancyStatusRequest? LastRequest { get; private set; }
 
+        public Task<VacancyCreateResult> CreateOwnVacancyAsync(
+            Guid employerUserId,
+            CreateVacancyRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(
+                VacancyCreateResult.Failure(
+                    VacancyCreateFailureReason.InvalidInput));
+        }
+
         public Task<VacancyStatusUpdateResult>
             UpdateOwnVacancyStatusAsync(
                 Guid employerUserId,
