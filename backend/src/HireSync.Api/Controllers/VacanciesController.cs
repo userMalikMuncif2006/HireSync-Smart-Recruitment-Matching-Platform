@@ -1,5 +1,6 @@
 using HireSync.Application.DTOs.Vacancy;
 using HireSync.Application.Interfaces.Employer;
+using HireSync.Application.Rules;
 using HireSync.Application.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,103 @@ public sealed class VacanciesController : ControllerBase
         IVacancyService vacancyService)
     {
         _vacancyService = vacancyService;
+    }
+
+    [HttpGet]
+    [ProducesResponseType(
+        typeof(EmployerVacancyPageDto),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EmployerVacancyPageDto>>
+        GetOwnVacancies(
+            [FromQuery] EmployerVacancyListRequest request,
+            CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var employerUserId))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Invalid authenticated user",
+                detail: "The authenticated user identifier is invalid.");
+        }
+
+        if (!EmployerVacancyListRules.IsValid(request))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid vacancy list request",
+                detail: "The submitted paging or status filter is invalid.");
+        }
+
+        var result =
+            await _vacancyService.GetOwnVacanciesAsync(
+                employerUserId,
+                request,
+                cancellationToken);
+
+        if (result is null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Employer vacancy context not found",
+                detail: "The Employer profile could not be found.");
+        }
+
+        return Ok(result);
+    }
+
+    [HttpGet("{vacancyId:guid}")]
+    [ProducesResponseType(
+        typeof(VacancyDto),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<VacancyDto>>
+        GetOwnVacancy(
+            [FromRoute] Guid vacancyId,
+            CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var employerUserId))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Invalid authenticated user",
+                detail: "The authenticated user identifier is invalid.");
+        }
+
+        var result =
+            await _vacancyService.GetOwnVacancyAsync(
+                employerUserId,
+                vacancyId,
+                cancellationToken);
+
+        if (result is null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Vacancy not found",
+                detail: "The vacancy could not be found.");
+        }
+
+        return Ok(result);
     }
 
     [HttpPost]
@@ -91,6 +189,99 @@ public sealed class VacanciesController : ControllerBase
                 Problem(
                     statusCode: StatusCodes.Status500InternalServerError,
                     title: "Vacancy creation failed")
+        };
+    }
+
+    [HttpPut("{vacancyId:guid}")]
+    [ProducesResponseType(
+        typeof(VacancyDto),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status404NotFound)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status409Conflict)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<VacancyDto>>
+        UpdateOwnVacancy(
+            [FromRoute] Guid vacancyId,
+            [FromBody] UpdateVacancyRequest request,
+            CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var employerUserId))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Invalid authenticated user",
+                detail: "The authenticated user identifier is invalid.");
+        }
+
+        var result =
+            await _vacancyService.UpdateOwnVacancyAsync(
+                employerUserId,
+                vacancyId,
+                request,
+                cancellationToken);
+
+        if (result.Succeeded)
+        {
+            return Ok(result.Vacancy);
+        }
+
+        return result.FailureReason switch
+        {
+            VacancyUpdateFailureReason.InvalidInput =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid vacancy update",
+                    detail: "The submitted vacancy update is invalid."),
+
+            VacancyUpdateFailureReason.InvalidRequiredSkills =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid required skills",
+                    detail: "One or more required skills are invalid."),
+
+            VacancyUpdateFailureReason.NotFound =>
+                Problem(
+                    statusCode: StatusCodes.Status404NotFound,
+                    title: "Vacancy not found",
+                    detail: "The vacancy could not be found."),
+
+            VacancyUpdateFailureReason.Closed =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Vacancy is closed",
+                    detail: "A Closed vacancy is read-only and cannot be updated."),
+
+            VacancyUpdateFailureReason.ConcurrencyConflict =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Vacancy was modified",
+                    detail: "The vacancy has changed since it was loaded. Reload it and try again."),
+
+            VacancyUpdateFailureReason.PersistenceFailed =>
+                Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Vacancy update failed",
+                    detail: "The vacancy could not be saved."),
+
+            _ =>
+                Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Vacancy update failed")
         };
     }
 

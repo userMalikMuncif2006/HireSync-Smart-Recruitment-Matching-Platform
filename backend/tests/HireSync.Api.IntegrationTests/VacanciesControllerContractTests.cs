@@ -389,6 +389,33 @@ public class VacanciesControllerContractTests
 
         public UpdateVacancyStatusRequest? LastRequest { get; private set; }
 
+        public Task<EmployerVacancyPageDto?> GetOwnVacanciesAsync(
+            Guid employerUserId,
+            EmployerVacancyListRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<EmployerVacancyPageDto?>(null);
+        }
+
+        public Task<VacancyDto?> GetOwnVacancyAsync(
+            Guid employerUserId,
+            Guid vacancyId,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<VacancyDto?>(null);
+        }
+
+        public Task<VacancyUpdateResult> UpdateOwnVacancyAsync(
+            Guid employerUserId,
+            Guid vacancyId,
+            UpdateVacancyRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(
+                VacancyUpdateResult.Failure(
+                    VacancyUpdateFailureReason.NotFound));
+        }
+
         public Task<VacancyCreateResult> CreateOwnVacancyAsync(
             Guid employerUserId,
             CreateVacancyRequest request,
