@@ -3,12 +3,13 @@ using HireSync.Application.Interfaces.Vacancy;
 using HireSync.Application.Rules;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using HireSync.Application.Security;
 
 namespace HireSync.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/vacancies")]
-[AllowAnonymous]
+[Authorize(Roles = RoleNames.JobSeeker)]
 public sealed class PublicVacanciesController : ControllerBase
 {
     private readonly IVacancySearchService _vacancySearchService;

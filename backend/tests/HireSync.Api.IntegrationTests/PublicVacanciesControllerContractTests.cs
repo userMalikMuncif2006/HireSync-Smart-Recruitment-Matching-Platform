@@ -1,6 +1,7 @@
 using HireSync.Api.Controllers;
 using HireSync.Application.DTOs.Vacancy;
 using HireSync.Application.Interfaces.Vacancy;
+using HireSync.Application.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,19 +11,20 @@ namespace HireSync.Api.IntegrationTests;
 public sealed class PublicVacanciesControllerContractTests
 {
     [Fact]
-    public void Controller_allows_anonymous_access()
+    public void Controller_requires_JobSeeker_role()
     {
         var attribute =
             typeof(PublicVacanciesController)
                 .GetCustomAttributes(
-                    typeof(AllowAnonymousAttribute),
+                    typeof(AuthorizeAttribute),
                     inherit: true)
-                .Cast<AllowAnonymousAttribute>()
+                .Cast<AuthorizeAttribute>()
                 .Single();
 
-        Assert.NotNull(attribute);
+        Assert.Equal(
+            RoleNames.JobSeeker,
+            attribute.Roles);
     }
-
     [Fact]
     public void Controller_uses_public_vacancy_route()
     {
