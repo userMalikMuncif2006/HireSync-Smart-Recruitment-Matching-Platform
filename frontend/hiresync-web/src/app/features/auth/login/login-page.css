@@ -1,0 +1,148 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.login-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(15, 118, 110, 0.12),
+      transparent 36%
+    ),
+    #f7faf9;
+  box-sizing: border-box;
+}
+
+.login-card {
+  width: min(100%, 28rem);
+  padding: 2rem;
+  border: 1px solid #dbe7e3;
+  border-radius: 1.25rem;
+  background: #ffffff;
+  box-shadow:
+    0 20px 45px rgba(15, 23, 42, 0.08);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.brand-mark {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.8rem;
+  background: linear-gradient(
+    135deg,
+    #0f766e,
+    #059669
+  );
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.15rem;
+  color: #0f766e;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: #10231f;
+  font-size: 1.7rem;
+}
+
+.intro {
+  margin: 1rem 0 1.5rem;
+  color: #52645f;
+  line-height: 1.55;
+}
+
+form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+label {
+  color: #263b35;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+input {
+  width: 100%;
+  min-height: 2.8rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #c7d6d1;
+  border-radius: 0.65rem;
+  background: #ffffff;
+  color: #10231f;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: 3px solid rgba(15, 118, 110, 0.13);
+  border-color: #0f766e;
+}
+
+.validation-message,
+.error-message {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.83rem;
+}
+
+.error-message {
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  background: #fff1f0;
+}
+
+.submit-button {
+  min-height: 2.9rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: #0f766e;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #115e59;
+}
+
+.submit-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: 1rem;
+  }
+
+  .login-card {
+    padding: 1.4rem;
+  }
+}
