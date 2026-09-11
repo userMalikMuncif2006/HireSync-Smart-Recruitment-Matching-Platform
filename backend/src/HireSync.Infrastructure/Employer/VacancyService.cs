@@ -108,7 +108,7 @@ public sealed class VacancyService : IVacancyService
             return VacancyCreateResult.Failure(
                 VacancyCreateFailureReason.InvalidInput);
         }
-        
+
 
         _dbContext.Vacancies.Add(vacancy);
 
