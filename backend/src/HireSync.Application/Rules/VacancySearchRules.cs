@@ -42,6 +42,10 @@ public static class VacancySearchRules
     public static bool IsValidSort(VacancySearchSort sort) =>
         Enum.IsDefined(sort);
 
+    public static bool IsBasicSearchSortSupported(
+        VacancySearchSort sort) =>
+        sort == VacancySearchSort.Newest;
+
     public static bool IsValid(SearchVacanciesRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);

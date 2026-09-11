@@ -137,6 +137,9 @@ builder.Services.AddScoped<IAdministratorActivationCompleter, AdministratorActiv
 builder.Services.AddScoped<IEmployerVerificationAdminService, EmployerVerificationAdminService>();
 builder.Services.AddScoped<IEmployerProfileService, EmployerProfileService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
+builder.Services.AddScoped<
+    HireSync.Application.Interfaces.Vacancy.IVacancySearchService,
+    HireSync.Infrastructure.Search.VacancySearchService>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RegistrationService>();
