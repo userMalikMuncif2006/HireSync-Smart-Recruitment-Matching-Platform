@@ -1,4 +1,5 @@
 using HireSync.Application.DTOs.Auth;
+using HireSync.Application.Interfaces.Identity;
 using HireSync.Application.Interfaces.Otp;
 using HireSync.Application.Services;
 using HireSync.Domain.Enums;
@@ -15,6 +16,7 @@ public sealed class AuthController : ControllerBase
     private readonly RegistrationService _registrationService;
     private readonly EmployerRegistrationService _employerRegistrationService;
     private readonly IEmailOtpService _emailOtpService;
+    private readonly IEmployerEmailVerificationService _employerEmailVerificationService;
     private readonly AdministratorActivationService _administratorActivationService;
 
     public AuthController(
@@ -22,12 +24,14 @@ public sealed class AuthController : ControllerBase
         RegistrationService registrationService,
         EmployerRegistrationService employerRegistrationService,
         IEmailOtpService emailOtpService,
+        IEmployerEmailVerificationService employerEmailVerificationService,
         AdministratorActivationService administratorActivationService)
     {
         _authService = authService;
         _registrationService = registrationService;
         _employerRegistrationService = employerRegistrationService;
         _emailOtpService = emailOtpService;
+        _employerEmailVerificationService = employerEmailVerificationService;
         _administratorActivationService = administratorActivationService;
     }
 
@@ -60,6 +64,11 @@ public sealed class AuthController : ControllerBase
                 statusCode: StatusCodes.Status403Forbidden,
                 title: "Administrator activation required",
                 detail: "This Administrator account must complete first activation before signing in."),
+
+            LoginFailureReason.EmployerEmailVerificationRequired => Problem(
+                statusCode: StatusCodes.Status403Forbidden,
+                title: "Employer email verification required",
+                detail: "This Employer account must verify its email before signing in."),
 
             _ => Problem(
                 statusCode: StatusCodes.Status401Unauthorized,
@@ -117,28 +126,34 @@ public sealed class AuthController : ControllerBase
     }
     [AllowAnonymous]
     [HttpPost("employer/otp/verify")]
-    [ProducesResponseType(typeof(OtpVerificationResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
-    public async Task<ActionResult<OtpVerificationResult>> VerifyEmployerOtp(
-        [FromBody] EmployerOtpVerifyRequest request,
-        CancellationToken cancellationToken)
+    [ProducesResponseType(
+        typeof(EmployerEmailVerificationResult),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status409Conflict)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<EmployerEmailVerificationResult>>
+        VerifyEmployerOtp(
+            [FromBody] EmployerOtpVerifyRequest request,
+            CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Email) ||
-            string.IsNullOrWhiteSpace(request.Code))
-        {
-            return Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: "Invalid OTP verification request",
-                detail: "Email and verification code are required.");
-        }
-
-        var result = await _emailOtpService.VerifyAsync(
-            request.Email,
-            EmailOtpPurpose.EmployerRegistration,
-            request.Code,
-            cancellationToken);
+        var result =
+            await _employerEmailVerificationService.VerifyAsync(
+                request.Email,
+                request.Code,
+                cancellationToken);
 
         if (result.Succeeded)
         {
@@ -147,28 +162,61 @@ public sealed class AuthController : ControllerBase
 
         return result.FailureReason switch
         {
-            OtpVerificationFailureReason.AlreadyUsed => Problem(
-                statusCode: StatusCodes.Status409Conflict,
-                title: "Verification code already used",
-                detail: "This verification code has already been consumed."),
+            EmployerEmailVerificationFailureReason.Suspended =>
+                Problem(
+                    statusCode: StatusCodes.Status403Forbidden,
+                    title: "Employer account suspended",
+                    detail: "This Employer account is currently suspended."),
 
-            OtpVerificationFailureReason.AttemptsExceeded => Problem(
-                statusCode: StatusCodes.Status429TooManyRequests,
-                title: "Verification attempt limit reached",
-                detail: "The maximum number of verification attempts has been reached."),
+            EmployerEmailVerificationFailureReason.AlreadyVerified =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Employer email already verified",
+                    detail: "This Employer email has already been verified."),
 
-            OtpVerificationFailureReason.Expired => Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: "Verification code expired",
-                detail: "The verification code has expired."),
+            EmployerEmailVerificationFailureReason.AlreadyUsed =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Verification code already used",
+                    detail: "This verification code has already been consumed."),
 
-            _ => Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: "Invalid verification code",
-                detail: "The verification code is invalid.")
+            EmployerEmailVerificationFailureReason.AttemptsExceeded =>
+                Problem(
+                    statusCode: StatusCodes.Status429TooManyRequests,
+                    title: "Verification attempt limit reached",
+                    detail: "The maximum number of verification attempts has been reached."),
+
+            EmployerEmailVerificationFailureReason.Expired =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Verification code expired",
+                    detail: "The verification code has expired."),
+
+            EmployerEmailVerificationFailureReason.PersistenceFailed =>
+                Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Employer email verification failed",
+                    detail: "The Employer email verification could not be saved."),
+
+            EmployerEmailVerificationFailureReason.InvalidAccount =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid Employer account",
+                    detail: "A valid registered Employer account is required."),
+
+            EmployerEmailVerificationFailureReason.InvalidRequest =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid OTP verification request",
+                    detail: "Email and verification code are required."),
+
+            _ =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid verification code",
+                    detail: "The verification code is invalid.")
         };
     }
-
     [AllowAnonymous]
     [HttpPost("admin/activation/otp/request")]
     [ProducesResponseType(typeof(AdministratorActivationRequestResult), StatusCodes.Status200OK)]

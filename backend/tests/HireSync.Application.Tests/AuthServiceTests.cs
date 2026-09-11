@@ -140,7 +140,7 @@ public class AuthServiceTests
     }
 
     [Fact]
-    public async Task LoginAsync_does_not_apply_admin_activation_gate_to_employer()
+    public async Task LoginAsync_rejects_unverified_employer()
     {
         var identityService = new FakeIdentityService(
             new AuthenticatedIdentity(
@@ -160,7 +160,40 @@ public class AuthServiceTests
                 "employer@example.com",
                 "ValidPassword123!"));
 
+        Assert.False(result.Succeeded);
+
+        Assert.Equal(
+            LoginFailureReason.EmployerEmailVerificationRequired,
+            result.FailureReason);
+    }
+
+    [Fact]
+    public async Task LoginAsync_allows_verified_employer()
+    {
+        var identityService = new FakeIdentityService(
+            new AuthenticatedIdentity(
+                Guid.NewGuid(),
+                "employer@example.com",
+                RoleNames.Employer,
+                1,
+                AccountStatus.Active,
+                true));
+
+        var service = new AuthService(
+            identityService,
+            new FakeTokenService());
+
+        var result = await service.LoginAsync(
+            new LoginRequest(
+                "employer@example.com",
+                "ValidPassword123!"));
+
         Assert.True(result.Succeeded);
+        Assert.NotNull(result.Response);
+
+        Assert.Equal(
+            RoleNames.Employer,
+            result.Response.Role);
     }
     private sealed class FakeIdentityService(
         AuthenticatedIdentity? identity)

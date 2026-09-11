@@ -131,6 +131,9 @@ builder.Services.AddSingleton<IEmailOtpCodeHasher, HmacEmailOtpCodeHasher>();
 builder.Services.AddSingleton<IEmailOtpCodeGenerator, SecureEmailOtpCodeGenerator>();
 builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IEmailOtpChallengeStore, EmailOtpChallengeStore>();
+builder.Services.AddScoped<
+    IEmployerEmailVerificationService,
+    EmployerEmailVerificationService>();
 builder.Services.AddScoped<IAccessTokenStateValidator, AccessTokenStateValidator>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<
