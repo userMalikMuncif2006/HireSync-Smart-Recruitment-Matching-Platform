@@ -151,6 +151,7 @@ builder.Services.AddScoped<
     HireSync.Infrastructure.Search.VacancySearchService>();
 builder.Services.AddSingleton<IMatchEngine, MatchEngine>();
 builder.Services.AddScoped<IJobMatchService, JobMatchService>();
+builder.Services.AddScoped<HireSync.Application.Interfaces.Applications.IApplicationStatusService, HireSync.Infrastructure.Applications.ApplicationStatusService>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RegistrationService>();
