@@ -227,6 +227,88 @@ namespace HireSync.Infrastructure.Data.Migrations
                     b.ToTable("Skills", (string)null);
                 });
 
+            modelBuilder.Entity("HireSync.Domain.Entities.Vacancy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ClosedAtUtc")
+                        .HasPrecision(3)
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("EmployerProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("MinimumExperienceMonths")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NormalizedLocation")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("PublishedAtUtc")
+                        .HasPrecision(3)
+                        .HasColumnType("datetime2(3)");
+
+                    b.Property<byte?>("RequiredEducationLevel")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<byte>("Status")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasPrecision(3)
+                        .HasColumnType("datetime2(3)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployerProfileId");
+
+                    b.HasIndex("NormalizedLocation");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("Vacancies", (string)null);
+                });
+
+            modelBuilder.Entity("HireSync.Domain.Entities.VacancySkill", b =>
+                {
+                    b.Property<Guid>("VacancyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SkillId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("VacancyId", "SkillId");
+
+                    b.HasIndex("SkillId");
+
+                    b.ToTable("VacancySkills", (string)null);
+                });
+
             modelBuilder.Entity("HireSync.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -508,6 +590,30 @@ namespace HireSync.Infrastructure.Data.Migrations
                     b.HasOne("HireSync.Domain.Entities.Skill", null)
                         .WithMany()
                         .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HireSync.Domain.Entities.Vacancy", b =>
+                {
+                    b.HasOne("HireSync.Domain.Entities.EmployerProfile", null)
+                        .WithMany()
+                        .HasForeignKey("EmployerProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HireSync.Domain.Entities.VacancySkill", b =>
+                {
+                    b.HasOne("HireSync.Domain.Entities.Skill", null)
+                        .WithMany()
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HireSync.Domain.Entities.Vacancy", null)
+                        .WithMany()
+                        .HasForeignKey("VacancyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

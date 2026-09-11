@@ -12,7 +12,8 @@ public class VacancySearchRulesTests
     [InlineData("developer")]
     public void IsValidQuery_ReturnsTrue_ForValidValues(string? query)
     {
-        Assert.True(VacancySearchRules.IsValidQuery(query));
+        Assert.True(
+            VacancySearchRules.IsValidQuery(query));
     }
 
     [Fact]
@@ -107,21 +108,39 @@ public class VacancySearchRulesTests
     [Fact]
     public void IsValidSort_ReturnsFalse_ForUnknownValue()
     {
-        var unknown = (VacancySearchSort)99;
+        var unknown =
+            (VacancySearchSort)99;
 
         Assert.False(
             VacancySearchRules.IsValidSort(unknown));
     }
 
     [Fact]
+    public void IsBasicSearchSortSupported_ReturnsTrue_ForNewest()
+    {
+        Assert.True(
+            VacancySearchRules.IsBasicSearchSortSupported(
+                VacancySearchSort.Newest));
+    }
+
+    [Fact]
+    public void IsBasicSearchSortSupported_ReturnsFalse_ForMatch()
+    {
+        Assert.False(
+            VacancySearchRules.IsBasicSearchSortSupported(
+                VacancySearchSort.Match));
+    }
+
+    [Fact]
     public void IsValid_ReturnsTrue_ForValidRequest()
     {
-        var request = new SearchVacanciesRequest(
-            Q: "developer",
-            Location: "Colombo",
-            Sort: VacancySearchSort.Newest,
-            Page: 1,
-            PageSize: 20);
+        var request =
+            new SearchVacanciesRequest(
+                Q: "developer",
+                Location: "Colombo",
+                Sort: VacancySearchSort.Newest,
+                Page: 1,
+                PageSize: 20);
 
         Assert.True(
             VacancySearchRules.IsValid(request));
@@ -130,12 +149,13 @@ public class VacancySearchRulesTests
     [Fact]
     public void IsValid_ReturnsFalse_ForInvalidRequest()
     {
-        var request = new SearchVacanciesRequest(
-            Q: "developer",
-            Location: "Colombo",
-            Sort: VacancySearchSort.Newest,
-            Page: 0,
-            PageSize: 20);
+        var request =
+            new SearchVacanciesRequest(
+                Q: "developer",
+                Location: "Colombo",
+                Sort: VacancySearchSort.Newest,
+                Page: 0,
+                PageSize: 20);
 
         Assert.False(
             VacancySearchRules.IsValid(request));

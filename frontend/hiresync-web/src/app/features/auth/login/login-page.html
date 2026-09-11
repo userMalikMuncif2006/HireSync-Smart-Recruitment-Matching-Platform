@@ -1,0 +1,89 @@
+<main class="login-page">
+  <section class="login-card">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">H</span>
+
+      <div>
+        <p class="eyebrow">HireSync</p>
+        <h1>Welcome back</h1>
+      </div>
+    </div>
+
+    <p class="intro">
+      Sign in to continue to your recruitment workspace.
+    </p>
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      novalidate
+    >
+      <div class="field">
+        <label for="email">Email address</label>
+
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          placeholder="you@example.com"
+        />
+
+        @if (
+          form.controls.email.touched &&
+          form.controls.email.hasError('required')
+        ) {
+          <p class="validation-message">
+            Email is required.
+          </p>
+        } @else if (
+          form.controls.email.touched &&
+          form.controls.email.hasError('email')
+        ) {
+          <p class="validation-message">
+            Enter a valid email address.
+          </p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          placeholder="Enter your password"
+        />
+
+        @if (
+          form.controls.password.touched &&
+          form.controls.password.hasError('required')
+        ) {
+          <p class="validation-message">
+            Password is required.
+          </p>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <p class="error-message" role="alert">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      <button
+        class="submit-button"
+        type="submit"
+        [disabled]="isSubmitting()"
+      >
+        {{
+          isSubmitting()
+            ? 'Signing in...'
+            : 'Sign in'
+        }}
+      </button>
+    </form>
+  </section>
+</main>

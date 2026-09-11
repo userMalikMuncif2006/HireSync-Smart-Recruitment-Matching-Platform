@@ -8,6 +8,8 @@ using HireSync.Application.Interfaces.Persistence;
 using HireSync.Application.Interfaces.Security;
 using HireSync.Application.Interfaces.Time;
 using HireSync.Application.Services;
+using HireSync.Application.Interfaces.Employer;
+using HireSync.Infrastructure.Employer;
 using HireSync.Infrastructure.Data;
 using HireSync.Infrastructure.Email;
 using HireSync.Infrastructure.Otp;
@@ -132,6 +134,12 @@ builder.Services.AddScoped<IEmailOtpChallengeStore, EmailOtpChallengeStore>();
 builder.Services.AddScoped<IAccessTokenStateValidator, AccessTokenStateValidator>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<IAdministratorActivationCompleter, AdministratorActivationCompleter>();
+builder.Services.AddScoped<IEmployerVerificationAdminService, EmployerVerificationAdminService>();
+builder.Services.AddScoped<IEmployerProfileService, EmployerProfileService>();
+builder.Services.AddScoped<IVacancyService, VacancyService>();
+builder.Services.AddScoped<
+    HireSync.Application.Interfaces.Vacancy.IVacancySearchService,
+    HireSync.Infrastructure.Search.VacancySearchService>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RegistrationService>();
