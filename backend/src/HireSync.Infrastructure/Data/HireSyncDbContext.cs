@@ -21,6 +21,9 @@ public class HireSyncDbContext
     public DbSet<EmailOtpChallenge> EmailOtpChallenges =>
         Set<EmailOtpChallenge>();
 
+    public DbSet<EmployerProfile> EmployerProfiles =>
+        Set<EmployerProfile>();
+
     public DbSet<Skill> Skills =>
         Set<Skill>();
 
@@ -33,6 +36,9 @@ public class HireSyncDbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.ApplyConfiguration(
+            new EmployerProfileConfiguration());
 
         builder.ApplyConfiguration(new SkillConfiguration());
         builder.ApplyConfiguration(new JobSeekerProfileConfiguration());
