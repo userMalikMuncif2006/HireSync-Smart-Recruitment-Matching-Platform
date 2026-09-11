@@ -33,6 +33,12 @@ public class HireSyncDbContext
     public DbSet<JobSeekerSkill> JobSeekerSkills =>
         Set<JobSeekerSkill>();
 
+    public DbSet<Vacancy> Vacancies =>
+        Set<Vacancy>();
+
+    public DbSet<VacancySkill> VacancySkills =>
+        Set<VacancySkill>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -40,9 +46,20 @@ public class HireSyncDbContext
         builder.ApplyConfiguration(
             new EmployerProfileConfiguration());
 
-        builder.ApplyConfiguration(new SkillConfiguration());
-        builder.ApplyConfiguration(new JobSeekerProfileConfiguration());
-        builder.ApplyConfiguration(new JobSeekerSkillConfiguration());
+        builder.ApplyConfiguration(
+            new SkillConfiguration());
+
+        builder.ApplyConfiguration(
+            new JobSeekerProfileConfiguration());
+
+        builder.ApplyConfiguration(
+            new JobSeekerSkillConfiguration());
+
+        builder.ApplyConfiguration(
+            new VacancyConfiguration());
+
+        builder.ApplyConfiguration(
+            new VacancySkillConfiguration());
 
         builder.Entity<ApplicationUser>(entity =>
         {
@@ -116,21 +133,24 @@ public class HireSyncDbContext
                 Id = IdentitySeedIds.JobSeekerRoleId,
                 Name = RoleNames.JobSeeker,
                 NormalizedName = "JOBSEEKER",
-                ConcurrencyStamp = "20000000-0000-0000-0000-000000000001"
+                ConcurrencyStamp =
+                    "20000000-0000-0000-0000-000000000001"
             },
             new IdentityRole<Guid>
             {
                 Id = IdentitySeedIds.EmployerRoleId,
                 Name = RoleNames.Employer,
                 NormalizedName = "EMPLOYER",
-                ConcurrencyStamp = "20000000-0000-0000-0000-000000000002"
+                ConcurrencyStamp =
+                    "20000000-0000-0000-0000-000000000002"
             },
             new IdentityRole<Guid>
             {
                 Id = IdentitySeedIds.AdministratorRoleId,
                 Name = RoleNames.Administrator,
                 NormalizedName = "ADMINISTRATOR",
-                ConcurrencyStamp = "20000000-0000-0000-0000-000000000003"
+                ConcurrencyStamp =
+                    "20000000-0000-0000-0000-000000000003"
             });
     }
 }
