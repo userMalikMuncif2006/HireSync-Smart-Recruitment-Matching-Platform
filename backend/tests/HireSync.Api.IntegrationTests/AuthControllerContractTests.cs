@@ -144,6 +144,173 @@ public class AuthControllerContractTests
     }
 
     [Fact]
+    public async Task RegisterEmployer_returns_201_for_success()
+    {
+        var userId = Guid.NewGuid();
+        var profileId = Guid.NewGuid();
+
+        var controller = CreateController(
+            identity: null,
+            employerRegistrationResult:
+                EmployerRegistrationResult.Success(
+                    new RegisterEmployerResponse(
+                        userId,
+                        profileId,
+                        "employer@example.com",
+                        RoleNames.Employer,
+                        EmployerVerificationStatus.Pending)));
+
+        var result =
+            await controller.RegisterEmployer(
+                CreateValidEmployerRegistrationRequest(),
+                CancellationToken.None);
+
+        var created =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        var response =
+            Assert.IsType<RegisterEmployerResponse>(
+                created.Value);
+
+        Assert.Equal(201, created.StatusCode);
+        Assert.Equal(userId, response.UserId);
+        Assert.Equal(profileId, response.EmployerProfileId);
+        Assert.Equal(RoleNames.Employer, response.Role);
+
+        Assert.Equal(
+            EmployerVerificationStatus.Pending,
+            response.EmployerVerificationStatus);
+    }
+
+    [Fact]
+    public async Task RegisterEmployer_returns_400_for_invalid_input()
+    {
+        var controller =
+            CreateController(identity: null);
+
+        var request =
+            CreateValidEmployerRegistrationRequest() with
+            {
+                CompanyName = "A"
+            };
+
+        var result =
+            await controller.RegisterEmployer(
+                request,
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(400, problem.StatusCode);
+    }
+
+    [Fact]
+    public async Task RegisterEmployer_returns_409_for_duplicate_email()
+    {
+        var controller = CreateController(
+            identity: null,
+            employerRegistrationResult:
+                EmployerRegistrationResult.Failure(
+                    EmployerRegistrationFailureReason
+                        .EmailAlreadyExists));
+
+        var result =
+            await controller.RegisterEmployer(
+                CreateValidEmployerRegistrationRequest(),
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(409, problem.StatusCode);
+    }
+
+    [Fact]
+    public async Task RegisterEmployer_returns_409_for_duplicate_brn()
+    {
+        var controller = CreateController(
+            identity: null,
+            employerRegistrationResult:
+                EmployerRegistrationResult.Failure(
+                    EmployerRegistrationFailureReason
+                        .DuplicateBusinessRegistrationNumber));
+
+        var result =
+            await controller.RegisterEmployer(
+                CreateValidEmployerRegistrationRequest(),
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(409, problem.StatusCode);
+    }
+
+    [Fact]
+    public async Task RegisterEmployer_returns_400_for_identity_validation_failure()
+    {
+        var controller = CreateController(
+            identity: null,
+            employerRegistrationResult:
+                EmployerRegistrationResult.Failure(
+                    EmployerRegistrationFailureReason
+                        .IdentityValidationFailed));
+
+        var result =
+            await controller.RegisterEmployer(
+                CreateValidEmployerRegistrationRequest(),
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(400, problem.StatusCode);
+    }
+
+    [Fact]
+    public async Task RegisterEmployer_returns_500_for_persistence_failure()
+    {
+        var controller = CreateController(
+            identity: null,
+            employerRegistrationResult:
+                EmployerRegistrationResult.Failure(
+                    EmployerRegistrationFailureReason
+                        .PersistenceFailed));
+
+        var result =
+            await controller.RegisterEmployer(
+                CreateValidEmployerRegistrationRequest(),
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(500, problem.StatusCode);
+    }
+
+    private static RegisterEmployerRequest
+        CreateValidEmployerRegistrationRequest()
+    {
+        return new RegisterEmployerRequest(
+            "employer@example.com",
+            "ValidPassword123!",
+            "Example Holdings",
+            "A complete Employer organisation profile description.",
+            "Colombo",
+            "Test Contact",
+            "HR Manager",
+            "PV 12345",
+            "0771234567",
+            "https://example.com");
+    }
+    [Fact]
     public async Task RequestEmployerOtp_returns_200_and_uses_employer_registration_purpose()
     {
         var otpService = new FakeEmailOtpService();
@@ -691,7 +858,8 @@ public class AuthControllerContractTests
         AuthenticatedIdentity? identity,
         IdentityUserCreationResult? creationResult = null,
         FakeEmailOtpService? otpService = null,
-        FakeAdministratorActivationCompleter? activationCompleter = null)
+        FakeAdministratorActivationCompleter? activationCompleter = null,
+        EmployerRegistrationResult? employerRegistrationResult = null)
     {
         var identityService = new FakeIdentityService(
             identity,
@@ -705,6 +873,16 @@ public class AuthControllerContractTests
 
         var registrationService =
             new RegistrationService(identityService);
+
+        var employerProvisioner =
+            new FakeEmployerRegistrationProvisioner(
+                employerRegistrationResult ??
+                EmployerRegistrationResult.Failure(
+                    EmployerRegistrationFailureReason.InvalidInput));
+
+        var employerRegistrationService =
+            new EmployerRegistrationService(
+                employerProvisioner);
 
         var resolvedOtpService =
             otpService ?? new FakeEmailOtpService();
@@ -722,6 +900,7 @@ public class AuthControllerContractTests
         var controller = new AuthController(
             authService,
             registrationService,
+            employerRegistrationService,
             resolvedOtpService,
             administratorActivationService);
 
@@ -731,6 +910,25 @@ public class AuthControllerContractTests
         };
 
         return controller;
+    }
+
+    private sealed class FakeEmployerRegistrationProvisioner
+        : IEmployerRegistrationProvisioner
+    {
+        private readonly EmployerRegistrationResult _result;
+
+        public FakeEmployerRegistrationProvisioner(
+            EmployerRegistrationResult result)
+        {
+            _result = result;
+        }
+
+        public Task<EmployerRegistrationResult> ProvisionAsync(
+            RegisterEmployerRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(_result);
+        }
     }
 
     private sealed class FakeAdministratorActivationCompleter

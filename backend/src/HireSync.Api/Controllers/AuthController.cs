@@ -13,17 +13,20 @@ public sealed class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
     private readonly RegistrationService _registrationService;
+    private readonly EmployerRegistrationService _employerRegistrationService;
     private readonly IEmailOtpService _emailOtpService;
     private readonly AdministratorActivationService _administratorActivationService;
 
     public AuthController(
         AuthService authService,
         RegistrationService registrationService,
+        EmployerRegistrationService employerRegistrationService,
         IEmailOtpService emailOtpService,
         AdministratorActivationService administratorActivationService)
     {
         _authService = authService;
         _registrationService = registrationService;
+        _employerRegistrationService = employerRegistrationService;
         _emailOtpService = emailOtpService;
         _administratorActivationService = administratorActivationService;
     }
@@ -294,6 +297,71 @@ public sealed class AuthController : ControllerBase
             _ => Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Invalid activation code")
+        };
+    }
+    [AllowAnonymous]
+    [HttpPost("register/employer")]
+    [ProducesResponseType(
+        typeof(RegisterEmployerResponse),
+        StatusCodes.Status201Created)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status409Conflict)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<RegisterEmployerResponse>>
+        RegisterEmployer(
+            [FromBody] RegisterEmployerRequest request,
+            CancellationToken cancellationToken)
+    {
+        var result =
+            await _employerRegistrationService.RegisterAsync(
+                request,
+                cancellationToken);
+
+        if (result.Succeeded)
+        {
+            return StatusCode(
+                StatusCodes.Status201Created,
+                result.Response);
+        }
+
+        return result.FailureReason switch
+        {
+            EmployerRegistrationFailureReason.EmailAlreadyExists =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Email already registered",
+                    detail: "An account with this email already exists."),
+
+            EmployerRegistrationFailureReason
+                .DuplicateBusinessRegistrationNumber =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Business registration number already registered",
+                    detail: "An Employer profile with this business registration number already exists."),
+
+            EmployerRegistrationFailureReason
+                .IdentityValidationFailed =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Registration failed",
+                    detail: "The account details did not satisfy the identity requirements."),
+
+            EmployerRegistrationFailureReason.PersistenceFailed =>
+                Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Employer registration failed",
+                    detail: "The Employer account could not be created."),
+
+            _ => Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid Employer registration request",
+                detail: "The Employer registration details are invalid.")
         };
     }
     [AllowAnonymous]

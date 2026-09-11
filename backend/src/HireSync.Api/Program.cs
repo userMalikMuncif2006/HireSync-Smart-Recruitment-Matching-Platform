@@ -133,6 +133,9 @@ builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IEmailOtpChallengeStore, EmailOtpChallengeStore>();
 builder.Services.AddScoped<IAccessTokenStateValidator, AccessTokenStateValidator>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
+builder.Services.AddScoped<
+    IEmployerRegistrationProvisioner,
+    EmployerRegistrationProvisioner>();
 builder.Services.AddScoped<IAdministratorActivationCompleter, AdministratorActivationCompleter>();
 builder.Services.AddScoped<IEmployerVerificationAdminService, EmployerVerificationAdminService>();
 builder.Services.AddScoped<IEmployerProfileService, EmployerProfileService>();
@@ -143,6 +146,7 @@ builder.Services.AddScoped<
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RegistrationService>();
+builder.Services.AddScoped<EmployerRegistrationService>();
 builder.Services.AddScoped<AdministratorActivationService>();
 builder.Services.AddScoped<IEmployerVerificationAdminService, EmployerVerificationAdminService>();
 builder.Services.AddScoped<IEmailOtpService, EmailOtpService>();
