@@ -1,3 +1,73 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+import { roleGuard } from './core/auth/role.guard';
+
+export const routes: Routes = [
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'login',
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import(
+        './features/auth/login/login-page'
+      ).then((module) => module.LoginPage),
+  },
+  {
+    path: 'seeker',
+    canMatch: [roleGuard],
+    data: {
+      role: 'JobSeeker',
+      title: 'Job Seeker Workspace',
+      message:
+        'Job Seeker features are provided through the assigned Job Seeker modules.',
+    },
+    loadComponent: () =>
+      import(
+        './core/routing/role-home-page'
+      ).then((module) => module.RoleHomePage),
+  },
+  {
+    path: 'employer',
+    canMatch: [roleGuard],
+    data: {
+      role: 'Employer',
+    },
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'profile',
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import(
+            './features/employer/profile/employer-profile-page'
+          ).then(
+            (module) => module.EmployerProfilePage,
+          ),
+      },
+    ],
+  },
+  {
+    path: 'admin',
+    canMatch: [roleGuard],
+    data: {
+      role: 'Administrator',
+      title: 'Administrator Workspace',
+      message:
+        'Administrator features are available through the assigned administration modules.',
+    },
+    loadComponent: () =>
+      import(
+        './core/routing/role-home-page'
+      ).then((module) => module.RoleHomePage),
+  },
+  {
+    path: '**',
+    redirectTo: 'login',
+  },
+];
