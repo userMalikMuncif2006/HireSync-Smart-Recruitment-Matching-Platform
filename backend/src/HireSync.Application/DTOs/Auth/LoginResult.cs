@@ -4,7 +4,8 @@ public enum LoginFailureReason
 {
     InvalidCredentials = 1,
     Suspended = 2,
-    AdministratorActivationRequired = 3
+    AdministratorActivationRequired = 3,
+    EmployerEmailVerificationRequired = 4
 }
 
 public sealed record LoginResult

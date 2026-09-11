@@ -58,6 +58,16 @@ public sealed class AuthService
                 LoginFailureReason.AdministratorActivationRequired);
         }
 
+        if (string.Equals(
+                identity.Role,
+                RoleNames.Employer,
+                StringComparison.Ordinal) &&
+            !identity.EmailConfirmed)
+        {
+            return LoginResult.Failure(
+                LoginFailureReason.EmployerEmailVerificationRequired);
+        }
+
         var token = _tokenService.CreateAccessToken(
             identity.UserId,
             identity.Email,
