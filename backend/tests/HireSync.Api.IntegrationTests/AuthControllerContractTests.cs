@@ -311,77 +311,214 @@ public class AuthControllerContractTests
             "https://example.com");
     }
     [Fact]
-    public async Task RequestEmployerOtp_returns_200_and_uses_employer_registration_purpose()
+    public async Task RequestEmployerOtp_returns_200_for_registered_unverified_employer()
     {
-        var otpService = new FakeEmailOtpService();
+        var verification =
+            new FakeEmployerEmailVerificationService
+            {
+                RequestResult =
+                    EmployerEmailVerificationRequestResult.Success(
+                        new DateTime(
+                            2026,
+                            9,
+                            12,
+                            3,
+                            10,
+                            0,
+                            DateTimeKind.Utc))
+            };
 
         var controller = CreateController(
             identity: null,
-            otpService: otpService);
+            employerEmailVerificationService: verification);
 
-        var result = await controller.RequestEmployerOtp(
-            new EmployerOtpRequest("employer@example.com"),
-            CancellationToken.None);
+        var result =
+            await controller.RequestEmployerOtp(
+                new EmployerOtpRequest(
+                    "employer@example.com"),
+                CancellationToken.None);
 
-        var ok = Assert.IsType<OkObjectResult>(result.Result);
-        var response = Assert.IsType<OtpRequestResult>(ok.Value);
+        var ok =
+            Assert.IsType<OkObjectResult>(
+                result.Result);
+
+        var response =
+            Assert.IsType<OtpRequestResult>(
+                ok.Value);
 
         Assert.Equal(200, ok.StatusCode);
         Assert.True(response.Succeeded);
-        Assert.Equal(
-            EmailOtpPurpose.EmployerRegistration,
-            otpService.LastRequestPurpose);
+        Assert.Equal(1, verification.RequestCallCount);
+
         Assert.Equal(
             "employer@example.com",
-            otpService.LastRequestEmail);
+            verification.LastRequestEmail);
     }
 
     [Fact]
     public async Task RequestEmployerOtp_returns_429_during_cooldown()
     {
-        var otpService = new FakeEmailOtpService
-        {
-            RequestResult = OtpRequestResult.Cooldown(30)
-        };
+        var verification =
+            new FakeEmployerEmailVerificationService
+            {
+                RequestResult =
+                    EmployerEmailVerificationRequestResult.Cooldown(
+                        45)
+            };
 
         var controller = CreateController(
             identity: null,
-            otpService: otpService);
+            employerEmailVerificationService: verification);
 
-        var result = await controller.RequestEmployerOtp(
-            new EmployerOtpRequest("employer@example.com"),
-            CancellationToken.None);
+        var result =
+            await controller.RequestEmployerOtp(
+                new EmployerOtpRequest(
+                    "employer@example.com"),
+                CancellationToken.None);
 
-        var problem = Assert.IsType<ObjectResult>(result.Result);
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
 
         Assert.Equal(429, problem.StatusCode);
-        Assert.Equal(
-            "30",
-            controller.Response.Headers["Retry-After"].ToString());
 
         Assert.Equal(
-            EmailOtpPurpose.EmployerRegistration,
-            otpService.LastRequestPurpose);
+            "45",
+            controller.Response.Headers["Retry-After"].ToString());
     }
 
     [Fact]
     public async Task RequestEmployerOtp_returns_400_when_email_is_missing()
     {
-        var otpService = new FakeEmailOtpService();
+        var verification =
+            new FakeEmployerEmailVerificationService
+            {
+                RequestResult =
+                    EmployerEmailVerificationRequestResult.Failure(
+                        EmployerEmailVerificationRequestFailureReason.InvalidRequest)
+            };
 
         var controller = CreateController(
             identity: null,
-            otpService: otpService);
+            employerEmailVerificationService: verification);
 
-        var result = await controller.RequestEmployerOtp(
-            new EmployerOtpRequest(""),
-            CancellationToken.None);
+        var result =
+            await controller.RequestEmployerOtp(
+                new EmployerOtpRequest(""),
+                CancellationToken.None);
 
-        var problem = Assert.IsType<ObjectResult>(result.Result);
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
 
         Assert.Equal(400, problem.StatusCode);
-        Assert.Equal(0, otpService.RequestCallCount);
+        Assert.Equal(1, verification.RequestCallCount);
     }
+
+    [Fact]
+    public async Task RequestEmployerOtp_returns_400_for_unknown_employer()
+    {
+        var controller = CreateController(
+            identity: null,
+            employerEmailVerificationService:
+                new FakeEmployerEmailVerificationService
+                {
+                    RequestResult =
+                        EmployerEmailVerificationRequestResult.Failure(
+                            EmployerEmailVerificationRequestFailureReason.InvalidAccount)
+                });
+
+        var result =
+            await controller.RequestEmployerOtp(
+                new EmployerOtpRequest(
+                    "unknown@example.com"),
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(400, problem.StatusCode);
+    }
+
+    [Fact]
+    public async Task RequestEmployerOtp_returns_403_for_suspended_employer()
+    {
+        var controller = CreateController(
+            identity: null,
+            employerEmailVerificationService:
+                new FakeEmployerEmailVerificationService
+                {
+                    RequestResult =
+                        EmployerEmailVerificationRequestResult.Failure(
+                            EmployerEmailVerificationRequestFailureReason.Suspended)
+                });
+
+        var result =
+            await controller.RequestEmployerOtp(
+                new EmployerOtpRequest(
+                    "employer@example.com"),
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(403, problem.StatusCode);
+    }
+
+    [Fact]
+    public async Task RequestEmployerOtp_returns_409_for_already_verified_employer()
+    {
+        var controller = CreateController(
+            identity: null,
+            employerEmailVerificationService:
+                new FakeEmployerEmailVerificationService
+                {
+                    RequestResult =
+                        EmployerEmailVerificationRequestResult.Failure(
+                            EmployerEmailVerificationRequestFailureReason.AlreadyVerified)
+                });
+
+        var result =
+            await controller.RequestEmployerOtp(
+                new EmployerOtpRequest(
+                    "employer@example.com"),
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(409, problem.StatusCode);
+    }
+
+    [Fact]
+    public async Task RequestEmployerOtp_returns_400_when_otp_request_fails()
+    {
+        var controller = CreateController(
+            identity: null,
+            employerEmailVerificationService:
+                new FakeEmployerEmailVerificationService
+                {
+                    RequestResult =
+                        EmployerEmailVerificationRequestResult.Failure(
+                            EmployerEmailVerificationRequestFailureReason.RequestFailed)
+                });
+
+        var result =
+            await controller.RequestEmployerOtp(
+                new EmployerOtpRequest(
+                    "employer@example.com"),
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(400, problem.StatusCode);
+    }
+
     [Fact]
     public async Task VerifyEmployerOtp_returns_200_for_valid_code()
     {
@@ -1095,7 +1232,6 @@ public class AuthControllerContractTests
             authService,
             registrationService,
             employerRegistrationService,
-            resolvedOtpService,
             resolvedEmployerEmailVerificationService,
             administratorActivationService);
 
@@ -1119,6 +1255,25 @@ public class AuthControllerContractTests
         public string? LastEmail { get; private set; }
 
         public string? LastCode { get; private set; }
+
+        public EmployerEmailVerificationRequestResult RequestResult { get; set; } =
+            EmployerEmailVerificationRequestResult.Failure(
+                EmployerEmailVerificationRequestFailureReason.InvalidRequest);
+
+        public int RequestCallCount { get; private set; }
+
+        public string? LastRequestEmail { get; private set; }
+
+        public Task<EmployerEmailVerificationRequestResult> RequestAsync(
+            string email,
+            CancellationToken cancellationToken = default)
+        {
+            RequestCallCount++;
+            LastRequestEmail = email;
+
+            return Task.FromResult(
+                RequestResult);
+        }
 
         public Task<EmployerEmailVerificationResult> VerifyAsync(
             string email,

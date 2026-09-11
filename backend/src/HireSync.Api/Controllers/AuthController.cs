@@ -15,7 +15,6 @@ public sealed class AuthController : ControllerBase
     private readonly AuthService _authService;
     private readonly RegistrationService _registrationService;
     private readonly EmployerRegistrationService _employerRegistrationService;
-    private readonly IEmailOtpService _emailOtpService;
     private readonly IEmployerEmailVerificationService _employerEmailVerificationService;
     private readonly AdministratorActivationService _administratorActivationService;
 
@@ -23,14 +22,12 @@ public sealed class AuthController : ControllerBase
         AuthService authService,
         RegistrationService registrationService,
         EmployerRegistrationService employerRegistrationService,
-        IEmailOtpService emailOtpService,
         IEmployerEmailVerificationService employerEmailVerificationService,
         AdministratorActivationService administratorActivationService)
     {
         _authService = authService;
         _registrationService = registrationService;
         _employerRegistrationService = employerRegistrationService;
-        _emailOtpService = emailOtpService;
         _employerEmailVerificationService = employerEmailVerificationService;
         _administratorActivationService = administratorActivationService;
     }
@@ -79,33 +76,40 @@ public sealed class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("employer/otp/request")]
-    [ProducesResponseType(typeof(OtpRequestResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(
+        typeof(OtpRequestResult),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status409Conflict)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status429TooManyRequests)]
     public async Task<ActionResult<OtpRequestResult>> RequestEmployerOtp(
         [FromBody] EmployerOtpRequest request,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Email))
-        {
-            return Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: "Invalid OTP request",
-                detail: "Email is required.");
-        }
+        var result =
+            await _employerEmailVerificationService.RequestAsync(
+                request.Email,
+                cancellationToken);
 
-        var result = await _emailOtpService.RequestAsync(
-            request.Email,
-            EmailOtpPurpose.EmployerRegistration,
-            cancellationToken);
-
-        if (result.Succeeded)
+        if (result.Succeeded &&
+            result.ExpiresAtUtc.HasValue)
         {
-            return Ok(result);
+            return Ok(
+                OtpRequestResult.Success(
+                    result.ExpiresAtUtc.Value));
         }
 
         if (result.FailureReason ==
-            OtpRequestFailureReason.CooldownActive)
+                EmployerEmailVerificationRequestFailureReason.CooldownActive)
         {
             if (result.RetryAfterSeconds.HasValue)
             {
@@ -119,10 +123,38 @@ public sealed class AuthController : ControllerBase
                 detail: "Please wait before requesting another verification code.");
         }
 
-        return Problem(
-            statusCode: StatusCodes.Status400BadRequest,
-            title: "OTP request failed",
-            detail: "The verification code could not be requested.");
+        return result.FailureReason switch
+        {
+            EmployerEmailVerificationRequestFailureReason.Suspended =>
+                Problem(
+                    statusCode: StatusCodes.Status403Forbidden,
+                    title: "Employer account suspended",
+                    detail: "This Employer account is currently suspended."),
+
+            EmployerEmailVerificationRequestFailureReason.AlreadyVerified =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Employer email already verified",
+                    detail: "This Employer email has already been verified."),
+
+            EmployerEmailVerificationRequestFailureReason.InvalidAccount =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid Employer account",
+                    detail: "A valid registered Employer account is required."),
+
+            EmployerEmailVerificationRequestFailureReason.InvalidRequest =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid OTP request",
+                    detail: "Email is required."),
+
+            _ =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "OTP request failed",
+                    detail: "The verification code could not be requested.")
+        };
     }
     [AllowAnonymous]
     [HttpPost("employer/otp/verify")]

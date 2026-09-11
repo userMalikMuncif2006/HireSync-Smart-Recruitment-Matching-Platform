@@ -1,4 +1,4 @@
-﻿using HireSync.Application.DTOs.Auth;
+using HireSync.Application.DTOs.Auth;
 using HireSync.Application.Interfaces.Otp;
 using HireSync.Application.Interfaces.Time;
 using HireSync.Application.Security;
@@ -15,6 +15,231 @@ namespace HireSync.Api.IntegrationTests;
 
 public sealed class EmployerEmailVerificationServiceTests
 {
+    [Fact]
+    public async Task RequestAsync_allows_registered_unverified_employer()
+    {
+        using var environment =
+            await CreateEnvironmentAsync();
+
+        await CreateEmployerAsync(
+            environment,
+            "employer@example.com");
+
+        var otpService =
+            new TransactionalFakeOtpService(
+                environment.Context,
+                environment.Clock,
+                OtpVerificationResult.Success());
+
+        var service =
+            CreateService(
+                environment,
+                otpService);
+
+        var result =
+            await service.RequestAsync(
+                " employer@example.com ");
+
+        Assert.True(result.Succeeded);
+        Assert.NotNull(result.ExpiresAtUtc);
+        Assert.Equal(1, otpService.RequestCallCount);
+
+        Assert.Equal(
+            "employer@example.com",
+            otpService.LastRequestEmail);
+
+        Assert.Equal(
+            EmailOtpPurpose.EmployerRegistration,
+            otpService.LastRequestPurpose);
+    }
+
+    [Fact]
+    public async Task RequestAsync_rejects_unknown_account_without_requesting_otp()
+    {
+        using var environment =
+            await CreateEnvironmentAsync();
+
+        var otpService =
+            new TransactionalFakeOtpService(
+                environment.Context,
+                environment.Clock,
+                OtpVerificationResult.Success());
+
+        var service =
+            CreateService(
+                environment,
+                otpService);
+
+        var result =
+            await service.RequestAsync(
+                "unknown@example.com");
+
+        Assert.False(result.Succeeded);
+
+        Assert.Equal(
+            EmployerEmailVerificationRequestFailureReason.InvalidAccount,
+            result.FailureReason);
+
+        Assert.Equal(
+            0,
+            otpService.RequestCallCount);
+    }
+
+    [Fact]
+    public async Task RequestAsync_rejects_job_seeker_without_requesting_otp()
+    {
+        using var environment =
+            await CreateEnvironmentAsync();
+
+        await CreateUserAsync(
+            environment,
+            "seeker@example.com",
+            RoleNames.JobSeeker);
+
+        var otpService =
+            new TransactionalFakeOtpService(
+                environment.Context,
+                environment.Clock,
+                OtpVerificationResult.Success());
+
+        var service =
+            CreateService(
+                environment,
+                otpService);
+
+        var result =
+            await service.RequestAsync(
+                "seeker@example.com");
+
+        Assert.False(result.Succeeded);
+
+        Assert.Equal(
+            EmployerEmailVerificationRequestFailureReason.InvalidAccount,
+            result.FailureReason);
+
+        Assert.Equal(
+            0,
+            otpService.RequestCallCount);
+    }
+
+    [Fact]
+    public async Task RequestAsync_rejects_suspended_employer_without_requesting_otp()
+    {
+        using var environment =
+            await CreateEnvironmentAsync();
+
+        await CreateUserAsync(
+            environment,
+            "suspended@example.com",
+            RoleNames.Employer,
+            AccountStatus.Suspended);
+
+        var otpService =
+            new TransactionalFakeOtpService(
+                environment.Context,
+                environment.Clock,
+                OtpVerificationResult.Success());
+
+        var service =
+            CreateService(
+                environment,
+                otpService);
+
+        var result =
+            await service.RequestAsync(
+                "suspended@example.com");
+
+        Assert.False(result.Succeeded);
+
+        Assert.Equal(
+            EmployerEmailVerificationRequestFailureReason.Suspended,
+            result.FailureReason);
+
+        Assert.Equal(
+            0,
+            otpService.RequestCallCount);
+    }
+
+    [Fact]
+    public async Task RequestAsync_rejects_already_verified_employer_without_requesting_otp()
+    {
+        using var environment =
+            await CreateEnvironmentAsync();
+
+        await CreateUserAsync(
+            environment,
+            "verified@example.com",
+            RoleNames.Employer,
+            AccountStatus.Active,
+            emailConfirmed: true);
+
+        var otpService =
+            new TransactionalFakeOtpService(
+                environment.Context,
+                environment.Clock,
+                OtpVerificationResult.Success());
+
+        var service =
+            CreateService(
+                environment,
+                otpService);
+
+        var result =
+            await service.RequestAsync(
+                "verified@example.com");
+
+        Assert.False(result.Succeeded);
+
+        Assert.Equal(
+            EmployerEmailVerificationRequestFailureReason.AlreadyVerified,
+            result.FailureReason);
+
+        Assert.Equal(
+            0,
+            otpService.RequestCallCount);
+    }
+
+    [Fact]
+    public async Task RequestAsync_maps_otp_cooldown()
+    {
+        using var environment =
+            await CreateEnvironmentAsync();
+
+        await CreateEmployerAsync(
+            environment,
+            "cooldown@example.com");
+
+        var otpService =
+            new TransactionalFakeOtpService(
+                environment.Context,
+                environment.Clock,
+                OtpVerificationResult.Success(),
+                requestResult: OtpRequestResult.Cooldown(45));
+
+        var service =
+            CreateService(
+                environment,
+                otpService);
+
+        var result =
+            await service.RequestAsync(
+                "cooldown@example.com");
+
+        Assert.False(result.Succeeded);
+
+        Assert.Equal(
+            EmployerEmailVerificationRequestFailureReason.CooldownActive,
+            result.FailureReason);
+
+        Assert.Equal(
+            45,
+            result.RetryAfterSeconds);
+
+        Assert.Equal(
+            1,
+            otpService.RequestCallCount);
+    }
+
     [Fact]
     public async Task VerifyAsync_confirms_employer_and_consumes_otp_atomically()
     {
@@ -280,7 +505,9 @@ public sealed class EmployerEmailVerificationServiceTests
     private static async Task<ApplicationUser> CreateUserAsync(
         TestEnvironment environment,
         string email,
-        string role)
+        string role,
+        AccountStatus accountStatus = AccountStatus.Active,
+        bool emailConfirmed = false)
     {
         if (!await environment.RoleManager.RoleExistsAsync(role))
         {
@@ -302,9 +529,9 @@ public sealed class EmployerEmailVerificationServiceTests
                 Id = Guid.NewGuid(),
                 UserName = email,
                 Email = email,
-                EmailConfirmed = false,
+                EmailConfirmed = emailConfirmed,
                 DisplayName = "Test User",
-                AccountStatus = AccountStatus.Active,
+                AccountStatus = accountStatus,
                 EmployerVerificationStatus =
                     role == RoleNames.Employer
                         ? EmployerVerificationStatus.Pending
@@ -443,6 +670,7 @@ public sealed class EmployerEmailVerificationServiceTests
     {
         private readonly HireSyncDbContext _context;
         private readonly IClock _clock;
+        private readonly OtpRequestResult _requestResult;
         private readonly OtpVerificationResult _verificationResult;
         private readonly bool _registerFailedAttempt;
 
@@ -450,13 +678,23 @@ public sealed class EmployerEmailVerificationServiceTests
             HireSyncDbContext context,
             IClock clock,
             OtpVerificationResult verificationResult,
+            OtpRequestResult? requestResult = null,
             bool registerFailedAttempt = false)
         {
             _context = context;
+            _requestResult = requestResult ??
+                OtpRequestResult.Success(
+                    clock.UtcNow.AddMinutes(10));
             _clock = clock;
             _verificationResult = verificationResult;
             _registerFailedAttempt = registerFailedAttempt;
         }
+
+        public int RequestCallCount { get; private set; }
+
+        public string? LastRequestEmail { get; private set; }
+
+        public EmailOtpPurpose? LastRequestPurpose { get; private set; }
 
         public int VerifyCallCount { get; private set; }
 
@@ -467,8 +705,16 @@ public sealed class EmployerEmailVerificationServiceTests
             EmailOtpPurpose purpose,
             CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            RequestCallCount++;
+            LastRequestEmail = email;
+            LastRequestPurpose = purpose;
+
+            return Task.FromResult(
+                _requestResult);
         }
+
 
         public async Task<OtpVerificationResult> VerifyAsync(
             string email,

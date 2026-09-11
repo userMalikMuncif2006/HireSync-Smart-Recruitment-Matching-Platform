@@ -1,4 +1,4 @@
-﻿using HireSync.Application.DTOs.Auth;
+using HireSync.Application.DTOs.Auth;
 using HireSync.Application.Interfaces.Identity;
 using HireSync.Application.Interfaces.Otp;
 using HireSync.Application.Interfaces.Time;
@@ -28,6 +28,80 @@ public sealed class EmployerEmailVerificationService
         _userManager = userManager;
         _emailOtpService = emailOtpService;
         _clock = clock;
+    }
+
+    public async Task<EmployerEmailVerificationRequestResult> RequestAsync(
+        string email,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return EmployerEmailVerificationRequestResult.Failure(
+                EmployerEmailVerificationRequestFailureReason.InvalidRequest);
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var trimmedEmail = email.Trim();
+
+        var user =
+            await _userManager.FindByEmailAsync(
+                trimmedEmail);
+
+        if (user is null)
+        {
+            return EmployerEmailVerificationRequestResult.Failure(
+                EmployerEmailVerificationRequestFailureReason.InvalidAccount);
+        }
+
+        var roles =
+            await _userManager.GetRolesAsync(user);
+
+        if (roles.Count != 1 ||
+            !string.Equals(
+                roles[0],
+                RoleNames.Employer,
+                StringComparison.Ordinal))
+        {
+            return EmployerEmailVerificationRequestResult.Failure(
+                EmployerEmailVerificationRequestFailureReason.InvalidAccount);
+        }
+
+        if (user.AccountStatus == AccountStatus.Suspended)
+        {
+            return EmployerEmailVerificationRequestResult.Failure(
+                EmployerEmailVerificationRequestFailureReason.Suspended);
+        }
+
+        if (user.EmailConfirmed)
+        {
+            return EmployerEmailVerificationRequestResult.Failure(
+                EmployerEmailVerificationRequestFailureReason.AlreadyVerified);
+        }
+
+        var otpResult =
+            await _emailOtpService.RequestAsync(
+                trimmedEmail,
+                EmailOtpPurpose.EmployerRegistration,
+                cancellationToken);
+
+        if (otpResult.Succeeded &&
+            otpResult.ExpiresAtUtc.HasValue)
+        {
+            return EmployerEmailVerificationRequestResult.Success(
+                otpResult.ExpiresAtUtc.Value);
+        }
+
+        if (otpResult.FailureReason ==
+                OtpRequestFailureReason.CooldownActive &&
+            otpResult.RetryAfterSeconds.HasValue)
+        {
+            return EmployerEmailVerificationRequestResult.Cooldown(
+                otpResult.RetryAfterSeconds.Value);
+        }
+
+        return EmployerEmailVerificationRequestResult.Failure(
+            EmployerEmailVerificationRequestFailureReason.RequestFailed);
     }
 
     public async Task<EmployerEmailVerificationResult> VerifyAsync(
