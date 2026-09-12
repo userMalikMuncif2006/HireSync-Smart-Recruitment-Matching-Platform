@@ -32,6 +32,24 @@ describe('application routes', () => {
     ).toBe('function');
   });
 
+  it('protects and lazy loads the Job Seeker applications page', () => {
+    const route =
+      routes.find(
+        (item) =>
+          item.path ===
+          'seeker/applications',
+      );
+
+    expect(route?.canMatch)
+      .toContain(roleGuard);
+
+    expect(route?.data?.['role'])
+      .toBe('JobSeeker');
+
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
+  });
   it('protects and lazy loads the Job Seeker profile page', () => {
     const route =
       routes.find(

@@ -1,0 +1,294 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: #f5f7f8;
+  color: #17211f;
+}
+
+.applications-page {
+  width: min(
+    1120px,
+    calc(100% - 32px)
+  );
+  margin: 0 auto;
+  padding: 32px 0 56px;
+}
+
+.page-header,
+.filter-panel,
+.card-heading,
+.card-actions,
+.pagination,
+.state-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+h1,
+h2,
+p,
+dl,
+dd {
+  margin: 0;
+}
+
+h1 {
+  margin-top: 4px;
+  font-size: clamp(
+    1.8rem,
+    4vw,
+    2.7rem
+  );
+}
+
+h2 {
+  margin-top: 4px;
+  font-size: 1.2rem;
+}
+
+.eyebrow {
+  color: #087f68;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.intro,
+.location,
+.state-card p,
+.pagination,
+.application-details dt {
+  color: #61706c;
+}
+
+.intro {
+  margin-top: 8px;
+  line-height: 1.6;
+}
+
+.count-card {
+  display: grid;
+  min-width: 118px;
+  padding: 14px 18px;
+  border: 1px solid #dce5e2;
+  border-radius: 14px;
+  background: #fff;
+  text-align: center;
+}
+
+.count-card strong {
+  color: #087f68;
+  font-size: 1.5rem;
+}
+
+.count-card span {
+  color: #61706c;
+  font-size: 0.82rem;
+}
+
+.filter-panel {
+  margin-bottom: 20px;
+  padding: 18px;
+  border: 1px solid #dce5e2;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.filter-field {
+  display: grid;
+  gap: 7px;
+  min-width: min(300px, 100%);
+  font-weight: 700;
+}
+
+.filter-field select {
+  min-height: 44px;
+  border: 1px solid #ccd7d3;
+  border-radius: 10px;
+  background: #fff;
+  padding: 9px 12px;
+  color: inherit;
+  font: inherit;
+}
+
+.filter-actions,
+.card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.application-list {
+  display: grid;
+  gap: 14px;
+}
+
+.application-card {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+  gap: 20px;
+  padding: 22px;
+  border: 1px solid #dce5e2;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow:
+    0 7px 24px
+    rgb(26 47 42 / 4%);
+}
+
+.company-name {
+  color: #087f68;
+  font-weight: 800;
+}
+
+.location {
+  margin-top: 6px;
+}
+
+.status-badge {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #edf3f1;
+  color: #43524e;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.status-badge[data-status='2'] {
+  background: #fff7db;
+  color: #765b00;
+}
+
+.status-badge[data-status='3'] {
+  background: #eaf3ff;
+  color: #175da8;
+}
+
+.status-badge[data-status='4'] {
+  background: #eaf8f4;
+  color: #087f68;
+}
+
+.status-badge[data-status='5'] {
+  background: #fff0ee;
+  color: #a22a20;
+}
+
+.application-details {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.application-details div {
+  display: grid;
+  gap: 4px;
+}
+
+.application-details dt {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.application-details dd {
+  font-weight: 650;
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 42px;
+  border-radius: 10px;
+  padding: 9px 15px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+}
+
+.primary-button {
+  border: 1px solid #087f68;
+  background: #087f68;
+  color: #fff;
+}
+
+.secondary-button {
+  border: 1px solid #aebdb8;
+  background: #fff;
+  color: #23312e;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.state-card {
+  padding: 22px;
+  border: 1px dashed #c8d4d0;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.state-card p {
+  margin-top: 5px;
+}
+
+.error-state {
+  border-color: #efb7b0;
+  background: #fff5f3;
+}
+
+.pagination {
+  margin-top: 20px;
+}
+
+@media (max-width: 720px) {
+  .applications-page {
+    width: min(
+      calc(100% - 24px),
+      1120px
+    );
+    padding-top: 20px;
+  }
+
+  .page-header,
+  .filter-panel,
+  .card-heading,
+  .pagination,
+  .state-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .count-card {
+    align-self: flex-start;
+  }
+
+  .application-card {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .application-details {
+    grid-template-columns: 1fr;
+  }
+
+  .card-actions {
+    justify-content: stretch;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+}

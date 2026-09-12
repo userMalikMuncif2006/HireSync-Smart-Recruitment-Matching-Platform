@@ -1,0 +1,271 @@
+<main class="applications-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">
+        Job Seeker workspace
+      </p>
+
+      <h1>
+        My applications
+      </h1>
+
+      <p class="intro">
+        Track the current status of jobs you have already applied for.
+      </p>
+    </div>
+
+    @if (result(); as current) {
+      <div class="count-card">
+        <strong>
+          {{ current.totalCount }}
+        </strong>
+
+        <span>
+          application{{ current.totalCount === 1 ? '' : 's' }}
+        </span>
+      </div>
+    }
+  </header>
+
+  <section class="filter-panel">
+    <label class="filter-field">
+      <span>
+        Application status
+      </span>
+
+      <select
+        [formControl]="statusControl"
+      >
+        <option [ngValue]="null">
+          All statuses
+        </option>
+
+        <option
+          [ngValue]="ApplicationStatus.Applied"
+        >
+          Applied
+        </option>
+
+        <option
+          [ngValue]="ApplicationStatus.UnderReview"
+        >
+          Under review
+        </option>
+
+        <option
+          [ngValue]="ApplicationStatus.Shortlisted"
+        >
+          Shortlisted
+        </option>
+
+        <option
+          [ngValue]="ApplicationStatus.Selected"
+        >
+          Selected
+        </option>
+
+        <option
+          [ngValue]="ApplicationStatus.Rejected"
+        >
+          Rejected
+        </option>
+      </select>
+    </label>
+
+    <div class="filter-actions">
+      <button
+        type="button"
+        class="primary-button"
+        [disabled]="isLoading()"
+        (click)="applyStatusFilter()"
+      >
+        Apply filter
+      </button>
+
+      <button
+        type="button"
+        class="secondary-button"
+        [disabled]="isLoading()"
+        (click)="clearStatusFilter()"
+      >
+        Clear
+      </button>
+    </div>
+  </section>
+
+  @if (isLoading()) {
+    <section class="state-card">
+      Loading your applications…
+    </section>
+  } @else if (errorMessage()) {
+    <section
+      class="state-card error-state"
+      role="alert"
+    >
+      <div>
+        <strong>
+          Applications unavailable
+        </strong>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="retry()"
+      >
+        Retry
+      </button>
+    </section>
+  } @else {
+    @if (result(); as current) {
+      @if (current.items.length === 0) {
+        <section class="state-card empty-state">
+          <div>
+            <strong>
+              No applications found
+            </strong>
+
+            <p>
+              You do not have applications matching this status filter.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="browseVacancies()"
+          >
+            Browse vacancies
+          </button>
+        </section>
+      } @else {
+        <section
+          class="application-list"
+          aria-label="Job applications"
+        >
+          @for (
+            application of current.items;
+            track application.applicationId
+          ) {
+            <article class="application-card">
+              <div class="application-main">
+                <div class="card-heading">
+                  <div>
+                    <p class="company-name">
+                      {{ application.companyName }}
+                    </p>
+
+                    <h2>
+                      {{ application.vacancyTitle }}
+                    </h2>
+
+                    <p class="location">
+                      {{ application.vacancyLocation }}
+                    </p>
+                  </div>
+
+                  <span
+                    class="status-badge"
+                    [attr.data-status]="application.status"
+                  >
+                    {{
+                      applicationStatusLabel(
+                        application.status
+                      )
+                    }}
+                  </span>
+                </div>
+
+                <dl class="application-details">
+                  <div>
+                    <dt>
+                      Applied
+                    </dt>
+
+                    <dd>
+                      {{
+                        application.appliedAtUtc
+                          | date:'medium'
+                      }}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt>
+                      Last updated
+                    </dt>
+
+                    <dd>
+                      {{
+                        application.updatedAtUtc
+                          | date:'medium'
+                      }}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt>
+                      Vacancy
+                    </dt>
+
+                    <dd>
+                      {{
+                        vacancyStatusLabel(
+                          application.vacancyStatus
+                        )
+                      }}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="card-actions">
+                <button
+                  type="button"
+                  class="secondary-button"
+                  (click)="openVacancy(application.vacancyId)"
+                >
+                  View vacancy
+                </button>
+              </div>
+            </article>
+          }
+        </section>
+
+        <nav
+          class="pagination"
+          aria-label="Application pages"
+        >
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="current.page <= 1 || isLoading()"
+            (click)="previousPage()"
+          >
+            Previous
+          </button>
+
+          <span>
+            Page
+            {{ current.page }}
+            of
+            {{ totalPages() }}
+          </span>
+
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="current.page >= totalPages() || isLoading()"
+            (click)="nextPage()"
+          >
+            Next
+          </button>
+        </nav>
+      }
+    }
+  }
+</main>

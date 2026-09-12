@@ -16,6 +16,19 @@ export const routes: Routes = [
       ).then((module) => module.LoginPage),
   },
   {
+    path: 'seeker/applications',
+    canMatch: [roleGuard],
+    data: {
+      role: 'JobSeeker',
+    },
+    loadComponent: () =>
+      import(
+        './features/seeker/applications/job-seeker-applications-page'
+      ).then(
+        (module) =>
+          module.JobSeekerApplicationsPage,
+      ),
+  },  {
     path: 'seeker/profile',
     canMatch: [roleGuard],
     data: {
