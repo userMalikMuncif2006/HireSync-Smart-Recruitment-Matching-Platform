@@ -3,6 +3,7 @@ using HireSync.Application.Interfaces.Admin;
 using HireSync.Infrastructure.Admin;
 using HireSync.Application.Interfaces.Email;
 using HireSync.Application.Interfaces.Identity;
+using HireSync.Application.Interfaces.JobSeeker;
 using HireSync.Application.Interfaces.Otp;
 using HireSync.Application.Interfaces.Persistence;
 using HireSync.Application.Interfaces.Security;
@@ -142,6 +143,7 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<IAdministratorActivationCompleter, AdministratorActivationCompleter>();
 builder.Services.AddScoped<IEmployerVerificationAdminService, EmployerVerificationAdminService>();
 builder.Services.AddScoped<IEmployerProfileService, EmployerProfileService>();
+builder.Services.AddScoped<IJobSeekerProfileService, JobSeekerProfileService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
 builder.Services.AddScoped<
     HireSync.Application.Interfaces.Vacancy.IVacancySearchService,
