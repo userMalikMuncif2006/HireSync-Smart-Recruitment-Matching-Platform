@@ -231,6 +231,7 @@ public sealed class PublicVacanciesControllerContractTests
     {
         return new PublicVacanciesController(
             new FakeVacancySearchService(),
+            new NoOpVacancyMatchSearchService(),
             detailService,
             currentUser);
     }

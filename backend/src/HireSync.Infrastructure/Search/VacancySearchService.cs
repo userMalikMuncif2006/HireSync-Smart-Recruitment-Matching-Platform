@@ -136,7 +136,8 @@ public sealed class VacancySearchService : IVacancySearchService
                         candidate.Vacancy.Location,
                         candidate.Vacancy.MinimumExperienceMonths,
                         candidate.Vacancy.RequiredEducationLevel,
-                        candidate.Vacancy.PublishedAtUtc))
+                        candidate.Vacancy.PublishedAtUtc,
+                        null))
                 .ToListAsync(
                     cancellationToken);
 
