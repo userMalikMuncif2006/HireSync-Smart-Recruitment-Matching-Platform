@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ComponentFixture,
   TestBed,
@@ -10,11 +11,14 @@ import {
 import {
   Observable,
   of,
+  throwError,
 } from 'rxjs';
 
 import {
   ApplicationStatus,
+  ApplicationStatusResult,
   RankedApplicantPage,
+  UpdateApplicationStatusPayload,
 } from './employer-vacancy.models';
 import { EmployerVacancyService } from './employer-vacancy.service';
 import { RankedApplicantsPage } from './ranked-applicants-page';
@@ -164,6 +168,240 @@ describe('RankedApplicantsPage', () => {
       });
   });
 
+  it('updates status with the current row version and re-fetches authoritative applicant data', async () => {
+    await createComponent();
+
+    service.updateResponse =
+      of({
+        id:
+          'application-1',
+        status:
+          4,
+        updatedAtUtc:
+          '2026-09-13T02:00:00Z',
+        rowVersion:
+          'BQYHCA==',
+      });
+
+    service.response =
+      of(
+        createApplicantPage(
+          4,
+          'BQYHCA==',
+        ),
+      );
+
+    const select =
+      fixture.nativeElement
+        .querySelector(
+          '.status-workflow select',
+        ) as HTMLSelectElement;
+
+    const button =
+      fixture.nativeElement
+        .querySelector(
+          '.status-workflow button',
+        ) as HTMLButtonElement;
+
+    select.value = '4';
+
+    select.dispatchEvent(
+      new Event('change'),
+    );
+
+    fixture.detectChanges();
+
+    expect(button.disabled)
+      .toBe(false);
+
+    button.click();
+
+    fixture.detectChanges();
+
+    expect(service.updates)
+      .toEqual([
+        {
+          applicationId:
+            'application-1',
+          payload: {
+            status:
+              4,
+            rowVersion:
+              'AQIDBA==',
+          },
+        },
+      ]);
+
+    expect(service.queries)
+      .toHaveLength(2);
+
+    expect(service.queries.at(-1))
+      .toEqual({
+        vacancyId:
+          'vacancy-1',
+        status:
+          null,
+        page:
+          1,
+        pageSize:
+          20,
+      });
+
+    expect(
+      fixture.componentInstance
+        .result()
+        ?.items[0]
+        .status,
+    ).toBe(4);
+
+    expect(
+      fixture.componentInstance
+        .result()
+        ?.items[0]
+        .rowVersion,
+    ).toBe('BQYHCA==');
+
+    expect(
+      fixture.componentInstance
+        .selectedApplicationStatus(
+          fixture.componentInstance
+            .result()!
+            .items[0],
+        ),
+    ).toBe(4);
+  });
+
+  it('surfaces backend ProblemDetails for an invalid transition', async () => {
+    await createComponent();
+
+    service.updateResponse =
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status:
+              400,
+            error: {
+              detail:
+                'The requested application status transition is not allowed.',
+            },
+          }),
+      );
+
+    const applicant =
+      fixture.componentInstance
+        .result()!
+        .items[0];
+
+    fixture.componentInstance
+      .changeSelectedApplicationStatus(
+        applicant.applicationId,
+        '1',
+      );
+
+    fixture.componentInstance
+      .updateApplicationStatus(
+        applicant,
+      );
+
+    fixture.detectChanges();
+
+    expect(
+      fixture.componentInstance
+        .updateErrorMessage(),
+    ).toBe(
+      'The requested application status transition is not allowed.',
+    );
+
+    expect(service.queries)
+      .toHaveLength(1);
+  });
+
+  it('shows an understandable fallback for a concurrency conflict', async () => {
+    await createComponent();
+
+    service.updateResponse =
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status:
+              409,
+            error: {},
+          }),
+      );
+
+    const applicant =
+      fixture.componentInstance
+        .result()!
+        .items[0];
+
+    fixture.componentInstance
+      .changeSelectedApplicationStatus(
+        applicant.applicationId,
+        '4',
+      );
+
+    fixture.componentInstance
+      .updateApplicationStatus(
+        applicant,
+      );
+
+    fixture.detectChanges();
+
+    expect(
+      fixture.componentInstance
+        .updateErrorMessage(),
+    ).toContain(
+      'application changed',
+    );
+
+    expect(service.queries)
+      .toHaveLength(1);
+  });
+
+  it('prevents status changes for terminal application states', async () => {
+    await createComponent(
+      createApplicantPage(
+        4,
+        'BQYHCA==',
+      ),
+    );
+
+    expect(
+      fixture.componentInstance
+        .isTerminalStatus(4),
+    ).toBe(true);
+
+    expect(
+      fixture.componentInstance
+        .isTerminalStatus(5),
+    ).toBe(true);
+
+    const select =
+      fixture.nativeElement
+        .querySelector(
+          '.status-workflow select',
+        ) as HTMLSelectElement;
+
+    const button =
+      fixture.nativeElement
+        .querySelector(
+          '.status-workflow button',
+        ) as HTMLButtonElement;
+
+    expect(select.disabled)
+      .toBe(true);
+
+    expect(button.disabled)
+      .toBe(true);
+
+    expect(
+      fixture.nativeElement
+        .textContent as string,
+    ).toContain(
+      'terminal state',
+    );
+  });
+
   it('returns to Employer vacancies', async () => {
     await createComponent();
 
@@ -177,8 +415,11 @@ describe('RankedApplicantsPage', () => {
   });
 });
 
-function createApplicantPage():
-  RankedApplicantPage {
+function createApplicantPage(
+  status:
+    ApplicationStatus = 3,
+  rowVersion = 'AQIDBA==',
+): RankedApplicantPage {
   return {
     vacancyId:
       'vacancy-1',
@@ -193,13 +434,12 @@ function createApplicantPage():
           'profile-1',
         jobSeekerDisplayName:
           'Candidate One',
-        status: 3,
+        status,
         appliedAtUtc:
           '2026-09-12T08:00:00Z',
         updatedAtUtc:
           '2026-09-12T09:00:00Z',
-        rowVersion:
-          'AQIDBA==',
+        rowVersion,
         contactRequestStatus:
           1,
         match: {
@@ -239,6 +479,19 @@ class FakeRankedApplicantService {
     Observable<RankedApplicantPage> =
       of(createApplicantPage());
 
+  updateResponse:
+    Observable<ApplicationStatusResult> =
+      of({
+        id:
+          'application-1',
+        status:
+          3,
+        updatedAtUtc:
+          '2026-09-12T09:00:00Z',
+        rowVersion:
+          'AQIDBA==',
+      });
+
   readonly queries:
     Array<{
       vacancyId: string;
@@ -246,6 +499,13 @@ class FakeRankedApplicantService {
         ApplicationStatus | null;
       page: number;
       pageSize: number;
+    }> = [];
+
+  readonly updates:
+    Array<{
+      applicationId: string;
+      payload:
+        UpdateApplicationStatusPayload;
     }> = [];
 
   getRankedApplicants(
@@ -263,5 +523,18 @@ class FakeRankedApplicantService {
     });
 
     return this.response;
+  }
+
+  updateApplicationStatus(
+    applicationId: string,
+    payload:
+      UpdateApplicationStatusPayload,
+  ): Observable<ApplicationStatusResult> {
+    this.updates.push({
+      applicationId,
+      payload,
+    });
+
+    return this.updateResponse;
   }
 }

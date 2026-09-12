@@ -17,6 +17,7 @@ import {
 import {
   ApplicationStatus,
   ContactRequestStatus,
+  RankedApplicant,
   RankedApplicantPage,
 } from './employer-vacancy.models';
 import { EmployerVacancyService } from './employer-vacancy.service';
@@ -68,6 +69,20 @@ export class RankedApplicantsPage {
     signal<RankedApplicantPage | null>(
       null,
     );
+
+  readonly selectedStatuses =
+    signal<Record<string, ApplicationStatus>>(
+      {},
+    );
+
+  readonly updatingApplicationId =
+    signal<string | null>(null);
+
+  readonly updateErrorMessage =
+    signal<string | null>(null);
+
+  readonly updateSuccessMessage =
+    signal<string | null>(null);
 
   constructor() {
     if (!this.vacancyId) {
@@ -153,6 +168,107 @@ export class RankedApplicantsPage {
     }
   }
 
+  selectedApplicationStatus(
+    applicant: RankedApplicant,
+  ): ApplicationStatus {
+    return this.selectedStatuses()[
+      applicant.applicationId
+    ] ?? applicant.status;
+  }
+
+  changeSelectedApplicationStatus(
+    applicationId: string,
+    value: string,
+  ): void {
+    const status =
+      Number(value) as ApplicationStatus;
+
+    this.selectedStatuses.update(
+      (current) => ({
+        ...current,
+        [applicationId]: status,
+      }),
+    );
+  }
+
+  isTerminalStatus(
+    status: ApplicationStatus,
+  ): boolean {
+    return status === 4 || status === 5;
+  }
+
+  canUpdateApplicationStatus(
+    applicant: RankedApplicant,
+  ): boolean {
+    return (
+      !this.isTerminalStatus(
+        applicant.status,
+      ) &&
+      this.selectedApplicationStatus(
+        applicant,
+      ) !== applicant.status &&
+      this.updatingApplicationId() === null
+    );
+  }
+
+  updateApplicationStatus(
+    applicant: RankedApplicant,
+  ): void {
+    if (
+      !this.canUpdateApplicationStatus(
+        applicant,
+      )
+    ) {
+      return;
+    }
+
+    const status =
+      this.selectedApplicationStatus(
+        applicant,
+      );
+
+    this.updatingApplicationId.set(
+      applicant.applicationId,
+    );
+
+    this.updateErrorMessage.set(null);
+    this.updateSuccessMessage.set(null);
+
+    this.service
+      .updateApplicationStatus(
+        applicant.applicationId,
+        {
+          status,
+          rowVersion:
+            applicant.rowVersion,
+        },
+      )
+      .subscribe({
+        next: () => {
+          this.updatingApplicationId.set(
+            null,
+          );
+
+          this.updateSuccessMessage.set(
+            'Application status updated successfully.',
+          );
+
+          this.load(
+            this.result()?.page ?? 1,
+          );
+        },
+        error: (error: unknown) => {
+          this.updatingApplicationId.set(
+            null,
+          );
+
+          this.updateErrorMessage.set(
+            this.readUpdateError(error),
+          );
+        },
+      });
+  }
+
   contactStatusLabel(
     status: ContactRequestStatus | null,
   ): string {
@@ -201,6 +317,17 @@ export class RankedApplicantsPage {
       .subscribe({
         next: (result) => {
           this.result.set(result);
+
+          this.selectedStatuses.set(
+            Object.fromEntries(
+              result.items.map(
+                (applicant) => [
+                  applicant.applicationId,
+                  applicant.status,
+                ],
+              ),
+            ),
+          );
           this.isLoading.set(false);
         },
         error: (error: unknown) => {
@@ -225,6 +352,28 @@ export class RankedApplicantsPage {
     return Number(
       this.statusFilter.value,
     ) as ApplicationStatus;
+  }
+
+  private readUpdateError(
+    error: unknown,
+  ): string {
+    if (error instanceof HttpErrorResponse) {
+      const detail =
+        error.error?.detail;
+
+      if (
+        typeof detail === 'string' &&
+        detail.trim().length > 0
+      ) {
+        return detail;
+      }
+
+      if (error.status === 409) {
+        return 'This application changed before the update could be saved. Reload the applicants and try again.';
+      }
+    }
+
+    return 'The application status could not be updated. Please try again.';
   }
 
   private readError(
