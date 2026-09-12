@@ -267,6 +267,15 @@ export class RegisterPage {
           this.successMessage.set(
             'Employer account created successfully. Email verification is required before sign in.',
           );
+
+          void this.router.navigate(
+            ['/verify-employer-email'],
+            {
+              queryParams: {
+                email: response.email,
+              },
+            },
+          );
         },
         error: (error: unknown) => {
           this.errorMessage.set(
@@ -422,3 +431,4 @@ export class RegisterPage {
     return 'Registration could not be completed. Please try again.';
   }
 }
+

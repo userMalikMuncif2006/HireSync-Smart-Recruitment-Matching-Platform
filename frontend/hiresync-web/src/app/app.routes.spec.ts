@@ -28,6 +28,21 @@ describe('application routes', () => {
     expect(route?.canMatch)
       .toBeUndefined();
   });
+  it('lazy loads Employer email verification', () => {
+    const route =
+      routes.find(
+        (item) =>
+          item.path ===
+          'verify-employer-email',
+      );
+
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
+
+    expect(route?.canMatch)
+      .toBeUndefined();
+  });
   it('protects the Job Seeker role area', () => {
     const route =
       routes.find(
@@ -247,4 +262,5 @@ describe('application routes', () => {
     ).toBe('function');
   });
 });
+
 

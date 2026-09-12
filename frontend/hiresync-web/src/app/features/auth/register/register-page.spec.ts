@@ -180,6 +180,10 @@ describe('RegisterPage', () => {
   });
 
   it('submits the complete Employer registration contract', () => {
+    const navigateSpy =
+      vi.spyOn(router, 'navigate')
+        .mockResolvedValue(true);
+
     component.form.controls.role
       .setValue('Employer');
 
@@ -224,6 +228,16 @@ describe('RegisterPage', () => {
     expect(component.successMessage())
       .toContain(
         'Email verification is required',
+      );
+
+    expect(navigateSpy)
+      .toHaveBeenCalledWith(
+        ['/verify-employer-email'],
+        {
+          queryParams: {
+            email: 'company@example.com',
+          },
+        },
       );
   });
 
@@ -296,4 +310,5 @@ describe('RegisterPage', () => {
     }
   }
 });
+
 

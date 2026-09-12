@@ -23,6 +23,16 @@ export const routes: Routes = [
       ).then((module) => module.RegisterPage),
   },
   {
+    path: 'verify-employer-email',
+    loadComponent: () =>
+      import(
+        './features/auth/employer-email-verification/employer-email-verification-page'
+      ).then(
+        (module) =>
+          module.EmployerEmailVerificationPage,
+      ),
+  },
+  {
     path: 'seeker/notifications',
     canMatch: [roleGuard],
     data: {
@@ -180,3 +190,5 @@ export const routes: Routes = [
     redirectTo: 'login',
   },
 ];
+
+
