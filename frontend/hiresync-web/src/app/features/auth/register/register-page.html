@@ -1,0 +1,548 @@
+﻿<main class="register-page">
+  <section class="auth-layout">
+    <aside class="welcome-panel">
+      <div class="brand">
+        <span
+          class="brand-mark"
+          aria-hidden="true"
+        >
+          H
+        </span>
+
+        <div>
+          <p class="eyebrow">HireSync</p>
+          <h1>Build your next opportunity</h1>
+        </div>
+      </div>
+
+      <p class="welcome-copy">
+        Create your HireSync account and move from
+        skills to opportunities with a clear,
+        secure recruitment experience.
+      </p>
+
+      <div class="benefit-list">
+        <div class="benefit">
+          <span aria-hidden="true">01</span>
+          <p>
+            Role-based onboarding for candidates
+            and employers.
+          </p>
+        </div>
+
+        <div class="benefit">
+          <span aria-hidden="true">02</span>
+          <p>
+            Secure account verification and
+            protected recruitment workflows.
+          </p>
+        </div>
+
+        <div class="benefit">
+          <span aria-hidden="true">03</span>
+          <p>
+            One workspace for vacancies,
+            applications and matching.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <section class="register-card">
+      <div class="card-heading">
+        <p class="eyebrow">Create account</p>
+        <h2>Join HireSync</h2>
+        <p>
+          Choose how you will use HireSync, then
+          complete your account details.
+        </p>
+      </div>
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+        novalidate
+      >
+        <fieldset class="role-selector">
+          <legend>I am joining as</legend>
+
+          <label
+            class="role-option"
+            [class.selected]="
+              form.controls.role.value ===
+              'JobSeeker'
+            "
+          >
+            <input
+              type="radio"
+              value="JobSeeker"
+              formControlName="role"
+            />
+
+            <span class="role-icon" aria-hidden="true">
+              JS
+            </span>
+
+            <span>
+              <strong>Job Seeker</strong>
+              <small>
+                Discover vacancies and track
+                applications.
+              </small>
+            </span>
+          </label>
+
+          <label
+            class="role-option"
+            [class.selected]="
+              form.controls.role.value ===
+              'Employer'
+            "
+          >
+            <input
+              type="radio"
+              value="Employer"
+              formControlName="role"
+            />
+
+            <span class="role-icon" aria-hidden="true">
+              EM
+            </span>
+
+            <span>
+              <strong>Employer</strong>
+              <small>
+                Publish vacancies and review
+                candidates.
+              </small>
+            </span>
+          </label>
+        </fieldset>
+
+        <div class="form-section">
+          <div class="section-heading">
+            <span>1</span>
+            <div>
+              <h3>Account details</h3>
+              <p>
+                Use an email address you can access.
+              </p>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field full-width">
+              <label for="email">Email address</label>
+
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="you@example.com"
+              />
+
+              @if (
+                form.controls.email.touched &&
+                form.controls.email.hasError('required')
+              ) {
+                <p class="validation-message">
+                  Email is required.
+                </p>
+              } @else if (
+                form.controls.email.touched &&
+                form.controls.email.hasError('email')
+              ) {
+                <p class="validation-message">
+                  Enter a valid email address.
+                </p>
+              }
+            </div>
+
+            <div class="field">
+              <label for="password">Password</label>
+
+              <input
+                id="password"
+                type="password"
+                formControlName="password"
+                autocomplete="new-password"
+                placeholder="Create a password"
+              />
+
+              @if (
+                form.controls.password.touched &&
+                form.controls.password
+                  .hasError('required')
+              ) {
+                <p class="validation-message">
+                  Password is required.
+                </p>
+              }
+            </div>
+
+            <div class="field">
+              <label for="confirmPassword">
+                Confirm password
+              </label>
+
+              <input
+                id="confirmPassword"
+                type="password"
+                formControlName="confirmPassword"
+                autocomplete="new-password"
+                placeholder="Repeat your password"
+              />
+
+              @if (
+                form.controls.confirmPassword.touched &&
+                form.controls.confirmPassword
+                  .hasError('required')
+              ) {
+                <p class="validation-message">
+                  Confirm your password.
+                </p>
+              } @else if (
+                form.controls.confirmPassword.touched &&
+                form.hasError('passwordMismatch')
+              ) {
+                <p class="validation-message">
+                  Passwords do not match.
+                </p>
+              }
+            </div>
+          </div>
+        </div>
+
+        @if (!isEmployer) {
+          <div class="form-section">
+            <div class="section-heading">
+              <span>2</span>
+
+              <div>
+                <h3>Job Seeker profile</h3>
+                <p>
+                  Tell employers how you should be
+                  identified.
+                </p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="displayName">
+                Display name
+              </label>
+
+              <input
+                id="displayName"
+                type="text"
+                formControlName="displayName"
+                autocomplete="name"
+                maxlength="100"
+                placeholder="Your full name"
+              />
+
+              @if (
+                form.controls.displayName.touched &&
+                form.controls.displayName
+                  .hasError('required')
+              ) {
+                <p class="validation-message">
+                  Display name is required.
+                </p>
+              } @else if (
+                form.controls.displayName.touched &&
+                form.controls.displayName
+                  .hasError('maxlength')
+              ) {
+                <p class="validation-message">
+                  Display name cannot exceed
+                  100 characters.
+                </p>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="form-section">
+            <div class="section-heading">
+              <span>2</span>
+
+              <div>
+                <h3>Company information</h3>
+                <p>
+                  These details identify your
+                  Employer organisation.
+                </p>
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="companyName">
+                  Company name
+                </label>
+
+                <input
+                  id="companyName"
+                  type="text"
+                  formControlName="companyName"
+                  maxlength="150"
+                  placeholder="Company name"
+                />
+
+                @if (
+                  form.controls.companyName.touched &&
+                  form.controls.companyName.invalid
+                ) {
+                  <p class="validation-message">
+                    Company name must contain
+                    2–150 characters.
+                  </p>
+                }
+              </div>
+
+              <div class="field">
+                <label for="location">
+                  Location
+                </label>
+
+                <input
+                  id="location"
+                  type="text"
+                  formControlName="location"
+                  maxlength="100"
+                  placeholder="City or location"
+                />
+
+                @if (
+                  form.controls.location.touched &&
+                  form.controls.location.invalid
+                ) {
+                  <p class="validation-message">
+                    Location must contain
+                    2–100 characters.
+                  </p>
+                }
+              </div>
+
+              <div class="field full-width">
+                <label for="description">
+                  Company description
+                </label>
+
+                <textarea
+                  id="description"
+                  formControlName="description"
+                  maxlength="2000"
+                  rows="4"
+                  placeholder="Describe your organisation and what it does."
+                ></textarea>
+
+                <div class="field-meta">
+                  @if (
+                    form.controls.description.touched &&
+                    form.controls.description.invalid
+                  ) {
+                    <p class="validation-message">
+                      Description must contain
+                      20–2000 characters.
+                    </p>
+                  }
+
+                  <span>
+                    {{
+                      form.controls.description
+                        .value.length
+                    }}/2000
+                  </span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="contactPersonName">
+                  Contact person
+                </label>
+
+                <input
+                  id="contactPersonName"
+                  type="text"
+                  formControlName="contactPersonName"
+                  maxlength="100"
+                  placeholder="Contact person's name"
+                />
+
+                @if (
+                  form.controls.contactPersonName
+                    .touched &&
+                  form.controls.contactPersonName
+                    .invalid
+                ) {
+                  <p class="validation-message">
+                    Contact name must contain
+                    2–100 characters.
+                  </p>
+                }
+              </div>
+
+              <div class="field">
+                <label
+                  for="contactPersonDesignation"
+                >
+                  Designation
+                </label>
+
+                <input
+                  id="contactPersonDesignation"
+                  type="text"
+                  formControlName="contactPersonDesignation"
+                  maxlength="100"
+                  placeholder="HR Manager"
+                />
+
+                @if (
+                  form.controls
+                    .contactPersonDesignation
+                    .touched &&
+                  form.controls
+                    .contactPersonDesignation
+                    .invalid
+                ) {
+                  <p class="validation-message">
+                    Designation must contain
+                    2–100 characters.
+                  </p>
+                }
+              </div>
+
+              <div class="field">
+                <label
+                  for="businessRegistrationNumber"
+                >
+                  Business registration number
+                </label>
+
+                <input
+                  id="businessRegistrationNumber"
+                  type="text"
+                  formControlName="businessRegistrationNumber"
+                  maxlength="100"
+                  placeholder="Registration number"
+                />
+
+                @if (
+                  form.controls
+                    .businessRegistrationNumber
+                    .touched &&
+                  form.controls
+                    .businessRegistrationNumber
+                    .invalid
+                ) {
+                  <p class="validation-message">
+                    Registration number must
+                    contain 2–100 characters.
+                  </p>
+                }
+              </div>
+
+              <div class="field">
+                <label for="mobileNumber">
+                  Mobile number
+                </label>
+
+                <input
+                  id="mobileNumber"
+                  type="tel"
+                  formControlName="mobileNumber"
+                  maxlength="30"
+                  autocomplete="tel"
+                  placeholder="+94 77 123 4567"
+                />
+
+                @if (
+                  form.controls.mobileNumber.touched &&
+                  form.controls.mobileNumber.invalid
+                ) {
+                  <p class="validation-message">
+                    Mobile number must contain
+                    5–30 characters.
+                  </p>
+                }
+              </div>
+
+              <div class="field full-width">
+                <label for="companyWebsite">
+                  Company website
+                  <span class="optional">
+                    Optional
+                  </span>
+                </label>
+
+                <input
+                  id="companyWebsite"
+                  type="url"
+                  formControlName="companyWebsite"
+                  maxlength="300"
+                  placeholder="https://example.com"
+                />
+
+                @if (
+                  form.controls.companyWebsite.touched &&
+                  form.controls.companyWebsite
+                    .hasError('httpUrl')
+                ) {
+                  <p class="validation-message">
+                    Enter a valid HTTP or HTTPS
+                    website URL.
+                  </p>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (errorMessage()) {
+          <div
+            class="message error-message"
+            role="alert"
+          >
+            <strong>Registration failed</strong>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        @if (successMessage()) {
+          <div
+            class="message success-message"
+            role="status"
+          >
+            <strong>Account created</strong>
+            <span>{{ successMessage() }}</span>
+          </div>
+        }
+
+        <button
+          class="submit-button"
+          type="submit"
+          [disabled]="
+            isSubmitting() ||
+            registeredEmployerEmail() !== null
+          "
+        >
+          {{
+            isSubmitting()
+              ? 'Creating account...'
+              : registeredEmployerEmail()
+                ? 'Account created'
+                : 'Create account'
+          }}
+        </button>
+
+        <p class="sign-in-prompt">
+          Already have an account?
+          <a routerLink="/login">Sign in</a>
+        </p>
+      </form>
+    </section>
+  </section>
+</main>
+

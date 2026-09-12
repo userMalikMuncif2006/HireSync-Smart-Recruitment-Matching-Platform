@@ -1,4 +1,4 @@
-import { routes } from './app.routes';
+﻿import { routes } from './app.routes';
 import { roleGuard } from './core/auth/role.guard';
 
 describe('application routes', () => {
@@ -14,6 +14,20 @@ describe('application routes', () => {
     ).toBe('function');
   });
 
+  it('lazy loads the registration page', () => {
+    const route =
+      routes.find(
+        (item) =>
+          item.path === 'register',
+      );
+
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
+
+    expect(route?.canMatch)
+      .toBeUndefined();
+  });
   it('protects the Job Seeker role area', () => {
     const route =
       routes.find(
@@ -233,3 +247,4 @@ describe('application routes', () => {
     ).toBe('function');
   });
 });
+

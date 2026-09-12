@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 
 import { roleGuard } from './core/auth/role.guard';
 
@@ -14,6 +14,13 @@ export const routes: Routes = [
       import(
         './features/auth/login/login-page'
       ).then((module) => module.LoginPage),
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import(
+        './features/auth/register/register-page'
+      ).then((module) => module.RegisterPage),
   },
   {
     path: 'seeker/notifications',
