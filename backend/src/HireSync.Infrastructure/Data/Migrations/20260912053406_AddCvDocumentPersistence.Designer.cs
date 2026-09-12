@@ -4,6 +4,7 @@ using HireSync.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HireSync.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(HireSyncDbContext))]
-    partial class HireSyncDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260912053406_AddCvDocumentPersistence")]
+    partial class AddCvDocumentPersistence
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,40 +84,6 @@ namespace HireSync.Infrastructure.Data.Migrations
 
                             t.HasCheckConstraint("CK_CvDocuments_SizeBytes", "[SizeBytes] >= 1 AND [SizeBytes] <= 5000000");
                         });
-                });
-
-            modelBuilder.Entity("HireSync.Domain.Entities.ContactRequest", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("JobApplicationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("RequestedAtUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<DateTime?>("RespondedAtUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<byte>("Status")
-                        .HasColumnType("tinyint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("JobApplicationId")
-                        .IsUnique();
-
-                    b.ToTable("ContactRequests", (string)null);
                 });
 
             modelBuilder.Entity("HireSync.Domain.Entities.EmailOtpChallenge", b =>
@@ -244,47 +213,6 @@ namespace HireSync.Infrastructure.Data.Migrations
                     b.ToTable("EmployerProfiles", (string)null);
                 });
 
-            modelBuilder.Entity("HireSync.Domain.Entities.JobApplication", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("AppliedAtUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<Guid>("JobSeekerProfileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<byte>("Status")
-                        .HasColumnType("tinyint");
-
-                    b.Property<DateTime>("UpdatedAtUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<Guid>("VacancyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("JobSeekerProfileId", "AppliedAtUtc");
-
-                    b.HasIndex("VacancyId", "JobSeekerProfileId")
-                        .IsUnique();
-
-                    b.HasIndex("VacancyId", "Status", "AppliedAtUtc");
-
-                    b.ToTable("JobApplications", (string)null);
-                });
-
             modelBuilder.Entity("HireSync.Domain.Entities.JobSeekerProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -337,53 +265,6 @@ namespace HireSync.Infrastructure.Data.Migrations
                     b.HasIndex("SkillId");
 
                     b.ToTable("JobSeekerSkills", (string)null);
-                });
-
-            modelBuilder.Entity("HireSync.Domain.Entities.Notification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<bool>("IsRead")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<Guid>("JobApplicationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTime?>("ReadAtUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<Guid>("RecipientUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<byte>("Type")
-                        .HasColumnType("tinyint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("JobApplicationId", "CreatedAtUtc");
-
-                    b.HasIndex("RecipientUserId", "IsRead", "CreatedAtUtc");
-
-                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("HireSync.Domain.Entities.Skill", b =>
@@ -744,11 +625,11 @@ namespace HireSync.Infrastructure.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("HireSync.Domain.Entities.ContactRequest", b =>
+            modelBuilder.Entity("HireSync.Domain.Entities.CvDocument", b =>
                 {
-                    b.HasOne("HireSync.Domain.Entities.JobApplication", null)
-                        .WithMany()
-                        .HasForeignKey("JobApplicationId")
+                    b.HasOne("HireSync.Domain.Entities.JobSeekerProfile", null)
+                        .WithOne()
+                        .HasForeignKey("HireSync.Domain.Entities.CvDocument", "JobSeekerProfileId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -759,21 +640,6 @@ namespace HireSync.Infrastructure.Data.Migrations
                         .WithOne()
                         .HasForeignKey("HireSync.Domain.Entities.EmployerProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("HireSync.Domain.Entities.JobApplication", b =>
-                {
-                    b.HasOne("HireSync.Domain.Entities.JobSeekerProfile", null)
-                        .WithMany()
-                        .HasForeignKey("JobSeekerProfileId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("HireSync.Domain.Entities.Vacancy", null)
-                        .WithMany()
-                        .HasForeignKey("VacancyId")
-                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -798,21 +664,6 @@ namespace HireSync.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("SkillId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("HireSync.Domain.Entities.Notification", b =>
-                {
-                    b.HasOne("HireSync.Domain.Entities.JobApplication", null)
-                        .WithMany()
-                        .HasForeignKey("JobApplicationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("HireSync.Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("RecipientUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -890,15 +741,6 @@ namespace HireSync.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
-            modelBuilder.Entity("HireSync.Domain.Entities.CvDocument", b =>
-                {
-                    b.HasOne("HireSync.Domain.Entities.JobSeekerProfile", null)
-                        .WithOne()
-                        .HasForeignKey("HireSync.Domain.Entities.CvDocument", "JobSeekerProfileId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
 #pragma warning restore 612, 618
         }
     }

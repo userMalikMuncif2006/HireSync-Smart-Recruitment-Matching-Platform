@@ -3,9 +3,11 @@ using HireSync.Application.Interfaces.Admin;
 using HireSync.Infrastructure.Admin;
 using HireSync.Application.Interfaces.Email;
 using HireSync.Application.Interfaces.Identity;
+using HireSync.Application.Interfaces.JobSeeker;
 using HireSync.Application.Interfaces.Otp;
 using HireSync.Application.Interfaces.Persistence;
 using HireSync.Application.Interfaces.Security;
+using HireSync.Application.Interfaces.Storage;
 using HireSync.Application.Interfaces.Time;
 using HireSync.Application.Services;
 using HireSync.Application.Interfaces.Employer;
@@ -18,6 +20,7 @@ using HireSync.Infrastructure.Email;
 using HireSync.Infrastructure.Otp;
 using HireSync.Infrastructure.Services;
 using HireSync.Infrastructure.Security;
+using HireSync.Infrastructure.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +41,43 @@ builder.Services.AddDbContext<HireSyncDbContext>(options =>
 
 builder.Services.AddScoped<IHireSyncDbContext>(serviceProvider =>
     serviceProvider.GetRequiredService<HireSyncDbContext>());
+
+// Protected CV storage
+var cvStorageRootPath =
+    builder.Configuration["Storage:CvRoot"]
+    ?? throw new InvalidOperationException(
+        "CV storage root is not configured.");
+
+var publicWebRootPath =
+    builder.Environment.WebRootPath;
+
+if (string.IsNullOrWhiteSpace(
+        publicWebRootPath))
+{
+    publicWebRootPath =
+        Path.Combine(
+            builder.Environment.ContentRootPath,
+            "wwwroot");
+}
+
+var protectedCvStorageRootPath =
+    ProtectedStorageRootValidator
+        .ValidateAndNormalize(
+            cvStorageRootPath,
+            publicWebRootPath);
+
+var localFileStorageOptions =
+    new LocalFileStorageOptions
+    {
+        RootPath =
+            protectedCvStorageRootPath
+    };
+
+// Instantiate now so root create/read/write validation
+// fails during startup rather than on the first upload.
+var localFileStorage =
+    new LocalFileStorage(
+        localFileStorageOptions);
 
 // ASP.NET Core Identity
 builder.Services
@@ -122,10 +162,27 @@ var smtpEmailSettings = new SmtpEmailSettings
     FromEmail = smtpFromEmail,
     FromName = smtpFromName
 };
+
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton(otpSecuritySettings);
 builder.Services.AddSingleton(smtpEmailSettings);
+builder.Services.AddSingleton(localFileStorageOptions);
+
 builder.Services.AddSingleton<IClock, SystemClock>();
+builder.Services.AddSingleton<IFileStorage>(
+    localFileStorage);
+
+builder.Services.AddSingleton<
+    ICvFileValidator,
+    CvFileValidator>();
+
+builder.Services.AddScoped<
+    IJobSeekerCvService,
+    JobSeekerCvService>();
+
+builder.Services.AddScoped<
+    CvStorageReconciliationService>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
@@ -145,6 +202,7 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<IAdministratorActivationCompleter, AdministratorActivationCompleter>();
 builder.Services.AddScoped<IEmployerVerificationAdminService, EmployerVerificationAdminService>();
 builder.Services.AddScoped<IEmployerProfileService, EmployerProfileService>();
+builder.Services.AddScoped<IJobSeekerProfileService, JobSeekerProfileService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
 builder.Services.AddScoped<
     HireSync.Application.Interfaces.Vacancy.IVacancySearchService,
@@ -267,6 +325,14 @@ await using (var scope = app.Services.CreateAsyncScope())
             .GetRequiredService<AdministratorSeeder>();
 
     await administratorSeeder.SeedAsync();
+
+    var cvStorageReconciliationService =
+        scope.ServiceProvider
+            .GetRequiredService<
+                CvStorageReconciliationService>();
+
+    await cvStorageReconciliationService
+        .ReconcileAtStartupAsync();
 }
 
 // HTTP pipeline
