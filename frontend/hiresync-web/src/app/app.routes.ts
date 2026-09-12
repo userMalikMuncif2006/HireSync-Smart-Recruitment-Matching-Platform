@@ -16,6 +16,17 @@ export const routes: Routes = [
       ).then((module) => module.LoginPage),
   },
   {
+    path: 'seeker/vacancies/:vacancyId',
+    canMatch: [roleGuard],
+    data: {
+      role: 'JobSeeker',
+    },
+    loadComponent: () =>
+      import(
+        './features/seeker/matching/job-match-page'
+      ).then((module) => module.JobMatchPage),
+  },
+  {
     path: 'seeker',
     canMatch: [roleGuard],
     data: {

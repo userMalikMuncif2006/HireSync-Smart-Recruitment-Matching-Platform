@@ -1,0 +1,222 @@
+<section
+  class="match-card"
+  aria-labelledby="vacancy-title"
+>
+  @if (loading()) {
+    <p class="state-message" role="status">
+      Loading vacancy details...
+    </p>
+  } @else if (errorMessage()) {
+    <p
+      class="state-message error-message"
+      role="alert"
+    >
+      {{ errorMessage() }}
+    </p>
+  } @else {
+    @if (result(); as detail) {
+      <div class="match-heading">
+        <div>
+          <p class="eyebrow">
+            {{ detail.companyName }}
+          </p>
+
+          <h2 id="vacancy-title">
+            {{ detail.title }}
+          </h2>
+
+          <p>
+            {{ detail.location }}
+          </p>
+        </div>
+      </div>
+
+      <p>
+        {{ detail.description }}
+      </p>
+
+      <p>
+        Required experience:
+        <strong>
+          {{ detail.minimumExperienceMonths }}
+          months
+        </strong>
+      </p>
+
+      <section>
+        <h3>Required skills</h3>
+
+        @if (detail.requiredSkills.length > 0) {
+          <ul class="skill-list">
+            @for (
+              skill of detail.requiredSkills;
+              track skill.id
+            ) {
+              <li>{{ skill.name }}</li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section aria-label="Application readiness">
+        <h3>Application readiness</h3>
+
+        @if (detail.hasApplied) {
+          <p class="empty-state">
+            Already applied to this vacancy.
+          </p>
+        } @else if (detail.canApply) {
+          <p class="empty-state">
+            Your profile and current CV are ready
+            for application.
+          </p>
+
+          <button
+            type="button"
+            class="apply-button"
+            [disabled]="applying()"
+            (click)="apply()"
+          >
+            @if (applying()) {
+              Applying...
+            } @else {
+              Apply now
+            }
+          </button>
+        } @else if (
+          detail.matchStatus === 'ProfileIncomplete'
+        ) {
+          <p class="empty-state">
+            Complete your structured profile before
+            applying.
+          </p>
+
+          @if (
+            detail.missingProfileFields.length > 0
+          ) {
+            <ul class="skill-list">
+              @for (
+                field of detail.missingProfileFields;
+                track field
+              ) {
+                <li>{{ field }}</li>
+              }
+            </ul>
+          }
+        } @else {
+          <p class="empty-state">
+            Upload a current CV before applying.
+          </p>
+        }
+        @if (applicationMessage()) {
+          <p
+            class="application-message"
+            role="status"
+          >
+            {{ applicationMessage() }}
+          </p>
+        }
+      </section>
+
+      @if (detail.match; as match) {
+        <div class="total-score">
+          <span>Overall match</span>
+          <strong>
+            {{ match.totalScore }}%
+          </strong>
+        </div>
+
+        <div
+          class="score-grid"
+          aria-label="Match component scores"
+        >
+          <article>
+            <span>Skills</span>
+            <strong>
+              {{ match.skillsScore }} / 50
+            </strong>
+          </article>
+
+          <article>
+            <span>Experience</span>
+            <strong>
+              {{ match.experienceScore }} / 25
+            </strong>
+          </article>
+
+          <article>
+            <span>Education</span>
+            <strong>
+              {{ match.educationScore }} / 15
+            </strong>
+          </article>
+
+          <article>
+            <span>Location</span>
+            <strong>
+              {{ match.locationScore }} / 10
+            </strong>
+          </article>
+        </div>
+
+        <div class="skill-sections">
+          <section>
+            <h3>Matched skills</h3>
+
+            @if (
+              match.matchedSkills.length > 0
+            ) {
+              <ul
+                class="skill-list matched-list"
+              >
+                @for (
+                  skill of match.matchedSkills;
+                  track skill.id
+                ) {
+                  <li>{{ skill.name }}</li>
+                }
+              </ul>
+            } @else {
+              <p class="empty-state">
+                No required skills matched.
+              </p>
+            }
+          </section>
+
+          <section>
+            <h3>Missing skills</h3>
+
+            @if (
+              match.missingSkills.length > 0
+            ) {
+              <ul
+                class="skill-list missing-list"
+              >
+                @for (
+                  skill of match.missingSkills;
+                  track skill.id
+                ) {
+                  <li>{{ skill.name }}</li>
+                }
+              </ul>
+            } @else {
+              <p class="empty-state">
+                All required skills matched.
+              </p>
+            }
+          </section>
+        </div>
+      } @else {
+        <p class="empty-state">
+          Complete your structured profile to see
+          your deterministic match score.
+        </p>
+      }
+
+      <p class="empty-state">
+        Match computed from current structured data:
+        {{ detail.computedAtUtc }}
+      </p>
+    }
+  }
+</section>

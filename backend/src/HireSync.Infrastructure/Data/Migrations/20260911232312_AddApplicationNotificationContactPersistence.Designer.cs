@@ -4,6 +4,7 @@ using HireSync.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HireSync.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(HireSyncDbContext))]
-    partial class HireSyncDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260911232312_AddApplicationNotificationContactPersistence")]
+    partial class AddApplicationNotificationContactPersistence
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,67 +24,6 @@ namespace HireSync.Infrastructure.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("HireSync.Domain.Entities.CvDocument", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Extension")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<Guid>("JobSeekerProfileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("OriginalFileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("RelativeStoragePath")
-                        .IsRequired()
-                        .HasMaxLength(260)
-                        .HasColumnType("nvarchar(260)");
-
-                    b.Property<string>("Sha256Hash")
-                        .IsRequired()
-                        .HasColumnType("char(64)");
-
-                    b.Property<long>("SizeBytes")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("StoredFileName")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<DateTime>("UploadedAtUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("datetime2(3)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("JobSeekerProfileId")
-                        .IsUnique();
-
-                    b.HasIndex("StoredFileName")
-                        .IsUnique();
-
-                    b.ToTable("CvDocuments", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_CvDocuments_Extension", "[Extension] IN ('.pdf', '.docx')");
-
-                            t.HasCheckConstraint("CK_CvDocuments_SizeBytes", "[SizeBytes] >= 1 AND [SizeBytes] <= 5000000");
-                        });
-                });
 
             modelBuilder.Entity("HireSync.Domain.Entities.ContactRequest", b =>
                 {
@@ -890,15 +832,6 @@ namespace HireSync.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
-            modelBuilder.Entity("HireSync.Domain.Entities.CvDocument", b =>
-                {
-                    b.HasOne("HireSync.Domain.Entities.JobSeekerProfile", null)
-                        .WithOne()
-                        .HasForeignKey("HireSync.Domain.Entities.CvDocument", "JobSeekerProfileId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
 #pragma warning restore 612, 618
         }
     }

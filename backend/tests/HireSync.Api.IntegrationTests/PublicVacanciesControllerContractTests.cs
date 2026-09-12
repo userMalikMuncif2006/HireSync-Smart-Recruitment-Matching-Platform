@@ -1,5 +1,8 @@
 using HireSync.Api.Controllers;
+using HireSync.Application.DTOs.Matching;
 using HireSync.Application.DTOs.Vacancy;
+using HireSync.Application.Interfaces.Matching;
+using HireSync.Application.Interfaces.Security;
 using HireSync.Application.Interfaces.Vacancy;
 using HireSync.Application.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +16,7 @@ public sealed class PublicVacanciesControllerContractTests
     [Fact]
     public void Controller_requires_JobSeeker_role()
     {
-        var attribute =
+        var authorize =
             typeof(PublicVacanciesController)
                 .GetCustomAttributes(
                     typeof(AuthorizeAttribute),
@@ -23,12 +26,13 @@ public sealed class PublicVacanciesControllerContractTests
 
         Assert.Equal(
             RoleNames.JobSeeker,
-            attribute.Roles);
+            authorize.Roles);
     }
+
     [Fact]
-    public void Controller_uses_public_vacancy_route()
+    public void Detail_uses_canonical_vacancy_route()
     {
-        var attribute =
+        var route =
             typeof(PublicVacanciesController)
                 .GetCustomAttributes(
                     typeof(RouteAttribute),
@@ -38,158 +42,271 @@ public sealed class PublicVacanciesControllerContractTests
 
         Assert.Equal(
             "api/v1/vacancies",
-            attribute.Template);
+            route.Template);
+
+        var method =
+            typeof(PublicVacanciesController)
+                .GetMethod(
+                    nameof(
+                        PublicVacanciesController
+                            .GetVacancyDetail));
+
+        Assert.NotNull(method);
+
+        var httpGet =
+            method!
+                .GetCustomAttributes(
+                    typeof(HttpGetAttribute),
+                    inherit: true)
+                .Cast<HttpGetAttribute>()
+                .Single();
+
+        Assert.Equal(
+            "{vacancyId:guid}",
+            httpGet.Template);
     }
 
     [Fact]
-    public async Task SearchVacancies_returns_200_for_valid_newest_search()
+    public async Task Detail_returns_200_for_profile_incomplete_domain_state()
     {
-        var page =
-            new PublicVacancyPageDto(
-                Array.Empty<PublicVacancyListItemDto>(),
-                Page: 1,
-                PageSize: 20,
-                TotalCount: 0);
+        var vacancyId =
+            Guid.NewGuid();
 
-        var service =
-            new FakeVacancySearchService
-            {
-                Result = page
-            };
+        var userId =
+            Guid.NewGuid();
+
+        var expected =
+            new PublicVacancyDetailDto(
+                vacancyId,
+                "Backend Developer",
+                "Build HireSync services.",
+                "HireSync Employer",
+                "Recruitment company",
+                null,
+                "Colombo",
+                "Colombo",
+                12,
+                null,
+                DateTime.UtcNow,
+                Array.Empty<
+                    HireSync.Application.DTOs.SkillSummaryDto>(),
+                MatchStatusCodes.ProfileIncomplete,
+                null,
+                new[]
+                {
+                    "Skills"
+                },
+                false,
+                false,
+                DateTime.UtcNow);
+
+        var detailService =
+            new FakeVacancyDetailService(
+                VacancyDetailQueryResult.Success(
+                    expected));
 
         var controller =
-            new PublicVacanciesController(service);
+            CreateController(
+                detailService,
+                new FakeCurrentUser(
+                    true,
+                    userId));
 
-        var request =
-            new SearchVacanciesRequest(
-                Q: "developer",
-                Location: "Colombo",
-                Sort: VacancySearchSort.Newest,
-                Page: 1,
-                PageSize: 20);
-
-        var result =
-            await controller.SearchVacancies(
-                request,
+        var action =
+            await controller.GetVacancyDetail(
+                vacancyId,
                 CancellationToken.None);
 
         var ok =
             Assert.IsType<OkObjectResult>(
-                result.Result);
-
-        var response =
-            Assert.IsType<PublicVacancyPageDto>(
-                ok.Value);
+                action.Result);
 
         Assert.Equal(
             StatusCodes.Status200OK,
             ok.StatusCode);
 
         Assert.Same(
-            page,
-            response);
+            expected,
+            ok.Value);
 
         Assert.Equal(
-            1,
-            service.CallCount);
+            userId,
+            detailService.LastUserId);
 
-        Assert.Same(
-            request,
-            service.LastRequest);
+        Assert.Equal(
+            vacancyId,
+            detailService.LastVacancyId);
     }
 
     [Fact]
-    public async Task SearchVacancies_returns_400_for_invalid_request()
+    public async Task Detail_returns_401_for_invalid_current_user()
     {
-        var service =
-            new FakeVacancySearchService();
+        var detailService =
+            new FakeVacancyDetailService(
+                VacancyDetailQueryResult.Failure(
+                    VacancyDetailFailureReason.InvalidInput));
 
         var controller =
-            new PublicVacanciesController(service);
+            CreateController(
+                detailService,
+                new FakeCurrentUser(
+                    false,
+                    null));
 
-        var request =
-            new SearchVacanciesRequest(
-                Page: 0,
-                PageSize: 20);
-
-        var result =
-            await controller.SearchVacancies(
-                request,
+        var action =
+            await controller.GetVacancyDetail(
+                Guid.NewGuid(),
                 CancellationToken.None);
 
         var problem =
             Assert.IsType<ObjectResult>(
-                result.Result);
+                action.Result);
 
         Assert.Equal(
-            StatusCodes.Status400BadRequest,
+            StatusCodes.Status401Unauthorized,
             problem.StatusCode);
 
-        Assert.Equal(
-            0,
-            service.CallCount);
-
         Assert.Null(
-            service.LastRequest);
+            detailService.LastUserId);
     }
 
     [Fact]
-    public async Task SearchVacancies_returns_400_for_match_sort_until_matching_is_integrated()
+    public async Task Detail_returns_404_for_unavailable_vacancy()
     {
-        var service =
-            new FakeVacancySearchService();
-
         var controller =
-            new PublicVacanciesController(service);
+            CreateController(
+                new FakeVacancyDetailService(
+                    VacancyDetailQueryResult.Failure(
+                        VacancyDetailFailureReason
+                            .VacancyUnavailable)),
+                new FakeCurrentUser(
+                    true,
+                    Guid.NewGuid()));
 
-        var request =
-            new SearchVacanciesRequest(
-                Sort: VacancySearchSort.Match);
-
-        var result =
-            await controller.SearchVacancies(
-                request,
+        var action =
+            await controller.GetVacancyDetail(
+                Guid.NewGuid(),
                 CancellationToken.None);
 
         var problem =
             Assert.IsType<ObjectResult>(
-                result.Result);
+                action.Result);
+
+        Assert.Equal(
+            StatusCodes.Status404NotFound,
+            problem.StatusCode);
+    }
+
+    [Fact]
+    public async Task Detail_returns_400_for_invalid_vacancy_id()
+    {
+        var controller =
+            CreateController(
+                new FakeVacancyDetailService(
+                    VacancyDetailQueryResult.Failure(
+                        VacancyDetailFailureReason
+                            .InvalidInput)),
+                new FakeCurrentUser(
+                    true,
+                    Guid.NewGuid()));
+
+        var action =
+            await controller.GetVacancyDetail(
+                Guid.Empty,
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                action.Result);
 
         Assert.Equal(
             StatusCodes.Status400BadRequest,
             problem.StatusCode);
+    }
 
-        Assert.Equal(
-            0,
-            service.CallCount);
-
-        Assert.Null(
-            service.LastRequest);
+    private static PublicVacanciesController
+        CreateController(
+            IVacancyDetailService detailService,
+            ICurrentUser currentUser)
+    {
+        return new PublicVacanciesController(
+            new FakeVacancySearchService(),
+            detailService,
+            currentUser);
     }
 
     private sealed class FakeVacancySearchService
         : IVacancySearchService
     {
-        public PublicVacancyPageDto Result { get; set; } =
-            new(
-                Array.Empty<PublicVacancyListItemDto>(),
-                Page: 1,
-                PageSize: 20,
-                TotalCount: 0);
-
-        public int CallCount { get; private set; }
-
-        public SearchVacanciesRequest? LastRequest { get; private set; }
-
         public Task<PublicVacancyPageDto>
             SearchOpenVacanciesAsync(
                 SearchVacanciesRequest request,
                 CancellationToken cancellationToken = default)
         {
-            CallCount++;
-            LastRequest = request;
-
-            return Task.FromResult(Result);
+            return Task.FromResult(
+                new PublicVacancyPageDto(
+                    Array.Empty<
+                        PublicVacancyListItemDto>(),
+                    request.Page,
+                    request.PageSize,
+                    0));
         }
+    }
+
+    private sealed class FakeVacancyDetailService
+        : IVacancyDetailService
+    {
+        private readonly VacancyDetailQueryResult _result;
+
+        public FakeVacancyDetailService(
+            VacancyDetailQueryResult result)
+        {
+            _result = result;
+        }
+
+        public Guid? LastUserId { get; private set; }
+
+        public Guid? LastVacancyId { get; private set; }
+
+        public Task<VacancyDetailQueryResult>
+            GetDetailAsync(
+                Guid jobSeekerUserId,
+                Guid vacancyId,
+                CancellationToken cancellationToken = default)
+        {
+            LastUserId =
+                jobSeekerUserId;
+
+            LastVacancyId =
+                vacancyId;
+
+            return Task.FromResult(
+                _result);
+        }
+    }
+
+    private sealed class FakeCurrentUser
+        : ICurrentUser
+    {
+        public FakeCurrentUser(
+            bool isAuthenticated,
+            Guid? userId)
+        {
+            IsAuthenticated =
+                isAuthenticated;
+
+            UserId =
+                userId;
+        }
+
+        public bool IsAuthenticated { get; }
+
+        public Guid? UserId { get; }
+
+        public string? Role =>
+            RoleNames.JobSeeker;
+
+        public string? Email =>
+            "jobseeker@example.com";
     }
 }

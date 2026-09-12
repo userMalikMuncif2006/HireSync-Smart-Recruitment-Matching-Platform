@@ -11,7 +11,10 @@ using HireSync.Application.Interfaces.Storage;
 using HireSync.Application.Interfaces.Time;
 using HireSync.Application.Services;
 using HireSync.Application.Interfaces.Employer;
+using HireSync.Application.Interfaces.Matching;
 using HireSync.Infrastructure.Employer;
+using HireSync.Domain.Matching;
+using HireSync.Infrastructure.Matching;
 using HireSync.Infrastructure.Data;
 using HireSync.Infrastructure.Email;
 using HireSync.Infrastructure.Otp;
@@ -204,6 +207,11 @@ builder.Services.AddScoped<IVacancyService, VacancyService>();
 builder.Services.AddScoped<
     HireSync.Application.Interfaces.Vacancy.IVacancySearchService,
     HireSync.Infrastructure.Search.VacancySearchService>();
+builder.Services.AddSingleton<IMatchEngine, MatchEngine>();
+builder.Services.AddScoped<IVacancyDetailService, VacancyDetailService>();
+builder.Services.AddScoped<HireSync.Application.Interfaces.Applications.IJobApplicationService, HireSync.Infrastructure.Applications.JobApplicationService>();
+builder.Services.AddScoped<HireSync.Application.Interfaces.Applications.IApplicationStatusService, HireSync.Infrastructure.Applications.ApplicationStatusService>();
+builder.Services.AddScoped<HireSync.Application.Interfaces.ContactRequests.IContactRequestService, HireSync.Infrastructure.ContactRequests.ContactRequestService>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RegistrationService>();

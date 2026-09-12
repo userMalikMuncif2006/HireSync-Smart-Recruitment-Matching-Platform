@@ -1,0 +1,162 @@
+:host {
+  display: block;
+}
+
+.match-card {
+  border: 1px solid #dfe7e5;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 1.25rem;
+}
+
+.match-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  color: #526966;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h2 {
+  margin-bottom: 0;
+  font-size: 1.35rem;
+}
+
+.total-score {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  border-radius: 12px;
+  background: #f3f8f7;
+  padding: 1rem;
+}
+
+.total-score strong {
+  font-size: 1.6rem;
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.score-grid article {
+  display: grid;
+  gap: 0.4rem;
+  border: 1px solid #e3e9e8;
+  border-radius: 12px;
+  padding: 0.9rem;
+}
+
+.score-grid span {
+  color: #526966;
+  font-size: 0.85rem;
+}
+
+.skill-sections {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.skill-sections section {
+  border-top: 1px solid #e3e9e8;
+  padding-top: 1rem;
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill-list li {
+  border-radius: 999px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.matched-list li {
+  background: #e8f5f1;
+}
+
+.missing-list li {
+  background: #f5eeee;
+}
+
+.state-message,
+.empty-state {
+  margin: 1rem 0 0;
+  color: #526966;
+}
+
+.error-message {
+  color: #8b2f2f;
+}
+
+@media (max-width: 480px) {
+  .match-card {
+    padding: 1rem;
+  }
+
+  .total-score {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.apply-button {
+  margin-top: 0.9rem;
+  border: 0;
+  border-radius: 10px;
+  background: #176b5b;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font: inherit;
+  font-weight: 700;
+}
+
+.apply-button:hover:not(:disabled) {
+  background: #12594c;
+}
+
+.apply-button:focus-visible {
+  outline: 3px solid #9bd5c8;
+  outline-offset: 2px;
+}
+
+.apply-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.application-message {
+  margin: 0.75rem 0 0;
+  color: #365b54;
+  font-weight: 600;
+}
