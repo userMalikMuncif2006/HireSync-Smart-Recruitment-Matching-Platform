@@ -1,0 +1,265 @@
+<section class="vacancy-page">
+  <header class="page-header">
+    <p class="eyebrow">Job Seeker</p>
+    <h1>Find your next opportunity</h1>
+    <p>
+      Search open vacancies, filter by location and rank results
+      using your current HireSync match score.
+    </p>
+  </header>
+
+  <form
+    class="search-panel"
+    [formGroup]="form"
+    (ngSubmit)="applyFilters()"
+    novalidate
+  >
+    <div class="field">
+      <label for="vacancy-query">
+        Keyword
+      </label>
+
+      <input
+        id="vacancy-query"
+        type="search"
+        formControlName="q"
+        maxlength="100"
+        placeholder="Job title, company or keyword"
+      />
+
+      @if (form.controls.q.hasError('maxlength')) {
+        <small>
+          Keyword must be 100 characters or fewer.
+        </small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="vacancy-location">
+        Location
+      </label>
+
+      <input
+        id="vacancy-location"
+        type="text"
+        formControlName="location"
+        maxlength="100"
+        placeholder="e.g. Colombo"
+      />
+
+      @if (form.controls.location.hasError('maxlength')) {
+        <small>
+          Location must be 100 characters or fewer.
+        </small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="vacancy-sort">
+        Sort by
+      </label>
+
+      <select
+        id="vacancy-sort"
+        formControlName="sort"
+      >
+        <option value="Newest">
+          Newest
+        </option>
+
+        <option value="Match">
+          Best match
+        </option>
+      </select>
+    </div>
+
+    <div class="search-actions">
+      <button
+        class="primary-button"
+        type="submit"
+        [disabled]="isLoading()"
+      >
+        Search vacancies
+      </button>
+
+      <button
+        class="secondary-button"
+        type="button"
+        [disabled]="isLoading()"
+        (click)="clearFilters()"
+      >
+        Clear
+      </button>
+    </div>
+  </form>
+
+  @if (isLoading()) {
+    <div
+      class="state-card"
+      aria-live="polite"
+    >
+      <strong>Loading vacancies...</strong>
+      <span>
+        Finding current open opportunities.
+      </span>
+    </div>
+  } @else if (errorMessage()) {
+    <div
+      class="state-card error"
+      role="alert"
+    >
+      <strong>
+        Unable to load vacancies
+      </strong>
+
+      <span>
+        {{ errorMessage() }}
+      </span>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="reload()"
+      >
+        Try again
+      </button>
+    </div>
+  } @else {
+    @if (result(); as searchResult) {
+    <div class="result-summary">
+      <div>
+        <strong>
+          {{ searchResult.totalCount }}
+          {{ searchResult.totalCount === 1 ? 'vacancy' : 'vacancies' }}
+        </strong>
+
+        <span>
+          Page {{ searchResult.page }} of {{ totalPages() }}
+        </span>
+      </div>
+
+      @if (form.controls.sort.value === 'Match') {
+        <span class="match-note">
+          Ranked using your current structured profile
+        </span>
+      }
+    </div>
+
+    @if (searchResult.items.length === 0) {
+      <div class="state-card">
+        <strong>No vacancies found</strong>
+
+        <span>
+          Try a different keyword, location or sort option.
+        </span>
+      </div>
+    } @else {
+      <div class="vacancy-grid">
+        @for (
+          vacancy of searchResult.items;
+          track vacancy.id
+        ) {
+          <article class="vacancy-card">
+            <div class="card-heading">
+              <div>
+                <p class="company">
+                  {{ vacancy.companyName }}
+                </p>
+
+                <h2>
+                  {{ vacancy.title }}
+                </h2>
+              </div>
+
+              @if (vacancy.matchScore !== null) {
+                <div class="score-badge">
+                  <span>Match</span>
+                  <strong>
+                    {{ matchScoreLabel(vacancy.matchScore) }}
+                  </strong>
+                </div>
+              }
+            </div>
+
+            <dl class="vacancy-facts">
+              <div>
+                <dt>Location</dt>
+                <dd>{{ vacancy.location }}</dd>
+              </div>
+
+              <div>
+                <dt>Experience</dt>
+                <dd>
+                  {{
+                    experienceLabel(
+                      vacancy.minimumExperienceMonths
+                    )
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Education</dt>
+                <dd>
+                  {{
+                    educationLabel(
+                      vacancy.requiredEducationLevel
+                    )
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Published</dt>
+                <dd>
+                  {{
+                    vacancy.publishedAtUtc
+                      | date: 'mediumDate'
+                  }}
+                </dd>
+              </div>
+            </dl>
+
+            <button
+              class="details-button"
+              type="button"
+              (click)="openVacancy(vacancy.id)"
+            >
+              View vacancy &amp; match details
+            </button>
+          </article>
+        }
+      </div>
+
+      @if (searchResult.totalCount > searchResult.pageSize) {
+        <nav
+          class="pagination"
+          aria-label="Vacancy result pages"
+        >
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="searchResult.page <= 1 || isLoading()"
+            (click)="previousPage()"
+          >
+            Previous
+          </button>
+
+          <span>
+            Page {{ searchResult.page }} of {{ totalPages() }}
+          </span>
+
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="searchResult.page >= totalPages() || isLoading()"
+            (click)="nextPage()"
+          >
+            Next
+          </button>
+        </nav>
+      }
+    }
+    }
+  }
+</section>

@@ -16,6 +16,19 @@ export const routes: Routes = [
       ).then((module) => module.LoginPage),
   },
   {
+    path: 'seeker/vacancies',
+    canMatch: [roleGuard],
+    data: {
+      role: 'JobSeeker',
+    },
+    loadComponent: () =>
+      import(
+        './features/seeker/vacancies/vacancy-search-page'
+      ).then(
+        (module) => module.VacancySearchPage,
+      ),
+  },
+  {
     path: 'seeker/vacancies/:vacancyId',
     canMatch: [roleGuard],
     data: {
@@ -51,6 +64,42 @@ export const routes: Routes = [
         path: '',
         pathMatch: 'full',
         redirectTo: 'profile',
+      },
+      {
+        path: 'vacancies',
+        loadComponent: () =>
+          import(
+            './features/employer/vacancies/employer-vacancy-list-page'
+          ).then(
+            (module) => module.EmployerVacancyListPage,
+          ),
+      },
+      {
+        path: 'vacancies/new',
+        loadComponent: () =>
+          import(
+            './features/employer/vacancies/employer-vacancy-form-page'
+          ).then(
+            (module) => module.EmployerVacancyFormPage,
+          ),
+      },
+      {
+        path: 'vacancies/:vacancyId/edit',
+        loadComponent: () =>
+          import(
+            './features/employer/vacancies/employer-vacancy-form-page'
+          ).then(
+            (module) => module.EmployerVacancyFormPage,
+          ),
+      },
+      {
+        path: 'vacancies/:vacancyId/applicants',
+        loadComponent: () =>
+          import(
+            './features/employer/vacancies/ranked-applicants-page'
+          ).then(
+            (module) => module.RankedApplicantsPage,
+          ),
       },
       {
         path: 'profile',

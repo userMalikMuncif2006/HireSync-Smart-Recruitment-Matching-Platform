@@ -1,0 +1,279 @@
+<section class="employer-page">
+  <header class="page-header">
+    <p class="eyebrow">Employer</p>
+    <h1>Vacancy management</h1>
+    <p>
+      Review your vacancies, inspect ranked applicants and close
+      vacancies that are no longer accepting applications.
+    </p>
+  </header>
+
+  <div class="page-actions">
+    <button
+      type="button"
+      class="primary-button"
+      (click)="createVacancy()"
+    >
+      Create vacancy
+    </button>
+  </div>
+
+  <div class="filter-panel">
+    <label for="vacancy-status">
+      Vacancy status
+    </label>
+
+    <select
+      id="vacancy-status"
+      [formControl]="statusFilter"
+    >
+      <option value="all">
+        All vacancies
+      </option>
+      <option value="open">
+        Open
+      </option>
+      <option value="closed">
+        Closed
+      </option>
+    </select>
+
+    <button
+      type="button"
+      class="primary-button"
+      [disabled]="isLoading()"
+      (click)="applyFilter()"
+    >
+      Apply filter
+    </button>
+  </div>
+
+  @if (actionError()) {
+    <div
+      class="state-card error"
+      role="alert"
+    >
+      {{ actionError() }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div
+      class="state-card"
+      aria-live="polite"
+    >
+      <strong>Loading vacancies...</strong>
+      <span>
+        Retrieving your current vacancy portfolio.
+      </span>
+    </div>
+  } @else if (loadError()) {
+    <div
+      class="state-card error"
+      role="alert"
+    >
+      <strong>
+        Unable to load vacancies
+      </strong>
+
+      <span>
+        {{ loadError() }}
+      </span>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="reload()"
+      >
+        Try again
+      </button>
+    </div>
+  } @else {
+    @if (result(); as vacancyPage) {
+      <div class="result-summary">
+        <div>
+          <strong>
+            {{ vacancyPage.totalCount }}
+            {{
+              vacancyPage.totalCount === 1
+                ? 'vacancy'
+                : 'vacancies'
+            }}
+          </strong>
+
+          <span>
+            Page {{ vacancyPage.page }}
+            of {{ totalPages() }}
+          </span>
+        </div>
+      </div>
+
+      @if (vacancyPage.items.length === 0) {
+        <div class="state-card">
+          <strong>
+            No vacancies found
+          </strong>
+
+          <span>
+            No vacancies match the selected status.
+          </span>
+        </div>
+      } @else {
+        <div class="vacancy-grid">
+          @for (
+            vacancy of vacancyPage.items;
+            track vacancy.id
+          ) {
+            <article class="vacancy-card">
+              <div class="card-heading">
+                <div>
+                  <span
+                    class="status-badge"
+                    [class.closed]="vacancy.status === 2"
+                  >
+                    {{ statusLabel(vacancy.status) }}
+                  </span>
+
+                  <h2>
+                    {{ vacancy.title }}
+                  </h2>
+
+                  <p class="location">
+                    {{ vacancy.location }}
+                  </p>
+                </div>
+              </div>
+
+              <dl class="facts">
+                <div>
+                  <dt>Published</dt>
+                  <dd>
+                    {{
+                      vacancy.publishedAtUtc
+                        | date: 'mediumDate'
+                    }}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt>Last updated</dt>
+                  <dd>
+                    {{
+                      vacancy.updatedAtUtc
+                        | date: 'medium'
+                    }}
+                  </dd>
+                </div>
+
+                @if (vacancy.closedAtUtc) {
+                  <div>
+                    <dt>Closed</dt>
+                    <dd>
+                      {{
+                        vacancy.closedAtUtc
+                          | date: 'medium'
+                      }}
+                    </dd>
+                  </div>
+                }
+              </dl>
+
+              <div class="card-actions">
+                <button
+                  type="button"
+                  class="primary-button"
+                  (click)="viewApplicants(vacancy.id)"
+                >
+                  View ranked applicants
+                </button>
+
+                @if (vacancy.status === 1) {
+                  <button
+                    type="button"
+                    class="secondary-button"
+                    (click)="editVacancy(vacancy.id)"
+                  >
+                    Edit vacancy
+                  </button>
+                }
+
+                @if (vacancy.status === 1) {
+                  @if (pendingCloseId() !== vacancy.id) {
+                    <button
+                      type="button"
+                      class="danger-outline"
+                      (click)="requestClose(vacancy.id)"
+                    >
+                      Close vacancy
+                    </button>
+                  } @else {
+                    <div class="close-confirmation">
+                      <span>
+                        Closing is final. Continue?
+                      </span>
+
+                      <button
+                        type="button"
+                        class="danger-button"
+                        [disabled]="closingId() === vacancy.id"
+                        (click)="confirmClose(vacancy)"
+                      >
+                        {{
+                          closingId() === vacancy.id
+                            ? 'Closing...'
+                            : 'Confirm close'
+                        }}
+                      </button>
+
+                      <button
+                        type="button"
+                        class="secondary-button"
+                        [disabled]="closingId() === vacancy.id"
+                        (click)="cancelClose()"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  }
+                }
+              </div>
+            </article>
+          }
+        </div>
+
+        @if (
+          vacancyPage.totalCount >
+          vacancyPage.pageSize
+        ) {
+          <nav
+            class="pagination"
+            aria-label="Employer vacancy pages"
+          >
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="vacancyPage.page <= 1"
+              (click)="previousPage()"
+            >
+              Previous
+            </button>
+
+            <span>
+              Page {{ vacancyPage.page }}
+              of {{ totalPages() }}
+            </span>
+
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="vacancyPage.page >= totalPages()"
+              (click)="nextPage()"
+            >
+              Next
+            </button>
+          </nav>
+        }
+      }
+    }
+  }
+</section>

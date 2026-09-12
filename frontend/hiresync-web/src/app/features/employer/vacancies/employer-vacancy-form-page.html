@@ -1,0 +1,349 @@
+<section class="form-page">
+  <button
+    type="button"
+    class="back-button"
+    (click)="backToVacancies()"
+  >
+    ← Back to vacancies
+  </button>
+
+  <header class="page-header">
+    <p class="eyebrow">Employer</p>
+
+    <h1>
+      {{
+        isEditMode
+          ? 'Edit vacancy'
+          : 'Create vacancy'
+      }}
+    </h1>
+
+    <p>
+      Define the structured vacancy requirements used by HireSync
+      matching. Required skills are selected only from the canonical
+      C2 skill catalogue.
+    </p>
+  </header>
+
+  @if (isClosed()) {
+    <div class="state-card warning">
+      <strong>Closed vacancy</strong>
+
+      <span>
+        Closed vacancies are read-only and cannot be edited.
+      </span>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div
+      class="state-card error"
+      role="alert"
+    >
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="state-card">
+      Loading vacancy...
+    </div>
+  } @else {
+    <form
+      class="vacancy-form"
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      novalidate
+    >
+      <div class="field">
+        <label for="title">
+          Vacancy title
+        </label>
+
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          maxlength="150"
+        />
+
+        @if (
+          form.controls.title.touched &&
+          form.controls.title.invalid
+        ) {
+          <small>
+            Title must contain 3–150 characters.
+          </small>
+        }
+      </div>
+
+      <div class="field full-width">
+        <label for="description">
+          Description
+        </label>
+
+        <textarea
+          id="description"
+          rows="8"
+          formControlName="description"
+          maxlength="5000"
+        ></textarea>
+
+        @if (
+          form.controls.description.touched &&
+          form.controls.description.invalid
+        ) {
+          <small>
+            Description must contain 20–5000 characters.
+          </small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="location">
+          Location
+        </label>
+
+        <input
+          id="location"
+          type="text"
+          formControlName="location"
+          maxlength="100"
+        />
+
+        @if (
+          form.controls.location.touched &&
+          form.controls.location.invalid
+        ) {
+          <small>
+            Location must contain 2–100 characters.
+          </small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="experience">
+          Minimum experience
+          <span>in months</span>
+        </label>
+
+        <input
+          id="experience"
+          type="number"
+          min="0"
+          max="720"
+          formControlName="minimumExperienceMonths"
+        />
+
+        @if (
+          form.controls.minimumExperienceMonths.touched &&
+          form.controls.minimumExperienceMonths.invalid
+        ) {
+          <small>
+            Experience must be between 0 and 720 months.
+          </small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="education">
+          Minimum education
+        </label>
+
+        <select
+          id="education"
+          formControlName="requiredEducationLevel"
+        >
+          <option [ngValue]="null">
+            No minimum
+          </option>
+          <option [ngValue]="0">
+            No formal qualification
+          </option>
+          <option [ngValue]="1">
+            Ordinary Level
+          </option>
+          <option [ngValue]="2">
+            Advanced Level
+          </option>
+          <option [ngValue]="3">
+            Certificate
+          </option>
+          <option [ngValue]="4">
+            Diploma
+          </option>
+          <option [ngValue]="5">
+            Bachelor
+          </option>
+          <option [ngValue]="6">
+            Postgraduate Diploma
+          </option>
+          <option [ngValue]="7">
+            Master
+          </option>
+          <option [ngValue]="8">
+            Doctorate
+          </option>
+        </select>
+      </div>
+
+      <section class="skills-section full-width">
+        <div class="section-heading">
+          <div>
+            <h2>Required skills</h2>
+
+            <p>
+              Select between 1 and 50 canonical skills.
+            </p>
+          </div>
+
+          <span class="selection-count">
+            {{ selectedSkills().length }} selected
+          </span>
+        </div>
+
+        @if (selectedSkills().length > 0) {
+          <div class="selected-skills">
+            @for (
+              skill of selectedSkills();
+              track skill.id
+            ) {
+              <span class="selected-skill">
+                {{ skill.name }}
+
+                @if (!isClosed()) {
+                  <button
+                    type="button"
+                    aria-label="Remove skill"
+                    (click)="removeSkill(skill.id)"
+                  >
+                    ×
+                  </button>
+                }
+              </span>
+            }
+          </div>
+        }
+
+        <div class="skill-search">
+          <div class="field">
+            <label for="skill-query">
+              Search canonical skills
+            </label>
+
+            <input
+              id="skill-query"
+              type="search"
+              maxlength="50"
+              [formControl]="skillQuery"
+              placeholder="e.g. Angular, C#, SQL"
+            />
+
+            @if (
+              skillQuery.touched &&
+              skillQuery.invalid
+            ) {
+              <small>
+                Skill query must be 50 characters or fewer.
+              </small>
+            }
+          </div>
+
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="isLoadingSkills()"
+            (click)="searchSkills()"
+          >
+            {{
+              isLoadingSkills()
+                ? 'Searching...'
+                : 'Search'
+            }}
+          </button>
+
+          <button
+            type="button"
+            class="text-button"
+            [disabled]="isLoadingSkills()"
+            (click)="clearSkillSearch()"
+          >
+            Show all
+          </button>
+        </div>
+
+        @if (skillError()) {
+          <div
+            class="inline-error"
+            role="alert"
+          >
+            {{ skillError() }}
+          </div>
+        }
+
+        @if (isLoadingSkills()) {
+          <p class="muted">
+            Loading canonical skills...
+          </p>
+        } @else if (
+          availableSkills().length === 0
+        ) {
+          <p class="muted">
+            No canonical skills match this query.
+          </p>
+        } @else {
+          <div class="skill-options">
+            @for (
+              skill of availableSkills();
+              track skill.id
+            ) {
+              <label
+                class="skill-option"
+                [class.selected]="isSkillSelected(skill.id)"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="isSkillSelected(skill.id)"
+                  [disabled]="isClosed()"
+                  (change)="toggleSkill(skill)"
+                />
+
+                <span>
+                  {{ skill.name }}
+                </span>
+              </label>
+            }
+          </div>
+        }
+      </section>
+
+      <div class="form-actions full-width">
+        <button
+          type="submit"
+          class="primary-button"
+          [disabled]="
+            isSaving() ||
+            isClosed()
+          "
+        >
+          {{
+            isSaving()
+              ? 'Saving...'
+              : isEditMode
+                ? 'Save changes'
+                : 'Create vacancy'
+          }}
+        </button>
+
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="isSaving()"
+          (click)="backToVacancies()"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  }
+</section>

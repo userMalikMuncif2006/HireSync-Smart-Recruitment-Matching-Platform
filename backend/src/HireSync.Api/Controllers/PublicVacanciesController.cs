@@ -16,15 +16,18 @@ namespace HireSync.Api.Controllers;
 public sealed class PublicVacanciesController : ControllerBase
 {
     private readonly IVacancySearchService _vacancySearchService;
+    private readonly IVacancyMatchSearchService _vacancyMatchSearchService;
     private readonly IVacancyDetailService _vacancyDetailService;
     private readonly ICurrentUser _currentUser;
 
     public PublicVacanciesController(
         IVacancySearchService vacancySearchService,
+        IVacancyMatchSearchService vacancyMatchSearchService,
         IVacancyDetailService vacancyDetailService,
         ICurrentUser currentUser)
     {
         _vacancySearchService = vacancySearchService;
+        _vacancyMatchSearchService = vacancyMatchSearchService;
         _vacancyDetailService = vacancyDetailService;
         _currentUser = currentUser;
     }
@@ -36,6 +39,15 @@ public sealed class PublicVacanciesController : ControllerBase
     [ProducesResponseType(
         typeof(ProblemDetails),
         StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<PublicVacancyPageDto>>
         SearchVacancies(
             [FromQuery] SearchVacanciesRequest request,
@@ -50,20 +62,87 @@ public sealed class PublicVacanciesController : ControllerBase
                     "The submitted vacancy search parameters are invalid.");
         }
 
-        if (!VacancySearchRules.IsBasicSearchSortSupported(
-                request.Sort))
+        if (request.Sort == VacancySearchSort.Match)
         {
-            return Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: "Unsupported vacancy sort",
-                detail:
-                    "Match sorting is not available until the matching workflow is integrated.");
+            if (!_currentUser.IsAuthenticated ||
+                !_currentUser.UserId.HasValue ||
+                _currentUser.UserId.Value == Guid.Empty)
+            {
+                return Problem(
+                    statusCode:
+                        StatusCodes.Status401Unauthorized,
+                    title:
+                        "Invalid authenticated user",
+                    detail:
+                        "The authenticated Job Seeker identifier is invalid.");
+            }
+
+            var matchResult =
+                await _vacancyMatchSearchService
+                    .SearchOpenVacanciesByMatchAsync(
+                        _currentUser.UserId.Value,
+                        request,
+                        cancellationToken);
+
+            if (matchResult.Succeeded)
+            {
+                return Ok(matchResult.Page);
+            }
+
+            return matchResult.FailureReason switch
+            {
+                VacancySearchFailureReason.InvalidInput =>
+                    Problem(
+                        statusCode:
+                            StatusCodes.Status400BadRequest,
+                        title:
+                            "Invalid vacancy search",
+                        detail:
+                            "The submitted vacancy search parameters are invalid."),
+
+                VacancySearchFailureReason.JobSeekerUnavailable =>
+                    Problem(
+                        statusCode:
+                            StatusCodes.Status403Forbidden,
+                        title:
+                            "Job Seeker unavailable",
+                        detail:
+                            "The authenticated Job Seeker cannot use match ordering."),
+
+                VacancySearchFailureReason.ProfileNotReady =>
+                    Problem(
+                        statusCode:
+                            StatusCodes.Status400BadRequest,
+                        title:
+                            "Profile not ready",
+                        detail:
+                            "Complete the structured Job Seeker profile and add at least one skill before using match ordering."),
+
+                VacancySearchFailureReason.InvalidMatchingData =>
+                    Problem(
+                        statusCode:
+                            StatusCodes.Status500InternalServerError,
+                        title:
+                            "Vacancy matching failed",
+                        detail:
+                            "Current persisted matching data is invalid and match ordering could not be produced."),
+
+                _ =>
+                    Problem(
+                        statusCode:
+                            StatusCodes.Status500InternalServerError,
+                        title:
+                            "Vacancy matching failed",
+                        detail:
+                            "Match ordering could not be produced.")
+            };
         }
 
         var result =
-            await _vacancySearchService.SearchOpenVacanciesAsync(
-                request,
-                cancellationToken);
+            await _vacancySearchService
+                .SearchOpenVacanciesAsync(
+                    request,
+                    cancellationToken);
 
         return Ok(result);
     }
@@ -94,8 +173,10 @@ public sealed class PublicVacanciesController : ControllerBase
             _currentUser.UserId.Value == Guid.Empty)
         {
             return Problem(
-                statusCode: StatusCodes.Status401Unauthorized,
-                title: "Invalid authenticated user",
+                statusCode:
+                    StatusCodes.Status401Unauthorized,
+                title:
+                    "Invalid authenticated user",
                 detail:
                     "The authenticated Job Seeker identifier is invalid.");
         }
@@ -115,15 +196,19 @@ public sealed class PublicVacanciesController : ControllerBase
         {
             VacancyDetailFailureReason.InvalidInput =>
                 Problem(
-                    statusCode: StatusCodes.Status400BadRequest,
-                    title: "Invalid vacancy request",
+                    statusCode:
+                        StatusCodes.Status400BadRequest,
+                    title:
+                        "Invalid vacancy request",
                     detail:
                         "The submitted vacancy identifier is invalid."),
 
             VacancyDetailFailureReason.VacancyUnavailable =>
                 Problem(
-                    statusCode: StatusCodes.Status404NotFound,
-                    title: "Vacancy unavailable",
+                    statusCode:
+                        StatusCodes.Status404NotFound,
+                    title:
+                        "Vacancy unavailable",
                     detail:
                         "The vacancy is closed, unavailable, or not eligible for Job Seeker viewing."),
 
@@ -131,7 +216,8 @@ public sealed class PublicVacanciesController : ControllerBase
                 Problem(
                     statusCode:
                         StatusCodes.Status500InternalServerError,
-                    title: "Vacancy detail failed",
+                    title:
+                        "Vacancy detail failed",
                     detail:
                         "The vacancy detail could not be loaded.")
         };

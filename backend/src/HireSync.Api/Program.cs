@@ -210,11 +210,15 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     HireSync.Application.Interfaces.Skills.ISkillLookupService,
     HireSync.Infrastructure.Skills.SkillLookupService>();
+builder.Services.AddScoped<
+    HireSync.Application.Interfaces.Vacancy.IVacancyMatchSearchService,
+    HireSync.Infrastructure.Search.VacancyMatchSearchService>();
 builder.Services.AddSingleton<IMatchEngine, MatchEngine>();
 builder.Services.AddScoped<IVacancyDetailService, VacancyDetailService>();
 builder.Services.AddScoped<HireSync.Application.Interfaces.Applications.IJobApplicationService, HireSync.Infrastructure.Applications.JobApplicationService>();
 builder.Services.AddScoped<HireSync.Application.Interfaces.Applications.IApplicationStatusService, HireSync.Infrastructure.Applications.ApplicationStatusService>();
 builder.Services.AddScoped<HireSync.Application.Interfaces.ContactRequests.IContactRequestService, HireSync.Infrastructure.ContactRequests.ContactRequestService>();
+builder.Services.AddScoped<HireSync.Application.Interfaces.EmployerApplications.IRankedApplicantService, HireSync.Infrastructure.EmployerApplications.RankedApplicantService>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RegistrationService>();

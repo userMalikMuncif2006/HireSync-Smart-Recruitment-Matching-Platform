@@ -9,4 +9,5 @@ public sealed record PublicVacancyListItemDto(
     string Location,
     int MinimumExperienceMonths,
     EducationLevel? RequiredEducationLevel,
-    DateTime PublishedAtUtc);
+    DateTime PublishedAtUtc,
+    decimal? MatchScore = null);
