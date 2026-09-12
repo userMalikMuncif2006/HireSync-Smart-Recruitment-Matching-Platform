@@ -16,6 +16,20 @@ export const routes: Routes = [
       ).then((module) => module.LoginPage),
   },
   {
+    path: 'seeker/notifications',
+    canMatch: [roleGuard],
+    data: {
+      role: 'JobSeeker',
+    },
+    loadComponent: () =>
+      import(
+        './features/seeker/notifications/job-seeker-notifications-page'
+      ).then(
+        (module) =>
+          module.JobSeekerNotificationsPage,
+      ),
+  },
+  {
     path: 'seeker/applications',
     canMatch: [roleGuard],
     data: {
@@ -28,7 +42,8 @@ export const routes: Routes = [
         (module) =>
           module.JobSeekerApplicationsPage,
       ),
-  },  {
+  },
+  {
     path: 'seeker/profile',
     canMatch: [roleGuard],
     data: {
