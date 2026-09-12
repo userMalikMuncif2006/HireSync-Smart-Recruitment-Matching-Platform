@@ -11,6 +11,8 @@ public interface IHireSyncDbContext
 
     DbSet<JobSeekerSkill> JobSeekerSkills { get; }
 
+    DbSet<CvDocument> CvDocuments { get; }
+
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);
 }

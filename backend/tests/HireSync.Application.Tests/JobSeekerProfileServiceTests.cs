@@ -1,4 +1,4 @@
-﻿using HireSync.Application.DTOs;
+using HireSync.Application.DTOs;
 using HireSync.Application.Interfaces.Persistence;
 using HireSync.Application.Interfaces.Security;
 using HireSync.Application.Interfaces.Time;
@@ -450,6 +450,10 @@ public sealed class JobSeekerProfileServiceTests
         public DbSet<JobSeekerSkill>
             JobSeekerSkills =>
                 Set<JobSeekerSkill>();
+
+        public DbSet<CvDocument>
+            CvDocuments =>
+                Set<CvDocument>();
 
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
