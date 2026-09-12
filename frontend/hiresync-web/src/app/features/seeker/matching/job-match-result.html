@@ -1,0 +1,87 @@
+<section class="match-card" aria-labelledby="match-title">
+  <div class="match-heading">
+    <div>
+      <p class="eyebrow">Match analysis</p>
+      <h2 id="match-title">Your job match</h2>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="state-message" role="status">
+      Loading match result...
+    </p>
+  } @else if (errorMessage()) {
+    <p class="state-message error-message" role="alert">
+      {{ errorMessage() }}
+    </p>
+  } @else {
+    @if (result(); as match) {
+      <div class="total-score">
+        <span>Overall match</span>
+        <strong>{{ match.totalScore }}%</strong>
+      </div>
+
+      <div class="score-grid" aria-label="Match component scores">
+        <article>
+          <span>Skills</span>
+          <strong>{{ match.skillsScore }} / 50</strong>
+        </article>
+
+        <article>
+          <span>Experience</span>
+          <strong>{{ match.experienceScore }} / 25</strong>
+        </article>
+
+        <article>
+          <span>Education</span>
+          <strong>{{ match.educationScore }} / 15</strong>
+        </article>
+
+        <article>
+          <span>Location</span>
+          <strong>{{ match.locationScore }} / 10</strong>
+        </article>
+      </div>
+
+      <div class="skill-sections">
+        <section>
+          <h3>Matched skills</h3>
+
+          @if (match.matchedSkills.length > 0) {
+            <ul class="skill-list matched-list">
+              @for (
+                skill of match.matchedSkills;
+                track skill.id
+              ) {
+                <li>{{ skill.name }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="empty-state">
+              No required skills matched.
+            </p>
+          }
+        </section>
+
+        <section>
+          <h3>Missing skills</h3>
+
+          @if (match.missingSkills.length > 0) {
+            <ul class="skill-list missing-list">
+              @for (
+                skill of match.missingSkills;
+                track skill.id
+              ) {
+                <li>{{ skill.name }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="empty-state">
+              No required skills are missing.
+            </p>
+          }
+        </section>
+      </div>
+    }
+  }
+</section>
