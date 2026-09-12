@@ -6,4 +6,4 @@ public sealed record UpdateJobSeekerProfileRequest(
     int ExperienceMonths,
     EducationLevel EducationLevel,
     string PreferredLocation,
-    IReadOnlyList<string> SkillNames);
+    IReadOnlyList<Guid> SkillIds);
