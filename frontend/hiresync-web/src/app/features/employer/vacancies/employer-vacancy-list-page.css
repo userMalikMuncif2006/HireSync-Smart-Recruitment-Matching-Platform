@@ -1,0 +1,235 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: #f5f7f7;
+  color: #172322;
+}
+
+.employer-page {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0 72px;
+}
+
+.page-header {
+  max-width: 760px;
+  margin-bottom: 26px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #087f6d;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.1rem);
+}
+
+.page-header > p:last-child {
+  color: #61706e;
+  line-height: 1.65;
+}
+
+.filter-panel {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid #dce5e3;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.filter-panel label {
+  font-weight: 700;
+}
+
+.filter-panel select {
+  min-width: 180px;
+  min-height: 42px;
+  border: 1px solid #cbd8d5;
+  border-radius: 10px;
+  padding: 0 12px;
+  background: #fff;
+  font: inherit;
+}
+
+button {
+  min-height: 42px;
+  border-radius: 10px;
+  padding: 0 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary-button {
+  border: 1px solid #087f6d;
+  background: #087f6d;
+  color: #fff;
+}
+
+.secondary-button {
+  border: 1px solid #bfd0cc;
+  background: #fff;
+  color: #27413d;
+}
+
+.danger-outline {
+  border: 1px solid #c83b31;
+  background: #fff;
+  color: #a92b23;
+}
+
+.danger-button {
+  border: 1px solid #b42318;
+  background: #b42318;
+  color: #fff;
+}
+
+.result-summary {
+  margin: 28px 0 14px;
+}
+
+.result-summary > div {
+  display: grid;
+  gap: 4px;
+}
+
+.result-summary span {
+  color: #687674;
+}
+
+.vacancy-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.vacancy-card,
+.state-card {
+  border: 1px solid #dce5e3;
+  border-radius: 16px;
+  background: #fff;
+  padding: 22px;
+}
+
+.vacancy-card h2 {
+  margin: 10px 0 4px;
+  font-size: 1.3rem;
+}
+
+.location {
+  margin: 0;
+  color: #657370;
+}
+
+.status-badge {
+  display: inline-flex;
+  border-radius: 999px;
+  background: #e8f6f2;
+  padding: 5px 9px;
+  color: #08715f;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.status-badge.closed {
+  background: #eef1f1;
+  color: #566360;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.facts div {
+  display: grid;
+  gap: 4px;
+}
+
+.facts dt {
+  color: #788481;
+  font-size: 0.78rem;
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 650;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.close-confirmation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: #7b2923;
+}
+
+.state-card {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+  color: #5d6c69;
+}
+
+.state-card.error {
+  border-color: #efc4bf;
+  background: #fff8f7;
+  color: #8a251e;
+}
+
+.state-card button {
+  justify-self: start;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+@media (max-width: 700px) {
+  .employer-page {
+    width: min(100% - 24px, 1120px);
+    padding-top: 28px;
+  }
+
+  .filter-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filter-panel select {
+    width: 100%;
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

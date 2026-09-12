@@ -1,0 +1,75 @@
+export type VacancyStatus = 1 | 2;
+
+export type ApplicationStatus =
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5;
+
+export type ContactRequestStatus =
+  | 1
+  | 2
+  | 3;
+
+export interface EmployerVacancyListItem {
+  id: string;
+  title: string;
+  location: string;
+  status: VacancyStatus;
+  publishedAtUtc: string;
+  updatedAtUtc: string;
+  closedAtUtc: string | null;
+  rowVersion: string;
+}
+
+export interface EmployerVacancyPage {
+  items: EmployerVacancyListItem[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+}
+
+export interface VacancyStatusResult {
+  id: string;
+  status: VacancyStatus;
+  closedAtUtc: string | null;
+  rowVersion: string;
+}
+
+export interface MatchSkill {
+  id: string;
+  name: string;
+}
+
+export interface RankedApplicantMatch {
+  totalScore: number;
+  skillsScore: number;
+  experienceScore: number;
+  educationScore: number;
+  locationScore: number;
+  matchedSkills: MatchSkill[];
+  missingSkills: MatchSkill[];
+}
+
+export interface RankedApplicant {
+  rank: number;
+  applicationId: string;
+  jobSeekerProfileId: string;
+  jobSeekerDisplayName: string;
+  status: ApplicationStatus;
+  appliedAtUtc: string;
+  updatedAtUtc: string;
+  rowVersion: string;
+  contactRequestStatus: ContactRequestStatus | null;
+  match: RankedApplicantMatch;
+}
+
+export interface RankedApplicantPage {
+  vacancyId: string;
+  vacancyTitle: string;
+  items: RankedApplicant[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+}

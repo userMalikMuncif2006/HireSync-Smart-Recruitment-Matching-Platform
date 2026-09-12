@@ -66,6 +66,24 @@ export const routes: Routes = [
         redirectTo: 'profile',
       },
       {
+        path: 'vacancies',
+        loadComponent: () =>
+          import(
+            './features/employer/vacancies/employer-vacancy-list-page'
+          ).then(
+            (module) => module.EmployerVacancyListPage,
+          ),
+      },
+      {
+        path: 'vacancies/:vacancyId/applicants',
+        loadComponent: () =>
+          import(
+            './features/employer/vacancies/ranked-applicants-page'
+          ).then(
+            (module) => module.RankedApplicantsPage,
+          ),
+      },
+      {
         path: 'profile',
         loadComponent: () =>
           import(
