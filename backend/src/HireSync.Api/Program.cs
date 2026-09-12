@@ -177,6 +177,9 @@ builder.Services.AddScoped<
     IJobSeekerCvService,
     JobSeekerCvService>();
 
+builder.Services.AddScoped<
+    CvStorageReconciliationService>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
@@ -315,6 +318,14 @@ await using (var scope = app.Services.CreateAsyncScope())
             .GetRequiredService<AdministratorSeeder>();
 
     await administratorSeeder.SeedAsync();
+
+    var cvStorageReconciliationService =
+        scope.ServiceProvider
+            .GetRequiredService<
+                CvStorageReconciliationService>();
+
+    await cvStorageReconciliationService
+        .ReconcileAtStartupAsync();
 }
 
 // HTTP pipeline
