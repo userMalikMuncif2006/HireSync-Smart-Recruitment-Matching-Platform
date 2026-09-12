@@ -1,4 +1,4 @@
-<main class="login-page">
+﻿<main class="login-page">
   <section class="login-card">
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">H</span>
@@ -13,6 +13,14 @@
       Sign in to continue to your recruitment workspace.
     </p>
 
+    @if (successMessage()) {
+      <p
+        class="success-message"
+        role="status"
+      >
+        {{ successMessage() }}
+      </p>
+    }
     <form
       [formGroup]="form"
       (ngSubmit)="submit()"
