@@ -33,6 +33,9 @@ public class HireSyncDbContext
     public DbSet<JobSeekerSkill> JobSeekerSkills =>
         Set<JobSeekerSkill>();
 
+    public DbSet<CvDocument> CvDocuments =>
+        Set<CvDocument>();
+
     public DbSet<Vacancy> Vacancies =>
         Set<Vacancy>();
 
@@ -54,6 +57,9 @@ public class HireSyncDbContext
 
         builder.ApplyConfiguration(
             new JobSeekerSkillConfiguration());
+
+        builder.ApplyConfiguration(
+            new CvDocumentConfiguration());
 
         builder.ApplyConfiguration(
             new VacancyConfiguration());
