@@ -21,6 +21,23 @@ describe('application routes', () => {
       .toBe('function');
   });
 
+  it('protects and lazy loads the Job Seeker vacancy search page', () => {
+    const route =
+      routes.find(
+        (item) =>
+          item.path === 'seeker/vacancies',
+      );
+
+    expect(route?.canMatch)
+      .toContain(roleGuard);
+
+    expect(route?.data?.['role'])
+      .toBe('JobSeeker');
+
+    expect(typeof route?.loadComponent)
+      .toBe('function');
+  });
+
   it('protects and lazy loads the Job Seeker vacancy detail page', () => {
     const route =
       routes.find(

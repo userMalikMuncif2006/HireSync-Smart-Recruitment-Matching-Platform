@@ -1,0 +1,288 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: #f5f7f7;
+  color: #172322;
+}
+
+.vacancy-page {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0 72px;
+}
+
+.page-header {
+  max-width: 720px;
+  margin-bottom: 28px;
+}
+
+.eyebrow,
+.company {
+  margin: 0 0 6px;
+  color: #087f6d;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.05;
+}
+
+.page-header > p:last-child {
+  margin: 14px 0 0;
+  color: #61706e;
+  line-height: 1.65;
+}
+
+.search-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(160px, 0.55fr);
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #dce5e3;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgb(20 55 49 / 6%);
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.field label {
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  border: 1px solid #cbd8d5;
+  border-radius: 10px;
+  background: #fff;
+  padding: 0 12px;
+  color: inherit;
+  font: inherit;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: 3px solid rgb(8 127 109 / 14%);
+  border-color: #087f6d;
+}
+
+.field small {
+  color: #b42318;
+}
+
+.search-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  padding-top: 2px;
+}
+
+button {
+  min-height: 42px;
+  border-radius: 10px;
+  padding: 0 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary-button,
+.details-button {
+  border: 1px solid #087f6d;
+  background: #087f6d;
+  color: #fff;
+}
+
+.secondary-button {
+  border: 1px solid #bfd0cc;
+  background: #fff;
+  color: #27413d;
+}
+
+.result-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 28px 0 16px;
+}
+
+.result-summary > div {
+  display: grid;
+  gap: 4px;
+}
+
+.result-summary span {
+  color: #6a7775;
+  font-size: 0.9rem;
+}
+
+.match-note {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #e8f6f2;
+  color: #08715f !important;
+  font-weight: 700;
+}
+
+.vacancy-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.vacancy-card,
+.state-card {
+  border: 1px solid #dce5e3;
+  border-radius: 16px;
+  background: #fff;
+  padding: 22px;
+}
+
+.card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.card-heading h2 {
+  margin: 0;
+  font-size: 1.28rem;
+}
+
+.score-badge {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 2px;
+  min-width: 76px;
+  border-radius: 12px;
+  background: #e8f6f2;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.score-badge span {
+  color: #54706b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.score-badge strong {
+  color: #08715f;
+  font-size: 1.05rem;
+}
+
+.vacancy-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.vacancy-facts div {
+  display: grid;
+  gap: 4px;
+}
+
+.vacancy-facts dt {
+  color: #75817f;
+  font-size: 0.78rem;
+}
+
+.vacancy-facts dd {
+  margin: 0;
+  font-weight: 650;
+}
+
+.state-card {
+  display: grid;
+  gap: 8px;
+  margin-top: 28px;
+  color: #5d6c69;
+}
+
+.state-card strong {
+  color: #243532;
+}
+
+.state-card.error {
+  border-color: #f0c7c2;
+  background: #fff8f7;
+}
+
+.state-card button {
+  justify-self: start;
+  margin-top: 4px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.pagination span {
+  color: #5e6c6a;
+  font-weight: 650;
+}
+
+@media (max-width: 760px) {
+  .vacancy-page {
+    width: min(100% - 24px, 1120px);
+    padding-top: 28px;
+  }
+
+  .search-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .search-actions {
+    grid-column: auto;
+  }
+
+  .result-summary,
+  .card-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .score-badge {
+    width: fit-content;
+  }
+
+  .vacancy-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .search-actions,
+  .pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .vacancy-facts {
+    grid-template-columns: 1fr;
+  }
+}
