@@ -173,6 +173,10 @@ builder.Services.AddSingleton<
     ICvFileValidator,
     CvFileValidator>();
 
+builder.Services.AddScoped<
+    IJobSeekerCvService,
+    JobSeekerCvService>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
