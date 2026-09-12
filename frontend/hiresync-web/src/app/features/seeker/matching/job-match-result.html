@@ -70,6 +70,19 @@
             Your profile and current CV are ready
             for application.
           </p>
+
+          <button
+            type="button"
+            class="apply-button"
+            [disabled]="applying()"
+            (click)="apply()"
+          >
+            @if (applying()) {
+              Applying...
+            } @else {
+              Apply now
+            }
+          </button>
         } @else if (
           detail.matchStatus === 'ProfileIncomplete'
         ) {
@@ -93,6 +106,14 @@
         } @else {
           <p class="empty-state">
             Upload a current CV before applying.
+          </p>
+        }
+        @if (applicationMessage()) {
+          <p
+            class="application-message"
+            role="status"
+          >
+            {{ applicationMessage() }}
           </p>
         }
       </section>

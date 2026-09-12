@@ -6,6 +6,7 @@ import {
 import { TestBed } from '@angular/core/testing';
 
 import {
+  ApplicationCreated,
   PublicVacancyDetail,
 } from './job-match.models';
 import { JobMatchService } from './job-match.service';
@@ -86,6 +87,47 @@ describe('JobMatchService', () => {
 
     expect(request.request.method)
       .toBe('GET');
+
+    request.flush(expected);
+
+    expect(actual)
+      .toEqual(expected);
+  });
+
+  it('posts an empty application request to the canonical endpoint', () => {
+    const vacancyId =
+      '11111111-1111-1111-1111-111111111111';
+
+    const expected: ApplicationCreated = {
+      id:
+        '22222222-2222-2222-2222-222222222222',
+      vacancyId,
+      status: 1,
+      appliedAtUtc:
+        '2026-09-12T12:00:00Z',
+      updatedAtUtc:
+        '2026-09-12T12:00:00Z',
+    };
+
+    let actual:
+      ApplicationCreated | undefined;
+
+    service
+      .applyToVacancy(vacancyId)
+      .subscribe((result) => {
+        actual = result;
+      });
+
+    const request =
+      httpTesting.expectOne(
+        `/api/v1/vacancies/${vacancyId}/applications`,
+      );
+
+    expect(request.request.method)
+      .toBe('POST');
+
+    expect(request.request.body)
+      .toBeNull();
 
     request.flush(expected);
 

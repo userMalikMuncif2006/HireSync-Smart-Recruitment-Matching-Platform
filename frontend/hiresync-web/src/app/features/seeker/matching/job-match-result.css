@@ -128,3 +128,35 @@ h2 {
     flex-direction: column;
   }
 }
+
+.apply-button {
+  margin-top: 0.9rem;
+  border: 0;
+  border-radius: 10px;
+  background: #176b5b;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font: inherit;
+  font-weight: 700;
+}
+
+.apply-button:hover:not(:disabled) {
+  background: #12594c;
+}
+
+.apply-button:focus-visible {
+  outline: 3px solid #9bd5c8;
+  outline-offset: 2px;
+}
+
+.apply-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.application-message {
+  margin: 0.75rem 0 0;
+  color: #365b54;
+  font-weight: 600;
+}

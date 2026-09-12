@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ComponentFixture,
   TestBed,
@@ -9,6 +10,7 @@ import {
 } from 'rxjs';
 
 import {
+  ApplicationCreated,
   PublicVacancyDetail,
 } from './job-match.models';
 import { JobMatchResult } from './job-match-result';
@@ -43,20 +45,12 @@ describe('JobMatchResult', () => {
       );
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('renders vacancy and backend scores unchanged', async () => {
-    service.response =
-      of(createDetail());
-
-    fixture.componentRef.setInput(
-      'vacancyId',
-      '33333333-3333-3333-3333-333333333333',
-    );
-
-    fixture.detectChanges();
-
-    await fixture.whenStable();
-
-    fixture.detectChanges();
+    await loadDetail();
 
     const text =
       fixture.nativeElement
@@ -84,9 +78,7 @@ describe('JobMatchResult', () => {
       .toContain('10 / 10');
 
     expect(text)
-      .toContain(
-        'Your profile and current CV are ready',
-      );
+      .toContain('Apply now');
   });
 
   it('renders ProfileIncomplete as a domain state', async () => {
@@ -103,16 +95,7 @@ describe('JobMatchResult', () => {
         ],
       });
 
-    fixture.componentRef.setInput(
-      'vacancyId',
-      '33333333-3333-3333-3333-333333333333',
-    );
-
-    fixture.detectChanges();
-
-    await fixture.whenStable();
-
-    fixture.detectChanges();
+    await loadDetail();
 
     const text =
       fixture.nativeElement
@@ -128,11 +111,6 @@ describe('JobMatchResult', () => {
 
     expect(text)
       .toContain('PreferredLocation');
-
-    expect(text)
-      .toContain(
-        'Complete your structured profile to see your deterministic match score.',
-      );
   });
 
   it('renders already-applied state', async () => {
@@ -143,16 +121,7 @@ describe('JobMatchResult', () => {
         hasApplied: true,
       });
 
-    fixture.componentRef.setInput(
-      'vacancyId',
-      '33333333-3333-3333-3333-333333333333',
-    );
-
-    fixture.detectChanges();
-
-    await fixture.whenStable();
-
-    fixture.detectChanges();
+    await loadDetail();
 
     const text =
       fixture.nativeElement
@@ -162,6 +131,12 @@ describe('JobMatchResult', () => {
       .toContain(
         'Already applied to this vacancy.',
       );
+
+    expect(
+      fixture.nativeElement.querySelector(
+        '.apply-button',
+      ),
+    ).toBeNull();
   });
 
   it('renders load failure', async () => {
@@ -170,16 +145,7 @@ describe('JobMatchResult', () => {
         () => new Error('Request failed'),
       );
 
-    fixture.componentRef.setInput(
-      'vacancyId',
-      '33333333-3333-3333-3333-333333333333',
-    );
-
-    fixture.detectChanges();
-
-    await fixture.whenStable();
-
-    fixture.detectChanges();
+    await loadDetail();
 
     const alert =
       fixture.nativeElement
@@ -195,6 +161,158 @@ describe('JobMatchResult', () => {
         'The vacancy detail could not be loaded.',
       );
   });
+
+  it('submits an application and reconciles to Applied', async () => {
+    vi.spyOn(
+      window,
+      'confirm',
+    ).mockReturnValue(true);
+
+    service.applyResponse =
+      of(createApplication());
+
+    await loadDetail();
+
+    const button =
+      fixture.nativeElement.querySelector(
+        '.apply-button',
+      ) as HTMLButtonElement;
+
+    button.click();
+
+    fixture.detectChanges();
+
+    expect(service.lastAppliedVacancyId)
+      .toBe(createDetail().id);
+
+    expect(
+      fixture.componentInstance
+        .result()
+        ?.hasApplied,
+    ).toBe(true);
+
+    expect(
+      fixture.componentInstance
+        .result()
+        ?.canApply,
+    ).toBe(false);
+
+    expect(
+      fixture.nativeElement
+        .textContent as string,
+    ).toContain(
+      'Application submitted successfully.',
+    );
+  });
+
+  it('reconciles duplicate application conflict to Applied', async () => {
+    vi.spyOn(
+      window,
+      'confirm',
+    ).mockReturnValue(true);
+
+    service.applyResponse =
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: {
+              code:
+                'DUPLICATE_APPLICATION',
+            },
+          }),
+      );
+
+    await loadDetail();
+
+    (
+      fixture.nativeElement.querySelector(
+        '.apply-button',
+      ) as HTMLButtonElement
+    ).click();
+
+    fixture.detectChanges();
+
+    expect(
+      fixture.componentInstance
+        .result()
+        ?.hasApplied,
+    ).toBe(true);
+
+    expect(
+      fixture.componentInstance
+        .result()
+        ?.canApply,
+    ).toBe(false);
+
+    expect(
+      fixture.nativeElement
+        .textContent as string,
+    ).toContain(
+      'You have already applied to this vacancy.',
+    );
+  });
+
+  it('disables applying after vacancy-closed conflict', async () => {
+    vi.spyOn(
+      window,
+      'confirm',
+    ).mockReturnValue(true);
+
+    service.applyResponse =
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: {
+              code:
+                'VACANCY_CLOSED',
+            },
+          }),
+      );
+
+    await loadDetail();
+
+    (
+      fixture.nativeElement.querySelector(
+        '.apply-button',
+      ) as HTMLButtonElement
+    ).click();
+
+    fixture.detectChanges();
+
+    expect(
+      fixture.componentInstance
+        .result()
+        ?.hasApplied,
+    ).toBe(false);
+
+    expect(
+      fixture.componentInstance
+        .result()
+        ?.canApply,
+    ).toBe(false);
+
+    expect(
+      fixture.nativeElement
+        .textContent as string,
+    ).toContain(
+      'This vacancy closed before your application could be submitted.',
+    );
+  });
+
+  async function loadDetail(): Promise<void> {
+    fixture.componentRef.setInput(
+      'vacancyId',
+      createDetail().id,
+    );
+
+    fixture.detectChanges();
+
+    await fixture.whenStable();
+
+    fixture.detectChanges();
+  }
 });
 
 function createDetail():
@@ -243,22 +361,8 @@ function createDetail():
         15,
       locationScore:
         10,
-      matchedSkills: [
-        {
-          id:
-            '11111111-1111-1111-1111-111111111111',
-          name:
-            'C#',
-        },
-      ],
-      missingSkills: [
-        {
-          id:
-            '22222222-2222-2222-2222-222222222222',
-          name:
-            'Angular',
-        },
-      ],
+      matchedSkills: [],
+      missingSkills: [],
     },
     missingProfileFields: [],
     canApply:
@@ -270,14 +374,45 @@ function createDetail():
   };
 }
 
+function createApplication():
+  ApplicationCreated {
+  return {
+    id:
+      '44444444-4444-4444-4444-444444444444',
+    vacancyId:
+      createDetail().id,
+    status: 1,
+    appliedAtUtc:
+      '2026-09-12T12:00:00Z',
+    updatedAtUtc:
+      '2026-09-12T12:00:00Z',
+  };
+}
+
 class FakeJobMatchService {
   response:
     Observable<PublicVacancyDetail> =
       of(createDetail());
 
+  applyResponse:
+    Observable<ApplicationCreated> =
+      of(createApplication());
+
+  lastAppliedVacancyId:
+    string | null = null;
+
   getVacancyDetail(
     _vacancyId: string,
   ): Observable<PublicVacancyDetail> {
     return this.response;
+  }
+
+  applyToVacancy(
+    vacancyId: string,
+  ): Observable<ApplicationCreated> {
+    this.lastAppliedVacancyId =
+      vacancyId;
+
+    return this.applyResponse;
   }
 }

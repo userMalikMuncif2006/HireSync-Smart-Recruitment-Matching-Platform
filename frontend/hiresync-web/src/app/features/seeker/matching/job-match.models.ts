@@ -43,3 +43,17 @@ export interface PublicVacancyDetail {
 
   computedAtUtc: string;
 }
+export interface ApplicationCreated {
+  id: string;
+  vacancyId: string;
+  status: number;
+  appliedAtUtc: string;
+  updatedAtUtc: string;
+}
+
+export interface ApiProblemDetails {
+  status?: number;
+  title?: string;
+  detail?: string;
+  code?: string;
+}
