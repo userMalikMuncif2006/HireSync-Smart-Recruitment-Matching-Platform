@@ -1,87 +1,201 @@
-<section class="match-card" aria-labelledby="match-title">
-  <div class="match-heading">
-    <div>
-      <p class="eyebrow">Match analysis</p>
-      <h2 id="match-title">Your job match</h2>
-    </div>
-  </div>
-
+<section
+  class="match-card"
+  aria-labelledby="vacancy-title"
+>
   @if (loading()) {
     <p class="state-message" role="status">
-      Loading match result...
+      Loading vacancy details...
     </p>
   } @else if (errorMessage()) {
-    <p class="state-message error-message" role="alert">
+    <p
+      class="state-message error-message"
+      role="alert"
+    >
       {{ errorMessage() }}
     </p>
   } @else {
-    @if (result(); as match) {
-      <div class="total-score">
-        <span>Overall match</span>
-        <strong>{{ match.totalScore }}%</strong>
+    @if (result(); as detail) {
+      <div class="match-heading">
+        <div>
+          <p class="eyebrow">
+            {{ detail.companyName }}
+          </p>
+
+          <h2 id="vacancy-title">
+            {{ detail.title }}
+          </h2>
+
+          <p>
+            {{ detail.location }}
+          </p>
+        </div>
       </div>
 
-      <div class="score-grid" aria-label="Match component scores">
-        <article>
-          <span>Skills</span>
-          <strong>{{ match.skillsScore }} / 50</strong>
-        </article>
+      <p>
+        {{ detail.description }}
+      </p>
 
-        <article>
-          <span>Experience</span>
-          <strong>{{ match.experienceScore }} / 25</strong>
-        </article>
+      <p>
+        Required experience:
+        <strong>
+          {{ detail.minimumExperienceMonths }}
+          months
+        </strong>
+      </p>
 
-        <article>
-          <span>Education</span>
-          <strong>{{ match.educationScore }} / 15</strong>
-        </article>
+      <section>
+        <h3>Required skills</h3>
 
-        <article>
-          <span>Location</span>
-          <strong>{{ match.locationScore }} / 10</strong>
-        </article>
-      </div>
+        @if (detail.requiredSkills.length > 0) {
+          <ul class="skill-list">
+            @for (
+              skill of detail.requiredSkills;
+              track skill.id
+            ) {
+              <li>{{ skill.name }}</li>
+            }
+          </ul>
+        }
+      </section>
 
-      <div class="skill-sections">
-        <section>
-          <h3>Matched skills</h3>
+      <section aria-label="Application readiness">
+        <h3>Application readiness</h3>
 
-          @if (match.matchedSkills.length > 0) {
-            <ul class="skill-list matched-list">
+        @if (detail.hasApplied) {
+          <p class="empty-state">
+            Already applied to this vacancy.
+          </p>
+        } @else if (detail.canApply) {
+          <p class="empty-state">
+            Your profile and current CV are ready
+            for application.
+          </p>
+        } @else if (
+          detail.matchStatus === 'ProfileIncomplete'
+        ) {
+          <p class="empty-state">
+            Complete your structured profile before
+            applying.
+          </p>
+
+          @if (
+            detail.missingProfileFields.length > 0
+          ) {
+            <ul class="skill-list">
               @for (
-                skill of match.matchedSkills;
-                track skill.id
+                field of detail.missingProfileFields;
+                track field
               ) {
-                <li>{{ skill.name }}</li>
+                <li>{{ field }}</li>
               }
             </ul>
-          } @else {
-            <p class="empty-state">
-              No required skills matched.
-            </p>
           }
-        </section>
+        } @else {
+          <p class="empty-state">
+            Upload a current CV before applying.
+          </p>
+        }
+      </section>
 
-        <section>
-          <h3>Missing skills</h3>
+      @if (detail.match; as match) {
+        <div class="total-score">
+          <span>Overall match</span>
+          <strong>
+            {{ match.totalScore }}%
+          </strong>
+        </div>
 
-          @if (match.missingSkills.length > 0) {
-            <ul class="skill-list missing-list">
-              @for (
-                skill of match.missingSkills;
-                track skill.id
-              ) {
-                <li>{{ skill.name }}</li>
-              }
-            </ul>
-          } @else {
-            <p class="empty-state">
-              No required skills are missing.
-            </p>
-          }
-        </section>
-      </div>
+        <div
+          class="score-grid"
+          aria-label="Match component scores"
+        >
+          <article>
+            <span>Skills</span>
+            <strong>
+              {{ match.skillsScore }} / 50
+            </strong>
+          </article>
+
+          <article>
+            <span>Experience</span>
+            <strong>
+              {{ match.experienceScore }} / 25
+            </strong>
+          </article>
+
+          <article>
+            <span>Education</span>
+            <strong>
+              {{ match.educationScore }} / 15
+            </strong>
+          </article>
+
+          <article>
+            <span>Location</span>
+            <strong>
+              {{ match.locationScore }} / 10
+            </strong>
+          </article>
+        </div>
+
+        <div class="skill-sections">
+          <section>
+            <h3>Matched skills</h3>
+
+            @if (
+              match.matchedSkills.length > 0
+            ) {
+              <ul
+                class="skill-list matched-list"
+              >
+                @for (
+                  skill of match.matchedSkills;
+                  track skill.id
+                ) {
+                  <li>{{ skill.name }}</li>
+                }
+              </ul>
+            } @else {
+              <p class="empty-state">
+                No required skills matched.
+              </p>
+            }
+          </section>
+
+          <section>
+            <h3>Missing skills</h3>
+
+            @if (
+              match.missingSkills.length > 0
+            ) {
+              <ul
+                class="skill-list missing-list"
+              >
+                @for (
+                  skill of match.missingSkills;
+                  track skill.id
+                ) {
+                  <li>{{ skill.name }}</li>
+                }
+              </ul>
+            } @else {
+              <p class="empty-state">
+                All required skills matched.
+              </p>
+            }
+          </section>
+        </div>
+      } @else {
+        <p class="empty-state">
+          Complete your structured profile to see
+          your deterministic match score.
+        </p>
+      }
+
+      <p class="empty-state">
+        Match computed from current structured data:
+        {{ detail.computedAtUtc }}
+      </p>
     }
   }
 </section>

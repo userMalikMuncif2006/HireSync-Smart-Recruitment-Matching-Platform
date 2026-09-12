@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 
-import { MatchResult } from './job-match.models';
+import { PublicVacancyDetail } from './job-match.models';
 import { JobMatchService } from './job-match.service';
 
 @Component({
@@ -18,25 +18,32 @@ import { JobMatchService } from './job-match.service';
 export class JobMatchResult {
   readonly vacancyId = input.required<string>();
 
-  readonly result = signal<MatchResult | null>(null);
+  readonly result =
+    signal<PublicVacancyDetail | null>(null);
+
   readonly loading = signal(false);
-  readonly errorMessage = signal<string | null>(null);
+
+  readonly errorMessage =
+    signal<string | null>(null);
 
   private readonly jobMatchService =
     inject(JobMatchService);
 
   constructor() {
     effect((onCleanup) => {
-      const vacancyId = this.vacancyId().trim();
+      const vacancyId =
+        this.vacancyId().trim();
 
       this.result.set(null);
       this.errorMessage.set(null);
 
       if (!vacancyId) {
         this.loading.set(false);
+
         this.errorMessage.set(
-          'A valid vacancy is required to view the match result.',
+          'A valid vacancy is required.',
         );
+
         return;
       }
 
@@ -44,7 +51,7 @@ export class JobMatchResult {
 
       const subscription =
         this.jobMatchService
-          .getMatch(vacancyId)
+          .getVacancyDetail(vacancyId)
           .subscribe({
             next: (result) => {
               this.result.set(result);
@@ -53,8 +60,9 @@ export class JobMatchResult {
             error: () => {
               this.result.set(null);
               this.loading.set(false);
+
               this.errorMessage.set(
-                'The match result could not be loaded.',
+                'The vacancy detail could not be loaded.',
               );
             },
           });

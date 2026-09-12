@@ -2,9 +2,9 @@ using HireSync.Application.DTOs.Matching;
 
 namespace HireSync.Application.Interfaces.Matching;
 
-public interface IJobMatchService
+public interface IVacancyDetailService
 {
-    Task<JobMatchQueryResult> GetMatchAsync(
+    Task<VacancyDetailQueryResult> GetDetailAsync(
         Guid jobSeekerUserId,
         Guid vacancyId,
         CancellationToken cancellationToken = default);

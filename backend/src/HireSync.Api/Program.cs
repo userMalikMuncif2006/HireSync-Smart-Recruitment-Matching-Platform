@@ -208,7 +208,7 @@ builder.Services.AddScoped<
     HireSync.Application.Interfaces.Vacancy.IVacancySearchService,
     HireSync.Infrastructure.Search.VacancySearchService>();
 builder.Services.AddSingleton<IMatchEngine, MatchEngine>();
-builder.Services.AddScoped<IJobMatchService, JobMatchService>();
+builder.Services.AddScoped<IVacancyDetailService, VacancyDetailService>();
 builder.Services.AddScoped<HireSync.Application.Interfaces.Applications.IApplicationStatusService, HireSync.Infrastructure.Applications.ApplicationStatusService>();
 builder.Services.AddScoped<HireSync.Application.Interfaces.ContactRequests.IContactRequestService, HireSync.Infrastructure.ContactRequests.ContactRequestService>();
 

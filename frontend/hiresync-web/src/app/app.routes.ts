@@ -16,7 +16,7 @@ export const routes: Routes = [
       ).then((module) => module.LoginPage),
   },
   {
-    path: 'seeker/vacancies/:vacancyId/match',
+    path: 'seeker/vacancies/:vacancyId',
     canMatch: [roleGuard],
     data: {
       role: 'JobSeeker',

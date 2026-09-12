@@ -21,12 +21,12 @@ describe('application routes', () => {
       .toBe('function');
   });
 
-  it('protects and lazy loads the Job Seeker match page', () => {
+  it('protects and lazy loads the Job Seeker vacancy detail page', () => {
     const route =
       routes.find(
         (item) =>
           item.path ===
-          'seeker/vacancies/:vacancyId/match',
+          'seeker/vacancies/:vacancyId',
       );
 
     expect(route?.canMatch).toContain(roleGuard);
