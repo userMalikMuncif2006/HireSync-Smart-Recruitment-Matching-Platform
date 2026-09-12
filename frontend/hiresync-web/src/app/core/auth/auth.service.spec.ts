@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+﻿import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -66,6 +66,164 @@ describe('AuthService', () => {
 
     expect(session.session()).toEqual(loginResponse);
     expect(session.hasRole('Employer')).toBe(true);
+  });
+
+  it('posts Job Seeker registration', () => {
+    const body = {
+      email: 'seeker@example.com',
+      password: 'Password123!',
+      displayName: 'Test Seeker',
+    };
+
+    service.registerJobSeeker(body).subscribe();
+
+    const request = httpTesting.expectOne(
+      '/api/v1/auth/register/jobseeker',
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(body);
+
+    request.flush({
+      userId: '22222222-2222-2222-2222-222222222222',
+      email: body.email,
+      displayName: body.displayName,
+      role: 'JobSeeker',
+    });
+  });
+
+  it('posts Employer registration', () => {
+    const body = {
+      email: 'company@example.com',
+      password: 'Password123!',
+      companyName: 'Example Company',
+      description:
+        'A professional example company description.',
+      location: 'Colombo',
+      contactPersonName: 'Test Employer',
+      contactPersonDesignation: 'Manager',
+      businessRegistrationNumber: 'BR-1001',
+      mobileNumber: '0771234567',
+      companyWebsite: 'https://example.com',
+    };
+
+    service.registerEmployer(body).subscribe();
+
+    const request = httpTesting.expectOne(
+      '/api/v1/auth/register/employer',
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(body);
+
+    request.flush({
+      userId: '33333333-3333-3333-3333-333333333333',
+      employerProfileId:
+        '44444444-4444-4444-4444-444444444444',
+      email: body.email,
+      role: 'Employer',
+      employerVerificationStatus: 0,
+    });
+  });
+
+  it('requests an Employer OTP', () => {
+    service
+      .requestEmployerOtp({
+        email: 'company@example.com',
+      })
+      .subscribe();
+
+    const request = httpTesting.expectOne(
+      '/api/v1/auth/employer/otp/request',
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      email: 'company@example.com',
+    });
+
+    request.flush({
+      succeeded: true,
+      expiresAtUtc: '2099-01-01T00:05:00Z',
+      failureReason: null,
+      retryAfterSeconds: null,
+    });
+  });
+
+  it('verifies an Employer OTP', () => {
+    service
+      .verifyEmployerOtp({
+        email: 'company@example.com',
+        code: '123456',
+      })
+      .subscribe();
+
+    const request = httpTesting.expectOne(
+      '/api/v1/auth/employer/otp/verify',
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      email: 'company@example.com',
+      code: '123456',
+    });
+
+    request.flush({
+      succeeded: true,
+      failureReason: null,
+    });
+  });
+
+  it('requests Administrator first activation OTP', () => {
+    service
+      .requestAdministratorActivationOtp({
+        email: 'admin@example.com',
+        password: 'Password123!',
+      })
+      .subscribe();
+
+    const request = httpTesting.expectOne(
+      '/api/v1/auth/admin/activation/otp/request',
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      email: 'admin@example.com',
+      password: 'Password123!',
+    });
+
+    request.flush({
+      succeeded: true,
+      expiresAtUtc: '2099-01-01T00:05:00Z',
+      failureReason: null,
+      retryAfterSeconds: null,
+    });
+  });
+
+  it('verifies Administrator first activation OTP', () => {
+    service
+      .verifyAdministratorActivationOtp({
+        email: 'admin@example.com',
+        password: 'Password123!',
+        code: '123456',
+      })
+      .subscribe();
+
+    const request = httpTesting.expectOne(
+      '/api/v1/auth/admin/activation/otp/verify',
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      email: 'admin@example.com',
+      password: 'Password123!',
+      code: '123456',
+    });
+
+    request.flush({
+      succeeded: true,
+      failureReason: null,
+    });
   });
 
   it('clears the session on logout', () => {

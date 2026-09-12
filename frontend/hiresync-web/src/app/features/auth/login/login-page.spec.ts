@@ -1,9 +1,16 @@
-import { HttpErrorResponse } from '@angular/common/http';
+﻿import { HttpErrorResponse } from '@angular/common/http';
 import {
   ComponentFixture,
   TestBed,
 } from '@angular/core/testing';
 import {
+  ActivatedRoute,
+  ParamMap,
+  Router,
+  convertToParamMap,
+} from '@angular/router';
+import {
+  BehaviorSubject,
   Observable,
   of,
   throwError,
@@ -15,7 +22,6 @@ import {
 } from '../../../core/auth/auth.models';
 import { AuthService } from '../../../core/auth/auth.service';
 import { LoginPage } from './login-page';
-import { Router } from '@angular/router';
 
 describe('LoginPage', () => {
   const employerResponse: LoginResponse = {
@@ -28,12 +34,14 @@ describe('LoginPage', () => {
 
   let auth: FakeAuthService;
   let router: FakeRouter;
+  let route: FakeActivatedRoute;
   let fixture: ComponentFixture<LoginPage>;
   let component: LoginPage;
 
   beforeEach(async () => {
     auth = new FakeAuthService();
     router = new FakeRouter();
+    route = new FakeActivatedRoute();
 
     await TestBed.configureTestingModule({
       imports: [LoginPage],
@@ -45,6 +53,10 @@ describe('LoginPage', () => {
         {
           provide: Router,
           useValue: router,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: route,
         },
       ],
     }).compileComponents();
@@ -138,6 +150,74 @@ describe('LoginPage', () => {
     ]);
   });
 
+  it('shows Job Seeker registration success', () => {
+    route.setQueryParams({
+      registered: 'jobseeker',
+    });
+
+    fixture.detectChanges();
+
+    expect(component.successMessage())
+      .toBe(
+        'Job Seeker account created successfully. You can now sign in.',
+      );
+
+    expect(
+      fixture.nativeElement.textContent,
+    ).toContain(
+      'Job Seeker account created successfully.',
+    );
+  });
+
+  it('shows Employer verification success while preserving approval lifecycle', () => {
+    route.setQueryParams({
+      verified: 'employer',
+    });
+
+    fixture.detectChanges();
+
+    expect(component.successMessage())
+      .toContain(
+        'Administrator approval',
+      );
+
+    expect(
+      fixture.nativeElement.textContent,
+    ).toContain(
+      'Employer email verified successfully.',
+    );
+  });
+
+  it('shows Administrator first-activation success', () => {
+    route.setQueryParams({
+      activated: 'administrator',
+    });
+
+    fixture.detectChanges();
+
+    expect(component.successMessage())
+      .toBe(
+        'Administrator activation completed successfully. You can now sign in.',
+      );
+
+    expect(
+      fixture.nativeElement.textContent,
+    ).toContain(
+      'Administrator activation completed successfully.',
+    );
+  });
+
+  it('does not show a success message for unrelated query parameters', () => {
+    route.setQueryParams({
+      source: 'unknown',
+    });
+
+    fixture.detectChanges();
+
+    expect(component.successMessage())
+      .toBeNull();
+  });
+
   class FakeAuthService {
     loginResult: Observable<LoginResponse> =
       of(employerResponse);
@@ -158,6 +238,24 @@ describe('LoginPage', () => {
     navigateByUrl(url: string): Promise<boolean> {
       this.destinations.push(url);
       return Promise.resolve(true);
+    }
+  }
+
+  class FakeActivatedRoute {
+    private readonly params =
+      new BehaviorSubject<ParamMap>(
+        convertToParamMap({}),
+      );
+
+    readonly queryParamMap =
+      this.params.asObservable();
+
+    setQueryParams(
+      params: Record<string, string>,
+    ): void {
+      this.params.next(
+        convertToParamMap(params),
+      );
     }
   }
 });

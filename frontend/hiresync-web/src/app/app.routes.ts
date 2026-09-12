@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 
 import { roleGuard } from './core/auth/role.guard';
 
@@ -14,6 +14,33 @@ export const routes: Routes = [
       import(
         './features/auth/login/login-page'
       ).then((module) => module.LoginPage),
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import(
+        './features/auth/register/register-page'
+      ).then((module) => module.RegisterPage),
+  },
+  {
+    path: 'verify-employer-email',
+    loadComponent: () =>
+      import(
+        './features/auth/employer-email-verification/employer-email-verification-page'
+      ).then(
+        (module) =>
+          module.EmployerEmailVerificationPage,
+      ),
+  },
+  {
+    path: 'activate-admin',
+    loadComponent: () =>
+      import(
+        './features/auth/administrator-activation/administrator-activation-page'
+      ).then(
+        (module) =>
+          module.AdministratorActivationPage,
+      ),
   },
   {
     path: 'seeker/notifications',
@@ -173,3 +200,7 @@ export const routes: Routes = [
     redirectTo: 'login',
   },
 ];
+
+
+
+

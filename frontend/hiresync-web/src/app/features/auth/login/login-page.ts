@@ -1,12 +1,23 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+﻿import { HttpErrorResponse } from '@angular/common/http';
+import {
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  takeUntilDestroyed,
+} from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import {
+  ActivatedRoute,
+  ParamMap,
+  Router,
+} from '@angular/router';
 import { finalize } from 'rxjs';
 
 import {
@@ -30,10 +41,22 @@ const roleHome: Record<AuthRole, string> = {
 export class LoginPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly successMessage =
+    signal<string | null>(null);
 
+  constructor() {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed())
+      .subscribe((params) => {
+        this.successMessage.set(
+          this.onboardingMessage(params),
+        );
+      });
+  }
   readonly form = new FormGroup({
     email: new FormControl('', {
       nonNullable: true,
@@ -95,6 +118,32 @@ export class LoginPage {
       });
   }
 
+  private onboardingMessage(
+    params: ParamMap,
+  ): string | null {
+    if (
+      params.get('registered') ===
+      'jobseeker'
+    ) {
+      return 'Job Seeker account created successfully. You can now sign in.';
+    }
+
+    if (
+      params.get('verified') ===
+      'employer'
+    ) {
+      return 'Employer email verified successfully. Your account remains subject to Administrator approval before sign in is available.';
+    }
+
+    if (
+      params.get('activated') ===
+      'administrator'
+    ) {
+      return 'Administrator activation completed successfully. You can now sign in.';
+    }
+
+    return null;
+  }
   private redirectAfterLogin(
     response: LoginResponse,
   ): void {
