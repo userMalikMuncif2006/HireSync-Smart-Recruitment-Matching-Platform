@@ -109,6 +109,209 @@ public sealed class JobSeekerCvServiceTests
     }
 
     [Fact]
+    public async Task DownloadOwnCvAsync_returns_owner_file_after_authorization()
+    {
+        var databaseName =
+            Guid.NewGuid().ToString("N");
+
+        var options =
+            CreateOptions(
+                databaseName);
+
+        var userId =
+            Guid.NewGuid();
+
+        var profileId =
+            Guid.NewGuid();
+
+        await SeedProfileAndCvAsync(
+            options,
+            userId,
+            profileId,
+            Guid.NewGuid());
+
+        var storage =
+            new FakeFileStorage();
+
+        await using var context =
+            new HireSyncDbContext(
+                options);
+
+        var service =
+            CreateService(
+                context,
+                userId,
+                new FakeValidator(),
+                storage);
+
+        var result =
+            await service.DownloadOwnCvAsync();
+
+        Assert.True(
+            result.Succeeded);
+
+        Assert.NotNull(
+            result.Content);
+
+        Assert.Equal(
+            "old.pdf",
+            result.OriginalFileName);
+
+        Assert.Equal(
+            CvDocument.PdfContentType,
+            result.ContentType);
+
+        Assert.Equal(
+            1,
+            storage.OpenReadCallCount);
+
+        await result.Content!.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task DownloadOwnCvAsync_rejects_invalid_user_before_opening_storage()
+    {
+        var options =
+            CreateOptions(
+                Guid.NewGuid().ToString("N"));
+
+        await using var context =
+            new HireSyncDbContext(
+                options);
+
+        var storage =
+            new FakeFileStorage();
+
+        var service =
+            new JobSeekerCvService(
+                context,
+                new FakeCurrentUser(
+                    false,
+                    null,
+                    null),
+                new FixedClock(),
+                new FakeValidator(),
+                storage,
+                NullLogger<JobSeekerCvService>.Instance);
+
+        var result =
+            await service.DownloadOwnCvAsync();
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            CvDownloadFailureReason
+                .InvalidAuthenticatedUser,
+            result.FailureReason);
+
+        Assert.Equal(
+            0,
+            storage.OpenReadCallCount);
+    }
+
+    [Fact]
+    public async Task DownloadOwnCvAsync_returns_not_found_when_current_cv_missing()
+    {
+        var databaseName =
+            Guid.NewGuid().ToString("N");
+
+        var options =
+            CreateOptions(
+                databaseName);
+
+        var userId =
+            Guid.NewGuid();
+
+        await SeedProfileAsync(
+            options,
+            userId,
+            Guid.NewGuid());
+
+        var storage =
+            new FakeFileStorage();
+
+        await using var context =
+            new HireSyncDbContext(
+                options);
+
+        var service =
+            CreateService(
+                context,
+                userId,
+                new FakeValidator(),
+                storage);
+
+        var result =
+            await service.DownloadOwnCvAsync();
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            CvDownloadFailureReason.NotFound,
+            result.FailureReason);
+
+        Assert.Equal(
+            0,
+            storage.OpenReadCallCount);
+    }
+
+    [Fact]
+    public async Task DownloadOwnCvAsync_returns_storage_unavailable_when_file_open_fails()
+    {
+        var databaseName =
+            Guid.NewGuid().ToString("N");
+
+        var options =
+            CreateOptions(
+                databaseName);
+
+        var userId =
+            Guid.NewGuid();
+
+        var profileId =
+            Guid.NewGuid();
+
+        await SeedProfileAndCvAsync(
+            options,
+            userId,
+            profileId,
+            Guid.NewGuid());
+
+        var storage =
+            new FakeFileStorage
+            {
+                ThrowOnOpenRead =
+                    true
+            };
+
+        await using var context =
+            new HireSyncDbContext(
+                options);
+
+        var service =
+            CreateService(
+                context,
+                userId,
+                new FakeValidator(),
+                storage);
+
+        var result =
+            await service.DownloadOwnCvAsync();
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            CvDownloadFailureReason.StorageUnavailable,
+            result.FailureReason);
+
+        Assert.Equal(
+            1,
+            storage.OpenReadCallCount);
+    }
+    [Fact]
     public async Task Upload_rejects_invalid_authenticated_user_before_storage()
     {
         var options =
@@ -1071,6 +1274,12 @@ public sealed class JobSeekerCvServiceTests
             set;
         }
 
+        public bool ThrowOnOpenRead
+        {
+            get;
+            set;
+        }
+
         public string? ThrowOnDeletePath
         {
             get;
@@ -1121,6 +1330,12 @@ public sealed class JobSeekerCvServiceTests
             CancellationToken cancellationToken = default)
         {
             OpenReadCallCount++;
+
+            if (ThrowOnOpenRead)
+            {
+                throw new IOException(
+                    "Synthetic protected CV open failure.");
+            }
 
             Stream stream =
                 new MemoryStream(

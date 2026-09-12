@@ -84,6 +84,74 @@ public sealed class JobSeekerCvService
                 cancellationToken);
     }
 
+    public async Task<CvDownloadResult> DownloadOwnCvAsync(
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!TryGetJobSeekerUserId(
+                out var userId))
+        {
+            return CvDownloadResult.Failure(
+                CvDownloadFailureReason
+                    .InvalidAuthenticatedUser);
+        }
+
+        var cvFile =
+            await (
+                from profile in
+                    _dbContext.JobSeekerProfiles
+                        .AsNoTracking()
+                join cv in
+                    _dbContext.CvDocuments
+                        .AsNoTracking()
+                    on profile.Id equals
+                    cv.JobSeekerProfileId
+                where profile.UserId ==
+                    userId
+                select new
+                {
+                    cv.OriginalFileName,
+                    cv.ContentType,
+                    cv.RelativeStoragePath
+                })
+                .SingleOrDefaultAsync(
+                    cancellationToken);
+
+        if (cvFile is null)
+        {
+            return CvDownloadResult.Failure(
+                CvDownloadFailureReason
+                    .NotFound);
+        }
+
+        try
+        {
+            var content =
+                await _fileStorage.OpenReadAsync(
+                    cvFile.RelativeStoragePath,
+                    cancellationToken);
+
+            return CvDownloadResult.Success(
+                content,
+                cvFile.OriginalFileName,
+                cvFile.ContentType);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception exception)
+            when (exception is IOException
+                or UnauthorizedAccessException
+                or ArgumentException
+                or InvalidOperationException)
+        {
+            return CvDownloadResult.Failure(
+                CvDownloadFailureReason
+                    .StorageUnavailable);
+        }
+    }
     public async Task<CvUploadResult> UploadOrReplaceOwnCvAsync(
         CvUploadRequest request,
         CancellationToken cancellationToken = default)
