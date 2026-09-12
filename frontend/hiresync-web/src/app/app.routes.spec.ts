@@ -9,8 +9,9 @@ describe('application routes', () => {
           item.path === 'login',
       );
 
-    expect(typeof route?.loadComponent)
-      .toBe('function');
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
   });
 
   it('protects the Job Seeker role area', () => {
@@ -26,8 +27,28 @@ describe('application routes', () => {
     expect(route?.data?.['role'])
       .toBe('JobSeeker');
 
-    expect(typeof route?.loadComponent)
-      .toBe('function');
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
+  });
+
+  it('protects and lazy loads the Job Seeker profile page', () => {
+    const route =
+      routes.find(
+        (item) =>
+          item.path ===
+          'seeker/profile',
+      );
+
+    expect(route?.canMatch)
+      .toContain(roleGuard);
+
+    expect(route?.data?.['role'])
+      .toBe('JobSeeker');
+
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
   });
 
   it('protects and lazy loads the Job Seeker vacancy search page', () => {
@@ -44,8 +65,9 @@ describe('application routes', () => {
     expect(route?.data?.['role'])
       .toBe('JobSeeker');
 
-    expect(typeof route?.loadComponent)
-      .toBe('function');
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
   });
 
   it('protects and lazy loads the Job Seeker vacancy detail page', () => {
@@ -62,8 +84,9 @@ describe('application routes', () => {
     expect(route?.data?.['role'])
       .toBe('JobSeeker');
 
-    expect(typeof route?.loadComponent)
-      .toBe('function');
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
   });
 
   it('protects the Employer area and exposes the profile page', () => {
@@ -91,11 +114,13 @@ describe('application routes', () => {
           item.path === 'profile',
       );
 
-    expect(defaultRoute?.redirectTo)
-      .toBe('profile');
+    expect(
+      defaultRoute?.redirectTo,
+    ).toBe('profile');
 
     expect(
-      typeof profileRoute?.loadComponent,
+      typeof profileRoute
+        ?.loadComponent,
     ).toBe('function');
   });
 
@@ -115,7 +140,8 @@ describe('application routes', () => {
     const createRoute =
       employer?.children?.find(
         (item) =>
-          item.path === 'vacancies/new',
+          item.path ===
+          'vacancies/new',
       );
 
     const editRoute =
@@ -133,19 +159,23 @@ describe('application routes', () => {
       );
 
     expect(
-      typeof vacancyRoute?.loadComponent,
+      typeof vacancyRoute
+        ?.loadComponent,
     ).toBe('function');
 
     expect(
-      typeof createRoute?.loadComponent,
+      typeof createRoute
+        ?.loadComponent,
     ).toBe('function');
 
     expect(
-      typeof editRoute?.loadComponent,
+      typeof editRoute
+        ?.loadComponent,
     ).toBe('function');
 
     expect(
-      typeof applicantRoute?.loadComponent,
+      typeof applicantRoute
+        ?.loadComponent,
     ).toBe('function');
   });
 
@@ -162,7 +192,8 @@ describe('application routes', () => {
     expect(route?.data?.['role'])
       .toBe('Administrator');
 
-    expect(typeof route?.loadComponent)
-      .toBe('function');
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
   });
 });
