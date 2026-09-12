@@ -60,13 +60,30 @@ public sealed class LocalFileStorageTests
             result.StoredFileName,
             StringComparison.Ordinal);
 
+        Assert.Equal(
+            result.StoredFileName
+                .ToLowerInvariant(),
+            result.StoredFileName);
+
+        var generatedIdentifier =
+            Path.GetFileNameWithoutExtension(
+                result.StoredFileName);
+
+        Assert.Equal(
+            32,
+            generatedIdentifier.Length);
+
         Assert.StartsWith(
             ".staging/",
             result.StagingRelativePath,
             StringComparison.Ordinal);
 
         Assert.Equal(
-            $"files/{result.StoredFileName}",
+            $".staging/{generatedIdentifier}.tmp",
+            result.StagingRelativePath);
+
+        Assert.Equal(
+            $"{generatedIdentifier[..2]}/{generatedIdentifier.Substring(2, 2)}/{result.StoredFileName}",
             result.FinalRelativePath);
 
         Assert.Equal(
@@ -95,7 +112,7 @@ public sealed class LocalFileStorageTests
     }
 
     [Fact]
-    public async Task PromoteAsync_moves_staged_file_to_final_location()
+    public async Task PromoteAsync_moves_staged_file_to_prefixed_final_location()
     {
         var storage =
             CreateStorage();
@@ -123,6 +140,22 @@ public sealed class LocalFileStorageTests
             File.Exists(
                 Resolve(
                     staged.FinalRelativePath)));
+
+        var generatedIdentifier =
+            Path.GetFileNameWithoutExtension(
+                staged.StoredFileName);
+
+        Assert.Equal(
+            generatedIdentifier[..2],
+            staged.FinalRelativePath
+                .Split('/')[0]);
+
+        Assert.Equal(
+            generatedIdentifier.Substring(
+                2,
+                2),
+            staged.FinalRelativePath
+                .Split('/')[1]);
     }
 
     [Fact]
@@ -264,6 +297,36 @@ public sealed class LocalFileStorageTests
         Assert.Empty(
             Directory.EnumerateFiles(
                 stagingDirectory));
+    }
+
+    [Fact]
+    public async Task PromoteAsync_rejects_forged_flat_final_path()
+    {
+        var storage =
+            CreateStorage();
+
+        await using var source =
+            new MemoryStream(
+                "synthetic pdf"u8
+                    .ToArray());
+
+        var staged =
+            await storage.StageAsync(
+                source,
+                ".pdf",
+                5_000_000);
+
+        var forged =
+            staged with
+            {
+                FinalRelativePath =
+                    $"files/{staged.StoredFileName}"
+            };
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () =>
+                storage.PromoteAsync(
+                    forged));
     }
 
     public void Dispose()

@@ -41,7 +41,7 @@ builder.Services.AddScoped<IHireSyncDbContext>(serviceProvider =>
 
 // Protected CV storage
 var cvStorageRootPath =
-    builder.Configuration["CvStorage:RootPath"]
+    builder.Configuration["Storage:CvRoot"]
     ?? throw new InvalidOperationException(
         "CV storage root is not configured.");
 
@@ -69,6 +69,12 @@ var localFileStorageOptions =
         RootPath =
             protectedCvStorageRootPath
     };
+
+// Instantiate now so root create/read/write validation
+// fails during startup rather than on the first upload.
+var localFileStorage =
+    new LocalFileStorage(
+        localFileStorageOptions);
 
 // ASP.NET Core Identity
 builder.Services
@@ -160,7 +166,8 @@ builder.Services.AddSingleton(smtpEmailSettings);
 builder.Services.AddSingleton(localFileStorageOptions);
 
 builder.Services.AddSingleton<IClock, SystemClock>();
-builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
+builder.Services.AddSingleton<IFileStorage>(
+    localFileStorage);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();

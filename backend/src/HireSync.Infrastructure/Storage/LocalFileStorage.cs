@@ -10,9 +10,6 @@ public sealed class LocalFileStorage
     private const string StagingDirectoryName =
         ".staging";
 
-    private const string FinalDirectoryName =
-        "files";
-
     private const int CopyBufferSize =
         81_920;
 
@@ -43,35 +40,15 @@ public sealed class LocalFileStorage
         }
 
         _rootPath =
-            Path.GetFullPath(
-                    options.RootPath)
-                .TrimEnd(
-                    Path.DirectorySeparatorChar,
-                    Path.AltDirectorySeparatorChar);
-
-        if (string.IsNullOrWhiteSpace(
-                _rootPath))
-        {
-            throw new ArgumentException(
-                "Protected file storage root is invalid.",
-                nameof(options));
-        }
+            NormalizeRootPath(
+                options.RootPath);
 
         _pathComparison =
             OperatingSystem.IsWindows()
                 ? StringComparison.OrdinalIgnoreCase
                 : StringComparison.Ordinal;
 
-        Directory.CreateDirectory(
-            _rootPath);
-
-        Directory.CreateDirectory(
-            ResolveRelativePath(
-                StagingDirectoryName));
-
-        Directory.CreateDirectory(
-            ResolveRelativePath(
-                FinalDirectoryName));
+        InitializeAndVerifyStorageRoot();
     }
 
     public async Task<StagedFileResult> StageAsync(
@@ -113,8 +90,16 @@ public sealed class LocalFileStorage
         var stagingRelativePath =
             $"{StagingDirectoryName}/{generatedIdentifier}.tmp";
 
+        var firstPrefix =
+            generatedIdentifier[..2];
+
+        var secondPrefix =
+            generatedIdentifier.Substring(
+                2,
+                2);
+
         var finalRelativePath =
-            $"{FinalDirectoryName}/{storedFileName}";
+            $"{firstPrefix}/{secondPrefix}/{storedFileName}";
 
         var stagingAbsolutePath =
             ResolveRelativePath(
@@ -229,7 +214,8 @@ public sealed class LocalFileStorage
         cancellationToken.ThrowIfCancellationRequested();
 
         EnsureGeneratedStagingPath(
-            stagedFile.StagingRelativePath);
+            stagedFile.StagingRelativePath,
+            stagedFile.StoredFileName);
 
         EnsureGeneratedFinalPath(
             stagedFile.FinalRelativePath,
@@ -256,6 +242,15 @@ public sealed class LocalFileStorage
             throw new IOException(
                 "The generated final file already exists.");
         }
+
+        var finalDirectory =
+            Path.GetDirectoryName(
+                finalAbsolutePath)
+            ?? throw new IOException(
+                "The generated final directory is invalid.");
+
+        Directory.CreateDirectory(
+            finalDirectory);
 
         File.Move(
             stagingAbsolutePath,
@@ -308,6 +303,75 @@ public sealed class LocalFileStorage
         return Task.CompletedTask;
     }
 
+    private void InitializeAndVerifyStorageRoot()
+    {
+        try
+        {
+            Directory.CreateDirectory(
+                _rootPath);
+
+            var stagingPath =
+                ResolveRelativePath(
+                    StagingDirectoryName);
+
+            Directory.CreateDirectory(
+                stagingPath);
+
+            var probeRelativePath =
+                $"{StagingDirectoryName}/storage-probe-{Guid.NewGuid():N}.tmp";
+
+            var probeAbsolutePath =
+                ResolveRelativePath(
+                    probeRelativePath);
+
+            try
+            {
+                using (
+                    var writeStream =
+                        new FileStream(
+                            probeAbsolutePath,
+                            FileMode.CreateNew,
+                            FileAccess.Write,
+                            FileShare.None))
+                {
+                    writeStream.WriteByte(
+                        0x48);
+
+                    writeStream.Flush(
+                        flushToDisk:
+                            true);
+                }
+
+                using var readStream =
+                    new FileStream(
+                        probeAbsolutePath,
+                        FileMode.Open,
+                        FileAccess.Read,
+                        FileShare.Read);
+
+                if (readStream.ReadByte() !=
+                    0x48)
+                {
+                    throw new IOException(
+                        "Protected storage read verification failed.");
+                }
+            }
+            finally
+            {
+                TryDeleteFile(
+                    probeAbsolutePath);
+            }
+        }
+        catch (Exception exception)
+            when (exception is IOException
+                or UnauthorizedAccessException)
+        {
+            throw new InvalidOperationException(
+                "Protected file storage root is not readable and writable.",
+                exception);
+        }
+    }
+
     private string ResolveRelativePath(
         string relativePath)
     {
@@ -345,8 +409,8 @@ public sealed class LocalFileStorage
                     normalizedRelativePath));
 
         var requiredPrefix =
-            _rootPath +
-            Path.DirectorySeparatorChar;
+            EnsureTrailingDirectorySeparator(
+                _rootPath);
 
         if (!candidatePath.StartsWith(
                 requiredPrefix,
@@ -358,6 +422,49 @@ public sealed class LocalFileStorage
         }
 
         return candidatePath;
+    }
+
+    private static string NormalizeRootPath(
+        string rootPath)
+    {
+        var fullPath =
+            Path.GetFullPath(
+                rootPath);
+
+        var pathRoot =
+            Path.GetPathRoot(
+                fullPath);
+
+        if (!string.IsNullOrEmpty(
+                pathRoot) &&
+            string.Equals(
+                fullPath,
+                pathRoot,
+                OperatingSystem.IsWindows()
+                    ? StringComparison.OrdinalIgnoreCase
+                    : StringComparison.Ordinal))
+        {
+            return fullPath;
+        }
+
+        return fullPath.TrimEnd(
+            Path.DirectorySeparatorChar,
+            Path.AltDirectorySeparatorChar);
+    }
+
+    private static string EnsureTrailingDirectorySeparator(
+        string path)
+    {
+        if (path.EndsWith(
+                Path.DirectorySeparatorChar) ||
+            path.EndsWith(
+                Path.AltDirectorySeparatorChar))
+        {
+            return path;
+        }
+
+        return path +
+            Path.DirectorySeparatorChar;
     }
 
     private static string NormalizeExtension(
@@ -394,7 +501,8 @@ public sealed class LocalFileStorage
         if (normalized.Contains('/') ||
             normalized.Contains('\\') ||
             normalized.Contains(':') ||
-            normalized.Contains("..",
+            normalized.Contains(
+                "..",
                 StringComparison.Ordinal))
         {
             throw new ArgumentException(
@@ -406,14 +514,23 @@ public sealed class LocalFileStorage
     }
 
     private static void EnsureGeneratedStagingPath(
-        string relativePath)
+        string relativePath,
+        string storedFileName)
     {
+        var generatedIdentifier =
+            ValidateGeneratedStoredFileName(
+                storedFileName);
+
         var normalized =
             NormalizeForContractCheck(
                 relativePath);
 
-        if (!normalized.StartsWith(
-                ".staging/",
+        var expected =
+            $"{StagingDirectoryName}/{generatedIdentifier}.tmp";
+
+        if (!string.Equals(
+                normalized,
+                expected,
                 StringComparison.Ordinal))
         {
             throw new ArgumentException(
@@ -426,22 +543,24 @@ public sealed class LocalFileStorage
         string relativePath,
         string storedFileName)
     {
-        if (string.IsNullOrWhiteSpace(
-                storedFileName) ||
-            storedFileName.Contains('/') ||
-            storedFileName.Contains('\\'))
-        {
-            throw new ArgumentException(
-                "Stored filename is invalid.",
-                nameof(storedFileName));
-        }
+        var generatedIdentifier =
+            ValidateGeneratedStoredFileName(
+                storedFileName);
+
+        var firstPrefix =
+            generatedIdentifier[..2];
+
+        var secondPrefix =
+            generatedIdentifier.Substring(
+                2,
+                2);
+
+        var expected =
+            $"{firstPrefix}/{secondPrefix}/{storedFileName}";
 
         var normalized =
             NormalizeForContractCheck(
                 relativePath);
-
-        var expected =
-            $"{FinalDirectoryName}/{storedFileName}";
 
         if (!string.Equals(
                 normalized,
@@ -452,6 +571,57 @@ public sealed class LocalFileStorage
                 "Final file path is not storage-generated.",
                 nameof(relativePath));
         }
+    }
+
+    private static string ValidateGeneratedStoredFileName(
+        string storedFileName)
+    {
+        if (string.IsNullOrWhiteSpace(
+                storedFileName) ||
+            storedFileName.Contains('/') ||
+            storedFileName.Contains('\\') ||
+            storedFileName.Contains(':'))
+        {
+            throw new ArgumentException(
+                "Stored filename is invalid.",
+                nameof(storedFileName));
+        }
+
+        if (!string.Equals(
+                storedFileName,
+                storedFileName.ToLowerInvariant(),
+                StringComparison.Ordinal))
+        {
+            throw new ArgumentException(
+                "Stored filename must be lowercase.",
+                nameof(storedFileName));
+        }
+
+        var generatedIdentifier =
+            Path.GetFileNameWithoutExtension(
+                storedFileName);
+
+        var extension =
+            Path.GetExtension(
+                storedFileName);
+
+        if (generatedIdentifier.Length !=
+                32 ||
+            string.IsNullOrWhiteSpace(
+                extension) ||
+            generatedIdentifier.Any(
+                character =>
+                    character is not
+                        (>= '0' and <= '9')
+                    and not
+                        (>= 'a' and <= 'f')))
+        {
+            throw new ArgumentException(
+                "Stored filename is not a generated GUID filename.",
+                nameof(storedFileName));
+        }
+
+        return generatedIdentifier;
     }
 
     private static string NormalizeForContractCheck(
