@@ -86,7 +86,9 @@ public sealed class NotificationTests
                 NotificationId(),
                 RecipientId(),
                 NotificationType.ApplicationStatusChanged,
-                new string('A', Notification.TitleMaxLength + 1),
+                new string(
+                    'A',
+                    Notification.TitleMaxLength + 1),
                 "Your application status changed.",
                 ApplicationId(),
                 Utc()));
@@ -101,7 +103,9 @@ public sealed class NotificationTests
                 RecipientId(),
                 NotificationType.ApplicationStatusChanged,
                 "Status changed",
-                new string('A', Notification.MessageMaxLength + 1),
+                new string(
+                    'A',
+                    Notification.MessageMaxLength + 1),
                 ApplicationId(),
                 Utc()));
     }
@@ -117,20 +121,102 @@ public sealed class NotificationTests
     }
 
     [Fact]
-    public void Notification_HasNoContactDataFields()
+    public void MarkRead_SetsReadStateWithUtcTimestamp()
     {
-        var propertyNames = typeof(Notification)
-            .GetProperties()
-            .Select(property => property.Name)
-            .ToHashSet(StringComparer.Ordinal);
+        var notification =
+            Create(Utc());
 
-        Assert.DoesNotContain("Email", propertyNames);
-        Assert.DoesNotContain("Phone", propertyNames);
-        Assert.DoesNotContain("ContactMessage", propertyNames);
-        Assert.DoesNotContain("Attachment", propertyNames);
+        var readAt =
+            Utc().AddMinutes(5);
+
+        var changed =
+            notification.MarkRead(
+                readAt);
+
+        Assert.True(changed);
+        Assert.True(notification.IsRead);
+        Assert.Equal(
+            readAt,
+            notification.ReadAtUtc);
+
+        Assert.Equal(
+            DateTimeKind.Utc,
+            notification.ReadAtUtc!.Value.Kind);
     }
 
-    private static Notification Create(DateTime createdAtUtc)
+    [Fact]
+    public void MarkRead_IsIdempotentAndPreservesOriginalTimestamp()
+    {
+        var notification =
+            Create(Utc());
+
+        var firstReadAt =
+            Utc().AddMinutes(5);
+
+        var secondReadAt =
+            Utc().AddMinutes(20);
+
+        Assert.True(
+            notification.MarkRead(
+                firstReadAt));
+
+        Assert.False(
+            notification.MarkRead(
+                secondReadAt));
+
+        Assert.Equal(
+            firstReadAt,
+            notification.ReadAtUtc);
+    }
+
+    [Fact]
+    public void MarkRead_FirstReadRequiresUtcTimestamp()
+    {
+        var notification =
+            Create(Utc());
+
+        Assert.Throws<ArgumentException>(
+            () =>
+                notification.MarkRead(
+                    DateTime.SpecifyKind(
+                        DateTime.UtcNow,
+                        DateTimeKind.Local)));
+
+        Assert.False(notification.IsRead);
+        Assert.Null(notification.ReadAtUtc);
+    }
+
+    [Fact]
+    public void Notification_HasNoContactDataFields()
+    {
+        var propertyNames =
+            typeof(Notification)
+                .GetProperties()
+                .Select(
+                    property =>
+                        property.Name)
+                .ToHashSet(
+                    StringComparer.Ordinal);
+
+        Assert.DoesNotContain(
+            "Email",
+            propertyNames);
+
+        Assert.DoesNotContain(
+            "Phone",
+            propertyNames);
+
+        Assert.DoesNotContain(
+            "ContactMessage",
+            propertyNames);
+
+        Assert.DoesNotContain(
+            "Attachment",
+            propertyNames);
+    }
+
+    private static Notification Create(
+        DateTime createdAtUtc)
     {
         return new Notification(
             NotificationId(),
@@ -143,13 +229,16 @@ public sealed class NotificationTests
     }
 
     private static Guid NotificationId() =>
-        Guid.Parse("40000000-0000-0000-0000-000000000001");
+        Guid.Parse(
+            "40000000-0000-0000-0000-000000000001");
 
     private static Guid RecipientId() =>
-        Guid.Parse("50000000-0000-0000-0000-000000000001");
+        Guid.Parse(
+            "50000000-0000-0000-0000-000000000001");
 
     private static Guid ApplicationId() =>
-        Guid.Parse("60000000-0000-0000-0000-000000000001");
+        Guid.Parse(
+            "60000000-0000-0000-0000-000000000001");
 
     private static DateTime Utc() =>
         new(
