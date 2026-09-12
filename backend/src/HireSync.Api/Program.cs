@@ -169,6 +169,10 @@ builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddSingleton<IFileStorage>(
     localFileStorage);
 
+builder.Services.AddSingleton<
+    ICvFileValidator,
+    CvFileValidator>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
