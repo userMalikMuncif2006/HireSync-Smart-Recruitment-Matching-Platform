@@ -38,7 +38,7 @@ public sealed class JobSeekerProfileControllerContractTests
                 .Single();
 
         Assert.Equal(
-            "api/v1/seeker/profile",
+            "api/v1/job-seeker/profile",
             attribute.Template);
     }
 
