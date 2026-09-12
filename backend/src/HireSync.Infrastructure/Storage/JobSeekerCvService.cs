@@ -125,54 +125,19 @@ public sealed class JobSeekerCvService
                     .ProfileNotFound);
         }
 
-        CvFileValidationResult validation;
+        var preflightFailure =
+            ResolveUploadPreflight(
+                request.OriginalFileName,
+                request.DeclaredContentType,
+                out var safeOriginalFileName,
+                out var approvedExtension,
+                out var approvedContentType);
 
-        try
-        {
-            validation =
-                await _fileValidator.ValidateAsync(
-                    request.Content,
-                    request.OriginalFileName,
-                    request.DeclaredContentType,
-                    cancellationToken);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (IOException)
+        if (preflightFailure !=
+            CvOperationFailureReason.None)
         {
             return CvUploadResult.Failure(
-                CvOperationFailureReason
-                    .MalformedFile);
-        }
-        catch (NotSupportedException)
-        {
-            return CvUploadResult.Failure(
-                CvOperationFailureReason
-                    .MalformedFile);
-        }
-        catch (ObjectDisposedException)
-        {
-            return CvUploadResult.Failure(
-                CvOperationFailureReason
-                    .InvalidInput);
-        }
-
-        if (!validation.Succeeded)
-        {
-            return CvUploadResult.Failure(
-                MapValidationFailure(
-                    validation.FailureReason));
-        }
-
-        if (validation.SafeOriginalFileName is null ||
-            validation.Extension is null ||
-            validation.ContentType is null)
-        {
-            return CvUploadResult.Failure(
-                CvOperationFailureReason
-                    .InvalidInput);
+                preflightFailure);
         }
 
         var operationReferenceId =
@@ -181,20 +146,77 @@ public sealed class JobSeekerCvService
         StagedFileResult? stagedFile =
             null;
 
+        var validatedOriginalFileName =
+            string.Empty;
+
+        var validatedExtension =
+            string.Empty;
+
+        var validatedContentType =
+            string.Empty;
+
         try
         {
-            request.Content.Position =
-                0;
-
             stagedFile =
                 await _fileStorage.StageAsync(
                     request.Content,
-                    validation.Extension,
+                    approvedExtension,
                     CvDocument.MaxSizeBytes,
                     cancellationToken);
 
-            if (stagedFile.SizeBytes !=
-                validation.SizeBytes)
+            if (stagedFile.SizeBytes <= 0)
+            {
+                await BestEffortDeleteAsync(
+                    stagedFile.StagingRelativePath,
+                    operationReferenceId);
+
+                return CvUploadResult.Failure(
+                    CvOperationFailureReason
+                        .InvalidInput);
+            }
+
+            CvFileValidationResult validation;
+
+            await using (
+                var stagedContent =
+                    await _fileStorage.OpenReadAsync(
+                        stagedFile.StagingRelativePath,
+                        cancellationToken))
+            {
+                validation =
+                    await _fileValidator.ValidateAsync(
+                        stagedContent,
+                        safeOriginalFileName,
+                        approvedContentType,
+                        cancellationToken);
+            }
+
+            if (!validation.Succeeded)
+            {
+                await BestEffortDeleteAsync(
+                    stagedFile.StagingRelativePath,
+                    operationReferenceId);
+
+                return CvUploadResult.Failure(
+                    MapValidationFailure(
+                        validation.FailureReason));
+            }
+
+            if (validation.SafeOriginalFileName is null ||
+                validation.Extension is null ||
+                validation.ContentType is null)
+            {
+                await BestEffortDeleteAsync(
+                    stagedFile.StagingRelativePath,
+                    operationReferenceId);
+
+                return CvUploadResult.Failure(
+                    CvOperationFailureReason
+                        .InvalidInput);
+            }
+
+            if (validation.SizeBytes !=
+                stagedFile.SizeBytes)
             {
                 await BestEffortDeleteAsync(
                     stagedFile.StagingRelativePath,
@@ -204,6 +226,15 @@ public sealed class JobSeekerCvService
                     CvOperationFailureReason
                         .StorageUnavailable);
             }
+
+            validatedOriginalFileName =
+                validation.SafeOriginalFileName;
+
+            validatedExtension =
+                validation.Extension;
+
+            validatedContentType =
+                validation.ContentType;
 
             await _fileStorage.PromoteAsync(
                 stagedFile,
@@ -237,6 +268,40 @@ public sealed class JobSeekerCvService
                 CvOperationFailureReason
                     .FileTooLarge);
         }
+        catch (ObjectDisposedException)
+        {
+            if (stagedFile is not null)
+            {
+                await BestEffortDeleteAsync(
+                    stagedFile.StagingRelativePath,
+                    operationReferenceId);
+
+                await BestEffortDeleteAsync(
+                    stagedFile.FinalRelativePath,
+                    operationReferenceId);
+            }
+
+            return CvUploadResult.Failure(
+                CvOperationFailureReason
+                    .InvalidInput);
+        }
+        catch (NotSupportedException)
+        {
+            if (stagedFile is not null)
+            {
+                await BestEffortDeleteAsync(
+                    stagedFile.StagingRelativePath,
+                    operationReferenceId);
+
+                await BestEffortDeleteAsync(
+                    stagedFile.FinalRelativePath,
+                    operationReferenceId);
+            }
+
+            return CvUploadResult.Failure(
+                CvOperationFailureReason
+                    .MalformedFile);
+        }
         catch (Exception exception)
             when (exception is IOException
                 or UnauthorizedAccessException)
@@ -255,6 +320,26 @@ public sealed class JobSeekerCvService
             return CvUploadResult.Failure(
                 CvOperationFailureReason
                     .StorageUnavailable);
+        }
+
+        if (stagedFile is null ||
+            string.IsNullOrWhiteSpace(
+                validatedOriginalFileName) ||
+            string.IsNullOrWhiteSpace(
+                validatedExtension) ||
+            string.IsNullOrWhiteSpace(
+                validatedContentType))
+        {
+            if (stagedFile is not null)
+            {
+                await BestEffortDeleteAsync(
+                    stagedFile.FinalRelativePath,
+                    operationReferenceId);
+            }
+
+            return CvUploadResult.Failure(
+                CvOperationFailureReason
+                    .PersistenceFailed);
         }
 
         string? previousRelativeStoragePath =
@@ -284,11 +369,11 @@ public sealed class JobSeekerCvService
                     new CvDocument(
                         operationReferenceId,
                         profile.Id,
-                        validation.SafeOriginalFileName,
+                        validatedOriginalFileName,
                         stagedFile.StoredFileName,
                         stagedFile.FinalRelativePath,
-                        validation.Extension,
-                        validation.ContentType,
+                        validatedExtension,
+                        validatedContentType,
                         stagedFile.SizeBytes,
                         stagedFile.Sha256Hash,
                         _clock.UtcNow);
@@ -305,11 +390,11 @@ public sealed class JobSeekerCvService
                     cvDocument.RelativeStoragePath;
 
                 cvDocument.ReplaceFile(
-                    validation.SafeOriginalFileName,
+                    validatedOriginalFileName,
                     stagedFile.StoredFileName,
                     stagedFile.FinalRelativePath,
-                    validation.Extension,
-                    validation.ContentType,
+                    validatedExtension,
+                    validatedContentType,
                     stagedFile.SizeBytes,
                     stagedFile.Sha256Hash,
                     _clock.UtcNow);
@@ -379,6 +464,111 @@ public sealed class JobSeekerCvService
         return CvUploadResult.Success(
             ToDto(
                 cvDocument));
+    }
+
+
+    private static CvOperationFailureReason
+        ResolveUploadPreflight(
+            string originalFileName,
+            string declaredContentType,
+            out string safeOriginalFileName,
+            out string approvedExtension,
+            out string approvedContentType)
+    {
+        safeOriginalFileName =
+            string.Empty;
+
+        approvedExtension =
+            string.Empty;
+
+        approvedContentType =
+            string.Empty;
+
+        if (string.IsNullOrWhiteSpace(
+                originalFileName) ||
+            string.IsNullOrWhiteSpace(
+                declaredContentType))
+        {
+            return CvOperationFailureReason
+                .InvalidInput;
+        }
+
+        var normalizedOriginalFileName =
+            originalFileName
+                .Replace(
+                    '\\',
+                    '/')
+                .Trim();
+
+        var lastSeparatorIndex =
+            normalizedOriginalFileName
+                .LastIndexOf('/');
+
+        var basename =
+            lastSeparatorIndex >= 0
+                ? normalizedOriginalFileName[
+                    (lastSeparatorIndex + 1)..]
+                : normalizedOriginalFileName;
+
+        basename =
+            basename.Trim();
+
+        if (string.IsNullOrWhiteSpace(
+                basename) ||
+            basename is "." or ".." ||
+            basename.Length >
+                CvDocument.MaxOriginalFileNameLength ||
+            basename.Any(
+                char.IsControl))
+        {
+            return CvOperationFailureReason
+                .InvalidInput;
+        }
+
+        var extension =
+            Path.GetExtension(
+                    basename)
+                .ToLowerInvariant();
+
+        string expectedContentType;
+
+        if (extension ==
+            CvDocument.PdfExtension)
+        {
+            expectedContentType =
+                CvDocument.PdfContentType;
+        }
+        else if (extension ==
+            CvDocument.DocxExtension)
+        {
+            expectedContentType =
+                CvDocument.DocxContentType;
+        }
+        else
+        {
+            return CvOperationFailureReason
+                .InvalidFileType;
+        }
+
+        if (!string.Equals(
+                declaredContentType.Trim(),
+                expectedContentType,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return CvOperationFailureReason
+                .InvalidFileType;
+        }
+
+        safeOriginalFileName =
+            basename;
+
+        approvedExtension =
+            extension;
+
+        approvedContentType =
+            expectedContentType;
+
+        return CvOperationFailureReason.None;
     }
 
     private async Task BestEffortDeleteAsync(

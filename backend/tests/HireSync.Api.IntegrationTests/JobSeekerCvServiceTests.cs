@@ -200,7 +200,141 @@ public sealed class JobSeekerCvServiceTests
     }
 
     [Fact]
-    public async Task Upload_maps_file_too_large_without_staging()
+    public async Task Upload_maps_staging_size_limit_to_file_too_large()
+    {
+        var databaseName =
+            Guid.NewGuid().ToString("N");
+
+        var options =
+            CreateOptions(
+                databaseName);
+
+        var userId =
+            Guid.NewGuid();
+
+        await SeedProfileAsync(
+            options,
+            userId,
+            Guid.NewGuid());
+
+        await using var context =
+            new HireSyncDbContext(
+                options);
+
+        var validator =
+            new FakeValidator();
+
+        var storage =
+            new FakeFileStorage
+            {
+                ThrowSizeLimitOnStage =
+                    true
+            };
+
+        var service =
+            CreateService(
+                context,
+                userId,
+                validator,
+                storage);
+
+        var result =
+            await service.UploadOrReplaceOwnCvAsync(
+                CreateUploadRequest());
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            CvOperationFailureReason.FileTooLarge,
+            result.FailureReason);
+
+        Assert.Equal(
+            1,
+            storage.StageCallCount);
+
+        Assert.Equal(
+            0,
+            storage.OpenReadCallCount);
+
+        Assert.Equal(
+            0,
+            validator.CallCount);
+
+        Assert.Equal(
+            0,
+            storage.PromoteCallCount);
+    }
+
+    [Fact]
+    public async Task Upload_rejects_invalid_file_type_before_staging()
+    {
+        var databaseName =
+            Guid.NewGuid().ToString("N");
+
+        var options =
+            CreateOptions(
+                databaseName);
+
+        var userId =
+            Guid.NewGuid();
+
+        await SeedProfileAsync(
+            options,
+            userId,
+            Guid.NewGuid());
+
+        await using var context =
+            new HireSyncDbContext(
+                options);
+
+        var validator =
+            new FakeValidator();
+
+        var storage =
+            new FakeFileStorage();
+
+        var service =
+            CreateService(
+                context,
+                userId,
+                validator,
+                storage);
+
+        var request =
+            new CvUploadRequest(
+                new MemoryStream(
+                    "not important"u8
+                        .ToArray()),
+                "resume.txt",
+                "text/plain");
+
+        var result =
+            await service.UploadOrReplaceOwnCvAsync(
+                request);
+
+        Assert.False(
+            result.Succeeded);
+
+        Assert.Equal(
+            CvOperationFailureReason.InvalidFileType,
+            result.FailureReason);
+
+        Assert.Equal(
+            0,
+            storage.StageCallCount);
+
+        Assert.Equal(
+            0,
+            storage.OpenReadCallCount);
+
+        Assert.Equal(
+            0,
+            validator.CallCount);
+    }
+
+    [Fact]
+    public async Task Upload_stages_then_rejects_malformed_file_and_cleans_staging()
     {
         var databaseName =
             Guid.NewGuid().ToString("N");
@@ -227,113 +361,6 @@ public sealed class JobSeekerCvServiceTests
                 Result =
                     CvFileValidationResult.Failure(
                         CvFileValidationFailureReason
-                            .FileTooLarge,
-                        5_000_001)
-            };
-
-        var storage =
-            new FakeFileStorage();
-
-        var service =
-            CreateService(
-                context,
-                userId,
-                validator,
-                storage);
-
-        var result =
-            await service.UploadOrReplaceOwnCvAsync(
-                CreateUploadRequest());
-
-        Assert.Equal(
-            CvOperationFailureReason.FileTooLarge,
-            result.FailureReason);
-
-        Assert.Equal(
-            0,
-            storage.StageCallCount);
-    }
-
-    [Fact]
-    public async Task Upload_maps_invalid_file_type_separately_from_malformed_content()
-    {
-        var databaseName =
-            Guid.NewGuid().ToString("N");
-
-        var options =
-            CreateOptions(databaseName);
-
-        var userId =
-            Guid.NewGuid();
-
-        await SeedProfileAsync(
-            options,
-            userId,
-            Guid.NewGuid());
-
-        await using var context =
-            new HireSyncDbContext(options);
-
-        var validator =
-            new FakeValidator
-            {
-                Result =
-                    CvFileValidationResult.Failure(
-                        CvFileValidationFailureReason
-                            .UnsupportedExtension)
-            };
-
-        var storage =
-            new FakeFileStorage();
-
-        var service =
-            CreateService(
-                context,
-                userId,
-                validator,
-                storage);
-
-        var result =
-            await service.UploadOrReplaceOwnCvAsync(
-                CreateUploadRequest());
-
-        Assert.False(result.Succeeded);
-
-        Assert.Equal(
-            CvOperationFailureReason.InvalidFileType,
-            result.FailureReason);
-
-        Assert.Equal(
-            0,
-            storage.StageCallCount);
-    }
-
-    [Fact]
-    public async Task Upload_maps_malformed_file_separately_from_invalid_type()
-    {
-        var databaseName =
-            Guid.NewGuid().ToString("N");
-
-        var options =
-            CreateOptions(databaseName);
-
-        var userId =
-            Guid.NewGuid();
-
-        await SeedProfileAsync(
-            options,
-            userId,
-            Guid.NewGuid());
-
-        await using var context =
-            new HireSyncDbContext(options);
-
-        var validator =
-            new FakeValidator
-            {
-                Result =
-                    CvFileValidationResult.Failure(
-                        CvFileValidationFailureReason
                             .InvalidPdfSignature)
             };
 
@@ -351,15 +378,103 @@ public sealed class JobSeekerCvServiceTests
             await service.UploadOrReplaceOwnCvAsync(
                 CreateUploadRequest());
 
-        Assert.False(result.Succeeded);
+        Assert.False(
+            result.Succeeded);
 
         Assert.Equal(
             CvOperationFailureReason.MalformedFile,
             result.FailureReason);
 
         Assert.Equal(
-            0,
+            1,
             storage.StageCallCount);
+
+        Assert.Equal(
+            1,
+            storage.OpenReadCallCount);
+
+        Assert.Equal(
+            1,
+            validator.CallCount);
+
+        Assert.Equal(
+            0,
+            storage.PromoteCallCount);
+
+        Assert.Contains(
+            storage.StageResult.StagingRelativePath,
+            storage.DeleteAttempts);
+    }
+
+    [Fact]
+    public async Task Upload_does_not_require_incoming_stream_to_be_seekable()
+    {
+        var databaseName =
+            Guid.NewGuid().ToString("N");
+
+        var options =
+            CreateOptions(
+                databaseName);
+
+        var userId =
+            Guid.NewGuid();
+
+        await SeedProfileAsync(
+            options,
+            userId,
+            Guid.NewGuid());
+
+        await using var context =
+            new HireSyncDbContext(
+                options);
+
+        var validator =
+            new FakeValidator();
+
+        var storage =
+            new FakeFileStorage();
+
+        var service =
+            CreateService(
+                context,
+                userId,
+                validator,
+                storage);
+
+        await using var requestStream =
+            new NonSeekableReadStream(
+                new MemoryStream(
+                    "%PDF-1.7 synthetic"u8
+                        .ToArray()));
+
+        var request =
+            new CvUploadRequest(
+                requestStream,
+                "resume.pdf",
+                CvDocument.PdfContentType);
+
+        var result =
+            await service.UploadOrReplaceOwnCvAsync(
+                request);
+
+        Assert.True(
+            result.Succeeded);
+
+        Assert.Equal(
+            1,
+            storage.StageCallCount);
+
+        Assert.Equal(
+            1,
+            storage.OpenReadCallCount);
+
+        Assert.Equal(
+            1,
+            validator.CallCount);
+
+        Assert.Equal(
+            1,
+            storage.PromoteCallCount);
     }
     [Fact]
     public async Task First_upload_promotes_and_persists_one_current_cv()
@@ -938,6 +1053,18 @@ public sealed class JobSeekerCvServiceTests
             private set;
         }
 
+        public int OpenReadCallCount
+        {
+            get;
+            private set;
+        }
+
+        public bool ThrowSizeLimitOnStage
+        {
+            get;
+            set;
+        }
+
         public bool ThrowOnPromote
         {
             get;
@@ -964,6 +1091,12 @@ public sealed class JobSeekerCvServiceTests
         {
             StageCallCount++;
 
+            if (ThrowSizeLimitOnStage)
+            {
+                throw new FileStorageSizeLimitExceededException(
+                    CvDocument.MaxSizeBytes);
+            }
+
             return Task.FromResult(
                 StageResult);
         }
@@ -987,6 +1120,8 @@ public sealed class JobSeekerCvServiceTests
             string relativePath,
             CancellationToken cancellationToken = default)
         {
+            OpenReadCallCount++;
+
             Stream stream =
                 new MemoryStream(
                     "%PDF-1.7 synthetic"u8
@@ -1013,6 +1148,106 @@ public sealed class JobSeekerCvServiceTests
             }
 
             return Task.CompletedTask;
+        }
+    }
+
+
+    private sealed class NonSeekableReadStream
+        : Stream
+    {
+        private readonly Stream _inner;
+
+        public NonSeekableReadStream(
+            Stream inner)
+        {
+            _inner =
+                inner;
+        }
+
+        public override bool CanRead =>
+            true;
+
+        public override bool CanSeek =>
+            false;
+
+        public override bool CanWrite =>
+            false;
+
+        public override long Length =>
+            throw new NotSupportedException();
+
+        public override long Position
+        {
+            get =>
+                throw new NotSupportedException();
+
+            set =>
+                throw new NotSupportedException();
+        }
+
+        public override void Flush()
+        {
+        }
+
+        public override int Read(
+            byte[] buffer,
+            int offset,
+            int count)
+        {
+            return _inner.Read(
+                buffer,
+                offset,
+                count);
+        }
+
+        public override ValueTask<int> ReadAsync(
+            Memory<byte> buffer,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.ReadAsync(
+                buffer,
+                cancellationToken);
+        }
+
+        public override long Seek(
+            long offset,
+            SeekOrigin origin)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void SetLength(
+            long value)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Write(
+            byte[] buffer,
+            int offset,
+            int count)
+        {
+            throw new NotSupportedException();
+        }
+
+        protected override void Dispose(
+            bool disposing)
+        {
+            if (disposing)
+            {
+                _inner.Dispose();
+            }
+
+            base.Dispose(
+                disposing);
+        }
+
+        public override async ValueTask DisposeAsync()
+        {
+            await _inner.DisposeAsync();
+
+            GC.SuppressFinalize(
+                this);
         }
     }
 
