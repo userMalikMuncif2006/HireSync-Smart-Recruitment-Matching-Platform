@@ -8,6 +8,16 @@
     </p>
   </header>
 
+  <div class="page-actions">
+    <button
+      type="button"
+      class="primary-button"
+      (click)="createVacancy()"
+    >
+      Create vacancy
+    </button>
+  </div>
+
   <div class="filter-panel">
     <label for="vacancy-status">
       Vacancy status
@@ -176,6 +186,16 @@
                 >
                   View ranked applicants
                 </button>
+
+                @if (vacancy.status === 1) {
+                  <button
+                    type="button"
+                    class="secondary-button"
+                    (click)="editVacancy(vacancy.id)"
+                  >
+                    Edit vacancy
+                  </button>
+                }
 
                 @if (vacancy.status === 1) {
                   @if (pendingCloseId() !== vacancy.id) {

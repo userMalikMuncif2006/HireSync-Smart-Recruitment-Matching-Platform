@@ -153,6 +153,32 @@ describe('EmployerVacancyListPage', () => {
     ).toBe(2);
   });
 
+  it('navigates to vacancy creation', async () => {
+    await createComponent();
+
+    fixture.componentInstance
+      .createVacancy();
+
+    expect(navigate)
+      .toHaveBeenCalledWith([
+        '/employer/vacancies/new',
+      ]);
+  });
+
+  it('navigates to vacancy editing', async () => {
+    await createComponent();
+
+    fixture.componentInstance
+      .editVacancy('vacancy-1');
+
+    expect(navigate)
+      .toHaveBeenCalledWith([
+        '/employer/vacancies',
+        'vacancy-1',
+        'edit',
+      ]);
+  });
+
   it('navigates to the vacancy ranked-applicant view', async () => {
     await createComponent();
 

@@ -1,5 +1,16 @@
 export type VacancyStatus = 1 | 2;
 
+export type EducationLevel =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8;
+
 export type ApplicationStatus =
   | 1
   | 2
@@ -11,6 +22,11 @@ export type ContactRequestStatus =
   | 1
   | 2
   | 3;
+
+export interface SkillSummary {
+  id: string;
+  name: string;
+}
 
 export interface EmployerVacancyListItem {
   id: string;
@@ -28,6 +44,35 @@ export interface EmployerVacancyPage {
   page: number;
   pageSize: number;
   totalCount: number;
+}
+
+export interface EmployerVacancy {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  minimumExperienceMonths: number;
+  requiredEducationLevel: EducationLevel | null;
+  status: VacancyStatus;
+  publishedAtUtc: string;
+  updatedAtUtc: string;
+  closedAtUtc: string | null;
+  requiredSkills: SkillSummary[];
+  rowVersion: string;
+}
+
+export interface CreateVacancyPayload {
+  title: string;
+  description: string;
+  location: string;
+  minimumExperienceMonths: number;
+  requiredEducationLevel: EducationLevel | null;
+  requiredSkillIds: string[];
+}
+
+export interface UpdateVacancyPayload
+  extends CreateVacancyPayload {
+  rowVersion: string;
 }
 
 export interface VacancyStatusResult {

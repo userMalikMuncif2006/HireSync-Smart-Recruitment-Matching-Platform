@@ -112,6 +112,19 @@ describe('application routes', () => {
           item.path === 'vacancies',
       );
 
+    const createRoute =
+      employer?.children?.find(
+        (item) =>
+          item.path === 'vacancies/new',
+      );
+
+    const editRoute =
+      employer?.children?.find(
+        (item) =>
+          item.path ===
+          'vacancies/:vacancyId/edit',
+      );
+
     const applicantRoute =
       employer?.children?.find(
         (item) =>
@@ -121,6 +134,14 @@ describe('application routes', () => {
 
     expect(
       typeof vacancyRoute?.loadComponent,
+    ).toBe('function');
+
+    expect(
+      typeof createRoute?.loadComponent,
+    ).toBe('function');
+
+    expect(
+      typeof editRoute?.loadComponent,
     ).toBe('function');
 
     expect(

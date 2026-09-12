@@ -10,8 +10,12 @@ import { Observable } from 'rxjs';
 
 import {
   ApplicationStatus,
+  CreateVacancyPayload,
+  EmployerVacancy,
   EmployerVacancyPage,
   RankedApplicantPage,
+  SkillSummary,
+  UpdateVacancyPayload,
   VacancyStatus,
   VacancyStatusResult,
 } from './employer-vacancy.models';
@@ -42,6 +46,58 @@ export class EmployerVacancyService {
 
     return this.http.get<EmployerVacancyPage>(
       '/api/v1/employer/vacancies',
+      {
+        params,
+      },
+    );
+  }
+
+  getVacancy(
+    vacancyId: string,
+  ): Observable<EmployerVacancy> {
+    return this.http.get<EmployerVacancy>(
+      `/api/v1/employer/vacancies/${encodeURIComponent(vacancyId)}`,
+    );
+  }
+
+  createVacancy(
+    payload: CreateVacancyPayload,
+  ): Observable<EmployerVacancy> {
+    return this.http.post<EmployerVacancy>(
+      '/api/v1/employer/vacancies',
+      payload,
+    );
+  }
+
+  updateVacancy(
+    vacancyId: string,
+    payload: UpdateVacancyPayload,
+  ): Observable<EmployerVacancy> {
+    return this.http.put<EmployerVacancy>(
+      `/api/v1/employer/vacancies/${encodeURIComponent(vacancyId)}`,
+      payload,
+    );
+  }
+
+  getSkills(
+    query?: string,
+  ): Observable<SkillSummary[]> {
+    let params =
+      new HttpParams();
+
+    const normalizedQuery =
+      query?.trim();
+
+    if (normalizedQuery) {
+      params =
+        params.set(
+          'query',
+          normalizedQuery,
+        );
+    }
+
+    return this.http.get<SkillSummary[]>(
+      '/api/v1/skills',
       {
         params,
       },

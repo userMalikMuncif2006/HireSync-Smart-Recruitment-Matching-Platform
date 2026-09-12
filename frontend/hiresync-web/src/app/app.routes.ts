@@ -75,6 +75,24 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'vacancies/new',
+        loadComponent: () =>
+          import(
+            './features/employer/vacancies/employer-vacancy-form-page'
+          ).then(
+            (module) => module.EmployerVacancyFormPage,
+          ),
+      },
+      {
+        path: 'vacancies/:vacancyId/edit',
+        loadComponent: () =>
+          import(
+            './features/employer/vacancies/employer-vacancy-form-page'
+          ).then(
+            (module) => module.EmployerVacancyFormPage,
+          ),
+      },
+      {
         path: 'vacancies/:vacancyId/applicants',
         loadComponent: () =>
           import(

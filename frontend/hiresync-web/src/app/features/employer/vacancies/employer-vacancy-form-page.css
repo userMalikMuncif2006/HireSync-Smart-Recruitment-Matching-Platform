@@ -1,0 +1,285 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: #f5f7f7;
+  color: #172322;
+}
+
+.form-page {
+  width: min(980px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 72px;
+}
+
+.back-button,
+.text-button {
+  border: 0;
+  background: transparent;
+  color: #08715f;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.back-button {
+  margin-bottom: 22px;
+  padding: 0;
+}
+
+.page-header {
+  max-width: 760px;
+  margin-bottom: 26px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #087f6d;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.page-header > p:last-child {
+  color: #61706e;
+  line-height: 1.65;
+}
+
+.vacancy-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid #dce5e3;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 30px rgb(20 55 49 / 6%);
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.field label {
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.field label span {
+  color: #778480;
+  font-weight: 500;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd8d5;
+  border-radius: 10px;
+  background: #fff;
+  padding: 11px 12px;
+  color: inherit;
+  font: inherit;
+}
+
+.field input,
+.field select {
+  min-height: 44px;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: 3px solid rgb(8 127 109 / 14%);
+  border-color: #087f6d;
+}
+
+.field small,
+.inline-error {
+  color: #b42318;
+}
+
+.skills-section {
+  margin-top: 4px;
+  border-top: 1px solid #e4eae8;
+  padding-top: 22px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.section-heading p {
+  margin: 5px 0 0;
+  color: #6a7775;
+}
+
+.selection-count {
+  border-radius: 999px;
+  background: #e8f6f2;
+  padding: 6px 10px;
+  color: #08715f;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.selected-skills,
+.skill-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-skills {
+  margin-bottom: 18px;
+}
+
+.selected-skill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  background: #e8f6f2;
+  padding: 6px 10px;
+  color: #08715f;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.selected-skill button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.skill-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.skill-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #d5dfdc;
+  border-radius: 10px;
+  padding: 9px 11px;
+  cursor: pointer;
+}
+
+.skill-option.selected {
+  border-color: #79b9ad;
+  background: #f0faf7;
+}
+
+.skill-option input {
+  accent-color: #087f6d;
+}
+
+button {
+  min-height: 42px;
+  border-radius: 10px;
+  padding: 0 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary-button {
+  border: 1px solid #087f6d;
+  background: #087f6d;
+  color: #fff;
+}
+
+.secondary-button {
+  border: 1px solid #bfd0cc;
+  background: #fff;
+  color: #27413d;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+.state-card {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 18px;
+  border: 1px solid #dce5e3;
+  border-radius: 14px;
+  background: #fff;
+  padding: 16px;
+}
+
+.state-card.error {
+  border-color: #efc4bf;
+  background: #fff8f7;
+  color: #8b261e;
+}
+
+.state-card.warning {
+  border-color: #eddca8;
+  background: #fffbee;
+  color: #705b18;
+}
+
+.muted {
+  color: #778480;
+}
+
+@media (max-width: 700px) {
+  .form-page {
+    width: min(100% - 24px, 980px);
+  }
+
+  .vacancy-form,
+  .skill-search {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+
+  .section-heading,
+  .form-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

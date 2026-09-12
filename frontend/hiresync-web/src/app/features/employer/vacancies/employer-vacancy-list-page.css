@@ -233,3 +233,8 @@ button:disabled {
     flex-direction: column;
   }
 }
+.page-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}

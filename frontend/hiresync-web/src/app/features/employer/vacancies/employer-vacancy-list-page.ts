@@ -176,6 +176,22 @@ export class EmployerVacancyListPage {
       });
   }
 
+  createVacancy(): void {
+    void this.router.navigate([
+      '/employer/vacancies/new',
+    ]);
+  }
+
+  editVacancy(
+    vacancyId: string,
+  ): void {
+    void this.router.navigate([
+      '/employer/vacancies',
+      vacancyId,
+      'edit',
+    ]);
+  }
+
   viewApplicants(
     vacancyId: string,
   ): void {
