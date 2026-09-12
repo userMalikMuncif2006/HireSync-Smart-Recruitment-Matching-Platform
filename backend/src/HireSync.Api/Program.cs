@@ -7,6 +7,7 @@ using HireSync.Application.Interfaces.JobSeeker;
 using HireSync.Application.Interfaces.Otp;
 using HireSync.Application.Interfaces.Persistence;
 using HireSync.Application.Interfaces.Security;
+using HireSync.Application.Interfaces.Storage;
 using HireSync.Application.Interfaces.Time;
 using HireSync.Application.Services;
 using HireSync.Application.Interfaces.Employer;
@@ -16,6 +17,7 @@ using HireSync.Infrastructure.Email;
 using HireSync.Infrastructure.Otp;
 using HireSync.Infrastructure.Services;
 using HireSync.Infrastructure.Security;
+using HireSync.Infrastructure.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +38,37 @@ builder.Services.AddDbContext<HireSyncDbContext>(options =>
 
 builder.Services.AddScoped<IHireSyncDbContext>(serviceProvider =>
     serviceProvider.GetRequiredService<HireSyncDbContext>());
+
+// Protected CV storage
+var cvStorageRootPath =
+    builder.Configuration["CvStorage:RootPath"]
+    ?? throw new InvalidOperationException(
+        "CV storage root is not configured.");
+
+var publicWebRootPath =
+    builder.Environment.WebRootPath;
+
+if (string.IsNullOrWhiteSpace(
+        publicWebRootPath))
+{
+    publicWebRootPath =
+        Path.Combine(
+            builder.Environment.ContentRootPath,
+            "wwwroot");
+}
+
+var protectedCvStorageRootPath =
+    ProtectedStorageRootValidator
+        .ValidateAndNormalize(
+            cvStorageRootPath,
+            publicWebRootPath);
+
+var localFileStorageOptions =
+    new LocalFileStorageOptions
+    {
+        RootPath =
+            protectedCvStorageRootPath
+    };
 
 // ASP.NET Core Identity
 builder.Services
@@ -120,10 +153,15 @@ var smtpEmailSettings = new SmtpEmailSettings
     FromEmail = smtpFromEmail,
     FromName = smtpFromName
 };
+
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton(otpSecuritySettings);
 builder.Services.AddSingleton(smtpEmailSettings);
+builder.Services.AddSingleton(localFileStorageOptions);
+
 builder.Services.AddSingleton<IClock, SystemClock>();
+builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
