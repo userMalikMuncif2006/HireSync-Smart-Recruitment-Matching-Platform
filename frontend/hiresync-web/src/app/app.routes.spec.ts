@@ -43,6 +43,20 @@ describe('application routes', () => {
     expect(route?.canMatch)
       .toBeUndefined();
   });
+  it('lazy loads Administrator first activation', () => {
+    const route =
+      routes.find(
+        (item) =>
+          item.path === 'activate-admin',
+      );
+
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
+
+    expect(route?.canMatch)
+      .toBeUndefined();
+  });
   it('protects the Job Seeker role area', () => {
     const route =
       routes.find(
@@ -262,5 +276,6 @@ describe('application routes', () => {
     ).toBe('function');
   });
 });
+
 
 

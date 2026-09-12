@@ -33,6 +33,16 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'activate-admin',
+    loadComponent: () =>
+      import(
+        './features/auth/administrator-activation/administrator-activation-page'
+      ).then(
+        (module) =>
+          module.AdministratorActivationPage,
+      ),
+  },
+  {
     path: 'seeker/notifications',
     canMatch: [roleGuard],
     data: {
@@ -190,5 +200,7 @@ export const routes: Routes = [
     redirectTo: 'login',
   },
 ];
+
+
 
 
