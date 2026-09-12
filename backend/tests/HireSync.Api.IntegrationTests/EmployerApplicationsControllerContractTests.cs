@@ -162,7 +162,7 @@ public sealed class EmployerApplicationsControllerContractTests
         StatusCodes.Status404NotFound)]
     [InlineData(
         ApplicationStatusUpdateFailureReason.InvalidTransition,
-        StatusCodes.Status409Conflict)]
+        StatusCodes.Status400BadRequest)]
     [InlineData(
         ApplicationStatusUpdateFailureReason.ConcurrencyConflict,
         StatusCodes.Status409Conflict)]

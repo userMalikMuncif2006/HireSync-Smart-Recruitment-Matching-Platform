@@ -61,7 +61,7 @@ public sealed class ContactRequestControllerContractTests
                 .Single();
 
         Assert.Equal(
-            "{jobApplicationId:guid}/contact-request",
+            "{jobApplicationId:guid}/contact-requests",
             post.Template);
     }
 
@@ -153,7 +153,7 @@ public sealed class ContactRequestControllerContractTests
         StatusCodes.Status409Conflict)]
     [InlineData(
         ContactRequestWriteFailureReason.ParticipantInactive,
-        StatusCodes.Status403Forbidden)]
+        StatusCodes.Status409Conflict)]
     [InlineData(
         ContactRequestWriteFailureReason.AlreadyExists,
         StatusCodes.Status409Conflict)]
@@ -221,7 +221,7 @@ public sealed class ContactRequestControllerContractTests
                 .Single();
 
         Assert.Equal(
-            "api/v1/seeker/contact-requests",
+            "api/v1/job-seeker/contact-requests",
             route.Template);
 
         var method =

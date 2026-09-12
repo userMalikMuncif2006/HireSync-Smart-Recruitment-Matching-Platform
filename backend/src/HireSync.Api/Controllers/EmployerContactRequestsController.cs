@@ -29,7 +29,7 @@ public sealed class EmployerContactRequestsController
             currentUser;
     }
 
-    [HttpPost("{jobApplicationId:guid}/contact-request")]
+    [HttpPost("{jobApplicationId:guid}/contact-requests")]
     [ProducesResponseType(
         typeof(ContactRequestDto),
         StatusCodes.Status201Created)]
@@ -115,7 +115,7 @@ public sealed class EmployerContactRequestsController
             ContactRequestWriteFailureReason.ParticipantInactive =>
                 Problem(
                     statusCode:
-                        StatusCodes.Status403Forbidden,
+                        StatusCodes.Status409Conflict,
                     title:
                         "Contact request is not allowed",
                     detail:

@@ -106,7 +106,7 @@ public sealed class EmployerApplicationsController
             ApplicationStatusUpdateFailureReason.InvalidTransition =>
                 Problem(
                     statusCode:
-                        StatusCodes.Status409Conflict,
+                        StatusCodes.Status400BadRequest,
                     title:
                         "Invalid application status transition",
                     detail:

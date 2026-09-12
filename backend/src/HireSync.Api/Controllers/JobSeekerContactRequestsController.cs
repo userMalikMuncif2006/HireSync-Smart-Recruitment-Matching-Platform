@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HireSync.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/seeker/contact-requests")]
+[Route("api/v1/job-seeker/contact-requests")]
 [Authorize(Roles = RoleNames.JobSeeker)]
 public sealed class JobSeekerContactRequestsController
     : ControllerBase
