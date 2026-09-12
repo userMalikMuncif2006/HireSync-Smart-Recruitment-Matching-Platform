@@ -106,4 +106,25 @@ public sealed class Notification
         CreatedAtUtc = createdAtUtc;
         ReadAtUtc = null;
     }
+
+    public bool MarkRead(
+        DateTime readAtUtc)
+    {
+        if (IsRead)
+        {
+            return false;
+        }
+
+        if (readAtUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException(
+                "Timestamp must be UTC.",
+                nameof(readAtUtc));
+        }
+
+        IsRead = true;
+        ReadAtUtc = readAtUtc;
+
+        return true;
+    }
 }
