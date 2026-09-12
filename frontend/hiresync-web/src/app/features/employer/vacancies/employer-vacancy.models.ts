@@ -1,4 +1,4 @@
-export type VacancyStatus = 1 | 2;
+﻿export type VacancyStatus = 1 | 2;
 
 export type EducationLevel =
   | 0
@@ -82,6 +82,17 @@ export interface VacancyStatusResult {
   rowVersion: string;
 }
 
+export interface UpdateApplicationStatusPayload {
+  status: ApplicationStatus;
+  rowVersion: string;
+}
+
+export interface ApplicationStatusResult {
+  id: string;
+  status: ApplicationStatus;
+  updatedAtUtc: string;
+  rowVersion: string;
+}
 export interface MatchSkill {
   id: string;
   name: string;

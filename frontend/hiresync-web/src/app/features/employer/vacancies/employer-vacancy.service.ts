@@ -1,4 +1,4 @@
-import {
+﻿import {
   HttpClient,
   HttpParams,
 } from '@angular/common/http';
@@ -10,11 +10,13 @@ import { Observable } from 'rxjs';
 
 import {
   ApplicationStatus,
+  ApplicationStatusResult,
   CreateVacancyPayload,
   EmployerVacancy,
   EmployerVacancyPage,
   RankedApplicantPage,
   SkillSummary,
+  UpdateApplicationStatusPayload,
   UpdateVacancyPayload,
   VacancyStatus,
   VacancyStatusResult,
@@ -117,6 +119,15 @@ export class EmployerVacancyService {
     );
   }
 
+  updateApplicationStatus(
+    applicationId: string,
+    payload: UpdateApplicationStatusPayload,
+  ): Observable<ApplicationStatusResult> {
+    return this.http.patch<ApplicationStatusResult>(
+      `/api/v1/employer/applications/${encodeURIComponent(applicationId)}/status`,
+      payload,
+    );
+  }
   getRankedApplicants(
     vacancyId: string,
     status: ApplicationStatus | null,
@@ -144,3 +155,5 @@ export class EmployerVacancyService {
     );
   }
 }
+
+
