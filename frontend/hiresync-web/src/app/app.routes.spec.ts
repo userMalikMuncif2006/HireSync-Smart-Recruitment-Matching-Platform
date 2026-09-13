@@ -12,6 +12,7 @@ describe(
     it('lazy loads public authentication routes', () => {
       for (
         const path of [
+          '',
           'login',
           'register',
           'verify-employer-email',

@@ -1,4 +1,4 @@
-﻿import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   DestroyRef,
@@ -66,7 +66,11 @@ const optionalHttpUrlValidator: ValidatorFn = (
     RouterLink,
   ],
   templateUrl: './register-page.html',
-  styleUrl: './register-page.css',
+  styleUrls: [
+    './register-page.css',
+    './register-form.css',
+    './register-responsive.css',
+  ],
 })
 export class RegisterPage {
   private readonly auth = inject(AuthService);

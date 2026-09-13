@@ -65,7 +65,10 @@ const icons = {
     RouterOutlet,
   ],
   templateUrl: './role-shell-page.html',
-  styleUrl: './role-shell-page.css',
+  styleUrls: [
+    './role-shell-page.css',
+    './role-shell-responsive.css',
+  ],
 })
 export class RoleShellPage {
   private readonly session =
