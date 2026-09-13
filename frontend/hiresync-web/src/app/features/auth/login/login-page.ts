@@ -84,6 +84,11 @@ export class LoginPage {
       );
   }
 
+  goToRegister(): void {
+    void this.router.navigateByUrl(
+      '/register',
+    );
+  }
   submit(
     form: NgForm,
   ): void {

@@ -69,6 +69,7 @@ const optionalHttpUrlValidator: ValidatorFn = (
   styleUrls: [
     './register-page.css',
     './register-form.css',
+    './register-visual.css',
     './register-responsive.css',
   ],
 })

@@ -1,123 +1,134 @@
 <main class="login-page">
-  <section class="login-card">
-    <div class="brand">
-      <span
-        class="brand-mark"
-        aria-hidden="true"
-      >
-        H
-      </span>
+  <section class="login-layout">
+    <aside
+      class="login-visual"
+      aria-label="Great teams start with the right match."
+    ></aside>
 
-      <div>
-        <p class="eyebrow">
-          HireSync
-        </p>
-
-        <h1>
-          Welcome back
-        </h1>
-      </div>
-    </div>
-
-    <p class="intro">
-      Sign in to continue to your recruitment workspace.
-    </p>
-
-    @if (successMessage()) {
-      <p
-        class="success-message"
-        role="status"
-      >
-        {{ successMessage() }}
-      </p>
-    }
-
-    <form
-      #loginForm="ngForm"
-      (ngSubmit)="submit(loginForm)"
-      novalidate
-    >
-      <div class="field">
-        <label for="email">
-          Email address
-        </label>
-
-        <input
-          id="email"
-          name="email"
-          type="email"
-          [(ngModel)]="credentials.email"
-          #emailModel="ngModel"
-          autocomplete="email"
-          placeholder="you@example.com"
-          required
-          email
-          appAutoFocus
-        />
-
-        @if (
-          emailModel.touched &&
-          emailModel.hasError('required')
-        ) {
-          <p class="validation-message">
-            Email is required.
+    <section class="login-form-panel">
+      <div class="login-form-shell">
+        <div class="login-heading">
+          <p class="eyebrow">
+            HireSync
           </p>
-        } @else if (
-          emailModel.touched &&
-          emailModel.hasError('email')
-        ) {
-          <p class="validation-message">
-            Enter a valid email address.
+
+          <h1>
+            Welcome back
+          </h1>
+
+          <p class="intro">
+            Sign in to continue to your recruitment workspace.
+          </p>
+        </div>
+
+        @if (successMessage()) {
+          <p
+            class="success-message"
+            role="status"
+          >
+            {{ successMessage() }}
           </p>
         }
-      </div>
 
-      <div class="field">
-        <label for="password">
-          Password
-        </label>
-
-        <input
-          id="password"
-          name="password"
-          type="password"
-          [(ngModel)]="credentials.password"
-          #passwordModel="ngModel"
-          autocomplete="current-password"
-          placeholder="Enter your password"
-          required
-        />
-
-        @if (
-          passwordModel.touched &&
-          passwordModel.hasError('required')
-        ) {
-          <p class="validation-message">
-            Password is required.
-          </p>
-        }
-      </div>
-
-      @if (errorMessage()) {
-        <p
-          class="error-message"
-          role="alert"
+        <form
+          #loginForm="ngForm"
+          (ngSubmit)="submit(loginForm)"
+          novalidate
         >
-          {{ errorMessage() }}
-        </p>
-      }
+          <div class="field">
+            <label for="email">
+              Email address
+            </label>
 
-      <button
-        class="submit-button"
-        type="submit"
-        [disabled]="isSubmitting()"
-      >
-        {{
-          isSubmitting()
-            ? 'Signing in...'
-            : 'Sign in'
-        }}
-      </button>
-    </form>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              [(ngModel)]="credentials.email"
+              #emailModel="ngModel"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+              email
+              appAutoFocus
+            />
+
+            @if (
+              emailModel.touched &&
+              emailModel.hasError('required')
+            ) {
+              <p class="validation-message">
+                Email is required.
+              </p>
+            } @else if (
+              emailModel.touched &&
+              emailModel.hasError('email')
+            ) {
+              <p class="validation-message">
+                Enter a valid email address.
+              </p>
+            }
+          </div>
+
+          <div class="field">
+            <label for="password">
+              Password
+            </label>
+
+            <input
+              id="password"
+              name="password"
+              type="password"
+              [(ngModel)]="credentials.password"
+              #passwordModel="ngModel"
+              autocomplete="current-password"
+              placeholder="Enter your password"
+              required
+            />
+
+            @if (
+              passwordModel.touched &&
+              passwordModel.hasError('required')
+            ) {
+              <p class="validation-message">
+                Password is required.
+              </p>
+            }
+          </div>
+
+          @if (errorMessage()) {
+            <p
+              class="error-message"
+              role="alert"
+            >
+              {{ errorMessage() }}
+            </p>
+          }
+
+          <button
+            class="submit-button"
+            type="submit"
+            [disabled]="isSubmitting()"
+          >
+            {{
+              isSubmitting()
+                ? 'Signing in...'
+                : 'Sign in'
+            }}
+          </button>
+
+          <p class="register-prompt">
+            Don't have an account?
+            <button
+              class="register-link"
+              type="button"
+              (click)="goToRegister()"
+            >
+              Create account
+            </button>
+          </p>
+        </form>
+      </div>
+    </section>
   </section>
 </main>
