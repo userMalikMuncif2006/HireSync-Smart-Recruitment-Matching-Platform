@@ -43,6 +43,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'seeker/contact-requests',
+    canMatch: [roleGuard],
+    data: {
+      role: 'JobSeeker',
+    },
+    loadComponent: () =>
+      import(
+        './features/seeker/contact-requests/job-seeker-contact-requests-page'
+      ).then(
+        (module) =>
+          module.JobSeekerContactRequestsPage,
+      ),
+  },
+  {
     path: 'seeker/notifications',
     canMatch: [roleGuard],
     data: {

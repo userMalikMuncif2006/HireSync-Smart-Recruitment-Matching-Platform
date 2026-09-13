@@ -1,0 +1,278 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: #f5f7f8;
+  color: #17211f;
+}
+
+.contact-page {
+  width: min(
+    1120px,
+    calc(100% - 32px)
+  );
+  margin: 0 auto;
+  padding: 32px 0 56px;
+}
+
+.page-header,
+.card-heading,
+.state-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header {
+  margin-bottom: 22px;
+}
+
+h1,
+h2,
+p,
+dl,
+dd {
+  margin: 0;
+}
+
+h1 {
+  margin-top: 4px;
+  font-size: clamp(
+    1.8rem,
+    4vw,
+    2.7rem
+  );
+}
+
+h2 {
+  margin-top: 5px;
+  font-size: 1.08rem;
+}
+
+.eyebrow,
+.company-name {
+  color: #087f68;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.intro,
+.request-details dt,
+.privacy-note,
+.state-card p,
+.terminal-note {
+  color: #61706c;
+}
+
+.intro {
+  max-width: 720px;
+  margin-top: 8px;
+  line-height: 1.6;
+}
+
+.count-card {
+  display: grid;
+  min-width: 112px;
+  padding: 12px 16px;
+  border: 1px solid #dce5e2;
+  border-radius: 14px;
+  background: #fff;
+  text-align: center;
+}
+
+.count-card strong {
+  color: #087f68;
+  font-size: 1.4rem;
+}
+
+.count-card span {
+  color: #61706c;
+  font-size: 0.78rem;
+}
+
+.contact-list {
+  display: grid;
+  gap: 14px;
+}
+
+.contact-card {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+  gap: 20px;
+  padding: 20px;
+  border: 1px solid #dce5e2;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow:
+    0 7px 24px
+    rgb(26 47 42 / 4%);
+}
+
+.card-main {
+  min-width: 0;
+}
+
+.status-badge {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: #edf2f1;
+  color: #596864;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.status-badge[data-status='1'] {
+  background: #fff7df;
+  color: #8a5b00;
+}
+
+.status-badge[data-status='2'] {
+  background: #e8f8f3;
+  color: #087f68;
+}
+
+.status-badge[data-status='3'] {
+  background: #fff0ee;
+  color: #9d3026;
+}
+
+.request-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.request-details div {
+  display: grid;
+  gap: 3px;
+}
+
+.request-details dt {
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.request-details dd {
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.privacy-note {
+  margin-top: 16px;
+  line-height: 1.55;
+}
+
+.response-actions {
+  display: flex;
+  min-width: 130px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 42px;
+  border-radius: 10px;
+  padding: 9px 15px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+}
+
+.primary-button {
+  border: 1px solid #087f68;
+  background: #087f68;
+  color: #fff;
+}
+
+.secondary-button {
+  border: 1px solid #aebdb8;
+  background: #fff;
+  color: #23312e;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.message,
+.state-card {
+  margin-bottom: 16px;
+  padding: 18px;
+  border-radius: 14px;
+}
+
+.message {
+  border: 1px solid #b9d9d0;
+  background: #f2fbf8;
+}
+
+.error-message,
+.error-state {
+  border-color: #efb7b0;
+  background: #fff5f3;
+  color: #92291f;
+}
+
+.success-message {
+  color: #08634f;
+}
+
+.state-card {
+  border: 1px dashed #c8d4d0;
+  background: #fff;
+}
+
+.state-card p {
+  margin-top: 5px;
+}
+
+@media (max-width: 760px) {
+  .contact-page {
+    width: min(
+      calc(100% - 24px),
+      1120px
+    );
+    padding-top: 20px;
+  }
+
+  .page-header,
+  .card-heading,
+  .state-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .count-card {
+    align-self: flex-start;
+  }
+
+  .contact-card {
+    grid-template-columns: 1fr;
+    padding: 17px;
+  }
+
+  .response-actions {
+    min-width: 0;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .request-details {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

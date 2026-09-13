@@ -75,6 +75,25 @@ describe('application routes', () => {
     ).toBe('function');
   });
 
+  it('protects and lazy loads the Job Seeker contact requests page', () => {
+    const route =
+      routes.find(
+        (item) =>
+          item.path ===
+          'seeker/contact-requests',
+      );
+
+    expect(route?.canMatch)
+      .toContain(roleGuard);
+
+    expect(route?.data?.['role'])
+      .toBe('JobSeeker');
+
+    expect(
+      typeof route?.loadComponent,
+    ).toBe('function');
+  });
+
   it('protects and lazy loads the Job Seeker notifications page', () => {
     const route =
       routes.find(
