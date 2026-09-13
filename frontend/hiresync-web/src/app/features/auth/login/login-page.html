@@ -96,6 +96,16 @@
             }
           </div>
 
+          <div class="forgot-password-row">
+            <button
+              class="forgot-password-link"
+              type="button"
+              (click)="goToForgotPassword()"
+            >
+              Forgot password?
+            </button>
+          </div>
+
           @if (errorMessage()) {
             <p
               class="error-message"

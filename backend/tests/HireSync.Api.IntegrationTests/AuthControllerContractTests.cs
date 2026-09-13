@@ -1308,6 +1308,210 @@ public class AuthControllerContractTests
             RoleNames.JobSeeker,
             response.Role);
     }
+    [Fact]
+    public async Task RequestPasswordReset_returns_generic_200()
+    {
+        var reset =
+            new FakePasswordResetService();
+
+        var controller =
+            CreateController(
+                identity: null,
+                passwordResetService:
+                    reset);
+
+        var result =
+            await controller
+                .RequestPasswordReset(
+                    new PasswordResetRequest(
+                        "user@example.com"),
+                    CancellationToken.None);
+
+        var ok =
+            Assert.IsType<OkObjectResult>(
+                result.Result);
+
+        var response =
+            Assert.IsType<
+                PasswordResetRequestResponse>(
+                ok.Value);
+
+        Assert.Equal(
+            200,
+            ok.StatusCode);
+
+        Assert.Equal(
+            "If an account exists for this email, a reset code has been sent.",
+            response.Message);
+
+        Assert.Equal(
+            1,
+            reset.RequestCallCount);
+    }
+
+    [Fact]
+    public async Task RequestPasswordReset_returns_400_for_blank_email()
+    {
+        var reset =
+            new FakePasswordResetService();
+
+        var controller =
+            CreateController(
+                identity: null,
+                passwordResetService:
+                    reset);
+
+        var result =
+            await controller
+                .RequestPasswordReset(
+                    new PasswordResetRequest(
+                        " "),
+                    CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(
+            400,
+            problem.StatusCode);
+
+        Assert.Equal(
+            0,
+            reset.RequestCallCount);
+    }
+
+    [Fact]
+    public async Task CompletePasswordReset_returns_200_for_success()
+    {
+        var reset =
+            new FakePasswordResetService
+            {
+                CompleteResult =
+                    PasswordResetCompleteResult
+                        .Success()
+            };
+
+        var controller =
+            CreateController(
+                identity: null,
+                passwordResetService:
+                    reset);
+
+        var result =
+            await controller
+                .CompletePasswordReset(
+                    new PasswordResetCompleteRequest(
+                        "user@example.com",
+                        "123456",
+                        "NewValidPassword456!"),
+                    CancellationToken.None);
+
+        var ok =
+            Assert.IsType<OkObjectResult>(
+                result.Result);
+
+        Assert.Equal(
+            200,
+            ok.StatusCode);
+
+        Assert.Equal(
+            1,
+            reset.CompleteCallCount);
+    }
+
+    [Fact]
+    public async Task CompletePasswordReset_returns_generic_400_for_invalid_code()
+    {
+        var reset =
+            new FakePasswordResetService
+            {
+                CompleteResult =
+                    PasswordResetCompleteResult
+                        .Failure(
+                            PasswordResetCompleteFailureReason
+                                .InvalidOrExpiredCode)
+            };
+
+        var controller =
+            CreateController(
+                identity: null,
+                passwordResetService:
+                    reset);
+
+        var result =
+            await controller
+                .CompletePasswordReset(
+                    new PasswordResetCompleteRequest(
+                        "unknown@example.com",
+                        "000000",
+                        "NewValidPassword456!"),
+                    CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(
+            400,
+            problem.StatusCode);
+
+        var details =
+            Assert.IsType<ProblemDetails>(
+                problem.Value);
+
+        Assert.Equal(
+            "Password reset failed",
+            details.Title);
+    }
+
+    [Fact]
+    public async Task CompletePasswordReset_returns_validation_problem_for_weak_password()
+    {
+        var reset =
+            new FakePasswordResetService
+            {
+                CompleteResult =
+                    PasswordResetCompleteResult
+                        .InvalidPassword(
+                            new[]
+                            {
+                                "Passwords must be at least 6 characters."
+                            })
+            };
+
+        var controller =
+            CreateController(
+                identity: null,
+                passwordResetService:
+                    reset);
+
+        var result =
+            await controller
+                .CompletePasswordReset(
+                    new PasswordResetCompleteRequest(
+                        "user@example.com",
+                        "123456",
+                        "weak"),
+                    CancellationToken.None);
+
+        var badRequest =
+            Assert.IsType<BadRequestObjectResult>(
+                result.Result);
+
+        Assert.Equal(
+            400,
+            badRequest.StatusCode);
+
+        var details =
+            Assert.IsType<
+                ValidationProblemDetails>(
+                badRequest.Value);
+
+        Assert.True(
+            details.Errors.ContainsKey(
+                "newPassword"));
+    }
     private static AuthController CreateController(
         AuthenticatedIdentity? identity,
         IdentityUserCreationResult? creationResult = null,
@@ -1315,7 +1519,8 @@ public class AuthControllerContractTests
         FakeAdministratorActivationCompleter? activationCompleter = null,
         EmployerRegistrationResult? employerRegistrationResult = null,
         FakeEmployerEmailVerificationService? employerEmailVerificationService = null,
-        FakeJobSeekerEmailVerificationService? jobSeekerEmailVerificationService = null)
+        FakeJobSeekerEmailVerificationService? jobSeekerEmailVerificationService = null,
+        FakePasswordResetService? passwordResetService = null)
     {
         var identityService = new FakeIdentityService(
             identity,
@@ -1351,6 +1556,10 @@ public class AuthControllerContractTests
             jobSeekerEmailVerificationService ??
             new FakeJobSeekerEmailVerificationService();
 
+        var resolvedPasswordResetService =
+            passwordResetService ??
+            new FakePasswordResetService();
+
         var resolvedActivationCompleter =
             activationCompleter ??
             new FakeAdministratorActivationCompleter();
@@ -1367,6 +1576,7 @@ public class AuthControllerContractTests
             employerRegistrationService,
             resolvedEmployerEmailVerificationService,
             resolvedJobSeekerEmailVerificationService,
+            resolvedPasswordResetService,
             administratorActivationService);
 
         controller.ControllerContext = new ControllerContext
@@ -1466,6 +1676,74 @@ public class AuthControllerContractTests
 
             return Task.FromResult(
                 Result);
+        }
+    }
+    private sealed class FakePasswordResetService
+        : IPasswordResetService
+    {
+        public bool RequestResult
+        {
+            get;
+            set;
+        } = true;
+
+        public PasswordResetCompleteResult
+            CompleteResult
+        {
+            get;
+            set;
+        } =
+            PasswordResetCompleteResult
+                .Failure(
+                    PasswordResetCompleteFailureReason
+                        .InvalidRequest);
+
+        public int RequestCallCount
+        {
+            get;
+            private set;
+        }
+
+        public string? LastRequestEmail
+        {
+            get;
+            private set;
+        }
+
+        public int CompleteCallCount
+        {
+            get;
+            private set;
+        }
+
+        public PasswordResetCompleteRequest?
+            LastCompleteRequest
+        {
+            get;
+            private set;
+        }
+
+        public Task<bool> RequestAsync(
+            string email,
+            CancellationToken cancellationToken = default)
+        {
+            RequestCallCount++;
+            LastRequestEmail = email;
+
+            return Task.FromResult(
+                RequestResult);
+        }
+
+        public Task<PasswordResetCompleteResult>
+            CompleteAsync(
+                PasswordResetCompleteRequest request,
+                CancellationToken cancellationToken = default)
+        {
+            CompleteCallCount++;
+            LastCompleteRequest = request;
+
+            return Task.FromResult(
+                CompleteResult);
         }
     }
     private sealed class FakeEmployerRegistrationProvisioner

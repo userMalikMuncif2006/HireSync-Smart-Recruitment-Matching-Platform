@@ -16,6 +16,10 @@ import {
   LoginRequest,
   LoginResponse,
   OtpRequestResponse,
+  PasswordResetCompleteRequest,
+  PasswordResetCompleteResponse,
+  PasswordResetRequest,
+  PasswordResetRequestResponse,
   RegisterEmployerRequest,
   RegisterEmployerResponse,
   RegisterJobSeekerRequest,
@@ -114,6 +118,24 @@ export class AuthService {
   ): Observable<AdministratorActivationVerificationResponse> {
     return this.http.post<AdministratorActivationVerificationResponse>(
       `${this.authBaseUrl}/admin/activation/otp/verify`,
+      request,
+    );
+  }
+
+  requestPasswordReset(
+    request: PasswordResetRequest,
+  ): Observable<PasswordResetRequestResponse> {
+    return this.http.post<PasswordResetRequestResponse>(
+      `${this.authBaseUrl}/password-reset/request`,
+      request,
+    );
+  }
+
+  completePasswordReset(
+    request: PasswordResetCompleteRequest,
+  ): Observable<PasswordResetCompleteResponse> {
+    return this.http.post<PasswordResetCompleteResponse>(
+      `${this.authBaseUrl}/password-reset/complete`,
       request,
     );
   }

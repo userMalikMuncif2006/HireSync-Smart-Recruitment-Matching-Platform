@@ -15,6 +15,7 @@ describe(
           '',
           'login',
           'register',
+          'forgot-password',
           'verify-jobseeker-email',
           'verify-employer-email',
           'activate-admin',

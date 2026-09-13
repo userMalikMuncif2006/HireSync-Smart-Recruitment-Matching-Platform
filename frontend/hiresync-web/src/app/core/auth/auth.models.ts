@@ -106,3 +106,20 @@ export interface AdministratorActivationVerificationResponse {
   succeeded: boolean;
   failureReason: number | string | null;
 }
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetRequestResponse {
+  message: string;
+}
+
+export interface PasswordResetCompleteRequest {
+  email: string;
+  code: string;
+  newPassword: string;
+}
+
+export interface PasswordResetCompleteResponse {
+  message: string;
+}
