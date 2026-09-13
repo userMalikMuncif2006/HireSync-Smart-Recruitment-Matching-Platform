@@ -1,0 +1,147 @@
+.split-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 58px;
+  padding: 92px 0;
+}
+
+.split-reverse {
+  padding-block: 82px;
+}
+
+.section-media {
+  min-height: 390px;
+}
+
+.section-media > img {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  box-shadow: 0 22px 50px rgb(25 68 59 / 0.12);
+}
+
+.media-badge {
+  left: 20px;
+  bottom: 20px;
+  width: 220px;
+  display: grid;
+  gap: 5px;
+  border-radius: 14px;
+  padding: 15px;
+}
+
+.media-badge-right {
+  right: 20px;
+  left: auto;
+  top: 20px;
+  bottom: auto;
+}
+
+.media-badge strong {
+  color: #173f37;
+  font-size: 0.82rem;
+}
+
+.media-badge span {
+  color: var(--hs-text-500);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.check-list {
+  margin: 22px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.check-list li {
+  position: relative;
+  padding-left: 28px;
+  color: var(--hs-text-700);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.check-list li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--hs-brand-600);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+
+.feature-section,
+.how-section,
+.quotes-section,
+.final-cta {
+  text-align: center;
+  padding: 86px 0;
+}
+
+.feature-section {
+  width: 100%;
+  max-width: none;
+  padding-inline: max(24px, calc((100vw - 1180px) / 2));
+  background: linear-gradient(180deg, #f5fbf9, #fbfdfc);
+}
+
+.section-eyebrow {
+  text-align: center;
+}
+
+.section-intro,
+.final-cta > p:not(.eyebrow) {
+  max-width: 650px;
+  margin: 14px auto 0;
+  color: var(--hs-text-500);
+  line-height: 1.65;
+}
+
+.feature-grid,
+.quote-grid {
+  margin-top: 34px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.feature-grid article,
+.quote-grid blockquote {
+  border: 1px solid var(--hs-border);
+  border-radius: 15px;
+  background: #fff;
+  text-align: left;
+}
+
+.feature-grid article {
+  padding: 22px;
+}
+
+.feature-icon {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 17px;
+}
+
+.feature-grid strong {
+  color: #23463e;
+  font-size: 0.84rem;
+}
+
+.feature-grid p {
+  margin: 9px 0 0;
+  color: var(--hs-text-500);
+  font-size: 0.73rem;
+  line-height: 1.55;
+}

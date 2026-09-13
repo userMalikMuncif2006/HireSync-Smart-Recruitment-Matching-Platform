@@ -34,13 +34,25 @@ describe('LandingPage', () => {
     fixture.detectChanges();
   });
 
-  it('renders the HireSync public entry experience', () => {
+  it('renders the expanded HireSync public landing experience', () => {
     const text =
       fixture.nativeElement
         .textContent as string;
 
     expect(text)
       .toContain('HireSync');
+
+    expect(text)
+      .toContain('Hire smarter. Build stronger teams.');
+
+    expect(text)
+      .toContain('Find opportunities that fit you.');
+
+    expect(text)
+      .toContain('Why HireSync is unique');
+
+    expect(text)
+      .toContain('About HireSync');
 
     expect(text)
       .toContain('Get Started');
@@ -52,7 +64,7 @@ describe('LandingPage', () => {
       .toContain('Sign up');
   });
 
-  it('keeps public actions limited to authentication entry routes', () => {
+  it('keeps route-changing public actions limited to authentication entry routes', () => {
     const links =
       Array.from(
         fixture.nativeElement
@@ -81,5 +93,26 @@ describe('LandingPage', () => {
         '/register',
       ]),
     );
+  });
+
+  it('uses the local professional landing assets', () => {
+    const imageSources =
+      Array.from(
+        fixture.nativeElement
+          .querySelectorAll('img'),
+      )
+        .map(
+          (image) =>
+            (image as HTMLImageElement)
+              .getAttribute('src'),
+        );
+
+    expect(imageSources)
+      .toEqual([
+        '/images/landing/hero-team.webp',
+        '/images/landing/employer-workspace.webp',
+        '/images/landing/jobseeker-workspace.webp',
+        '/images/landing/hiresync-office.webp',
+      ]);
   });
 });

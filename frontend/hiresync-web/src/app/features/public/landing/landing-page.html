@@ -1,212 +1,260 @@
 <main class="landing-page">
   <header class="landing-header">
     <div class="brand">
-      <div
-        class="brand-mark"
-        aria-hidden="true"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <path
-            d="M7 5v14M17 5v14M7 12h10"
-          />
-        </svg>
-      </div>
-
+      <div class="brand-mark" aria-hidden="true">H</div>
       <div>
-        <strong>
-          HireSync
-        </strong>
-
-        <span>
-          Smart Recruitment Matching
-        </span>
+        <strong>HireSync</strong>
+        <span>Smart Recruitment Matching</span>
       </div>
     </div>
 
-    <nav
-      class="header-actions"
-      aria-label="Authentication"
-    >
-      <a
-        class="text-action"
-        routerLink="/login"
-      >
-        Sign in
-      </a>
+    <div class="landing-nav" aria-label="Landing page sections">
+      <span>Product</span>
+      <span>For Employers</span>
+      <span>For Job Seekers</span>
+      <span>About</span>
+    </div>
 
-      <a
-        class="outline-action"
-        routerLink="/register"
-      >
-        Sign up
-      </a>
+    <nav class="header-actions" aria-label="Authentication">
+      <a class="text-action" routerLink="/login">Sign in</a>
+      <a class="outline-action" routerLink="/register">Sign up</a>
     </nav>
   </header>
 
   <section class="hero">
     <div class="hero-copy">
-      <p class="eyebrow">
-        Smarter recruitment. Clearer decisions.
-      </p>
-
-      <h1>
-        Connect the right skills
-        with the right opportunities.
-      </h1>
-
+      <p class="eyebrow">Smarter recruitment. Clearer decisions.</p>
+      <h1>Connect the right talent with the right opportunities.</h1>
       <p class="hero-description">
-        HireSync gives Job Seekers and Employers a
-        secure workspace for profiles, vacancies,
-        deterministic matching, applications and
+        HireSync gives Job Seekers and Employers a secure workspace for
+        profiles, vacancies, deterministic matching, applications and
         recruitment workflows.
       </p>
 
       <div class="hero-actions">
-        <a
-          class="primary-action"
-          routerLink="/register"
-        >
-          Get Started
-
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="m9 18 6-6-6-6"
-            />
-          </svg>
+        <a class="primary-action" routerLink="/register">
+          Get Started <span aria-hidden="true">&rsaquo;</span>
         </a>
-
-        <a
-          class="secondary-action"
-          routerLink="/login"
-        >
-          Sign in
-        </a>
+        <a class="secondary-action" routerLink="/login">Sign in</a>
       </div>
 
-      <div class="trust-row">
-        <span>
-          Angular 19
-        </span>
-
-        <span>
-          Secure role-based access
-        </span>
-
-        <span>
-          Server-authoritative matching
-        </span>
+      <div class="hero-proof">
+        <div class="proof-dots" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <span>Built for Job Seekers, Employers and Administrators</span>
       </div>
     </div>
 
-    <div
-      class="hero-visual"
-      aria-hidden="true"
-    >
-      <div class="visual-card visual-card-primary">
-        <span class="visual-label">
-          Match overview
-        </span>
-
-        <strong>
-          Skills meet opportunity
-        </strong>
-
-        <div class="match-row">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+    <div class="hero-media">
+      <img
+        src="/images/landing/hero-team.webp"
+        alt="Recruitment team collaborating around a laptop"
+      />
+      <div class="floating-card">
+        <strong>Better people.<br />Brighter futures.</strong>
+        <p>A clearer, structured recruitment experience for everyone.</p>
       </div>
-
-      <div class="visual-card visual-card-secondary">
-        <div class="mini-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <path
-              d="M6 3h12v18H6V3Zm3 4h6M9 11h6M9 15h4"
-            />
-          </svg>
-        </div>
-
-        <div>
-          <span>
-            Recruitment workflow
-          </span>
-
-          <strong>
-            Structured. Secure. Clear.
-          </strong>
-        </div>
+      <div class="hero-note" aria-hidden="true">
+        Great teams<br />start here.
       </div>
-
-      <div class="visual-orbit orbit-one"></div>
-      <div class="visual-orbit orbit-two"></div>
     </div>
   </section>
 
-  <section
-    class="value-strip"
-    aria-label="HireSync platform values"
-  >
+  <section class="platform-strip" id="product" aria-label="HireSync platform values">
     <article>
-      <span>
-        01
-      </span>
-
-      <div>
-        <strong>
-          Structured profiles
-        </strong>
-
-        <p>
-          Skills and recruitment information stay
-          clear, reusable and consistent.
-        </p>
-      </div>
+      <span class="strip-icon">&#9671;</span>
+      <div><strong>Secure role-based access</strong><p>Protected workspaces for every role.</p></div>
     </article>
-
     <article>
-      <span>
-        02
-      </span>
-
-      <div>
-        <strong>
-          Deterministic matching
-        </strong>
-
-        <p>
-          Match results come from the authoritative
-          server workflow, not browser calculations.
-        </p>
-      </div>
+      <span class="strip-icon">&#9678;</span>
+      <div><strong>Deterministic matching</strong><p>Consistent, structured opportunity matching.</p></div>
     </article>
-
     <article>
-      <span>
-        03
-      </span>
-
-      <div>
-        <strong>
-          Role-focused workspaces
-        </strong>
-
-        <p>
-          Job Seekers, Employers and Administrators
-          each work inside their own protected area.
-        </p>
-      </div>
+      <span class="strip-icon">&#9649;</span>
+      <div><strong>Structured workflows</strong><p>From profile and vacancy to application progress.</p></div>
+    </article>
+    <article>
+      <span class="strip-icon">&#9637;</span>
+      <div><strong>Server-authoritative results</strong><p>Scores come from the backend, not the browser.</p></div>
     </article>
   </section>
+
+  <section class="split-section reveal" id="employers">
+    <div class="section-media">
+      <img
+        src="/images/landing/employer-workspace.webp"
+        alt="Employer reviewing candidate profiles at a laptop"
+      />
+      <div class="media-badge">
+        <strong>Build stronger teams.</strong>
+        <span>Review and manage hiring with clarity.</span>
+      </div>
+    </div>
+
+    <div class="section-copy">
+      <p class="eyebrow">For Employers</p>
+      <h2>Hire smarter. Build stronger teams.</h2>
+      <p>
+        HireSync helps Employers create structured vacancies, review ranked
+        applicants and manage hiring progress inside one secure workspace.
+      </p>
+      <ul class="check-list">
+        <li>Reach relevant candidates through structured matching</li>
+        <li>Review authoritative match and component scores</li>
+        <li>Manage application status through a controlled workflow</li>
+        <li>Use secure contact-request states without exposing private details</li>
+      </ul>
+      <span class="info-action">Purpose-built for Employer workflows &rsaquo;</span>
+    </div>
+  </section>
+
+  <section class="split-section split-reverse reveal" id="job-seekers">
+    <div class="section-copy">
+      <p class="eyebrow">For Job Seekers</p>
+      <h2>Find opportunities that fit you.</h2>
+      <p>
+        Build a structured profile, discover vacancies, understand your match
+        and keep applications, notifications and contact requests organized.
+      </p>
+      <ul class="check-list">
+        <li>Create a professional structured profile</li>
+        <li>See matched and missing skills clearly</li>
+        <li>Track applications and workflow updates</li>
+        <li>Manage your CV and recruitment activity securely</li>
+      </ul>
+      <span class="info-action">A clearer path from profile to opportunity &rsaquo;</span>
+    </div>
+
+    <div class="section-media">
+      <img
+        src="/images/landing/jobseeker-workspace.webp"
+        alt="Job Seeker working on a laptop in a professional workspace"
+      />
+      <div class="media-badge media-badge-right">
+        <strong>Your next opportunity awaits.</strong>
+        <span>Showcase your skills. Get matched.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature-section reveal">
+    <p class="eyebrow section-eyebrow">Why HireSync is unique</p>
+    <h2>A modern approach to recruitment.</h2>
+    <p class="section-intro">
+      Technology, structure and clear rules work together to create a more
+      transparent recruitment experience.
+    </p>
+
+    <div class="feature-grid">
+      <article>
+        <span class="feature-icon">&#9636;</span>
+        <strong>Structured recruitment</strong>
+        <p>Profiles, vacancies and applications follow a clear process.</p>
+      </article>
+      <article>
+        <span class="feature-icon">&#9678;</span>
+        <strong>Transparent matching</strong>
+        <p>Deterministic scoring keeps matching consistent and explainable.</p>
+      </article>
+      <article>
+        <span class="feature-icon">&#9671;</span>
+        <strong>Secure role workspaces</strong>
+        <p>Job Seekers, Employers and Administrators get protected areas.</p>
+      </article>
+      <article>
+        <span class="feature-icon">&#9649;</span>
+        <strong>Controlled hiring workflow</strong>
+        <p>Application and contact states progress through defined rules.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="how-section reveal">
+    <p class="eyebrow section-eyebrow">How it works</p>
+    <h2>From profile to opportunity &mdash; in four simple steps.</h2>
+
+    <div class="steps">
+      <article><span>1</span><div><strong>Create your account</strong><p>Choose Job Seeker or Employer and register securely.</p></div></article>
+      <article><span>2</span><div><strong>Build your workspace</strong><p>Complete your profile, company details or vacancy data.</p></div></article>
+      <article><span>3</span><div><strong>Get matched</strong><p>HireSync uses structured server-side matching factors.</p></div></article>
+      <article><span>4</span><div><strong>Take the next step</strong><p>Apply, review and track recruitment progress.</p></div></article>
+    </div>
+  </section>
+
+  <section class="quotes-section reveal">
+    <p class="eyebrow section-eyebrow">Recruitment principles</p>
+    <h2>A clearer hiring experience for everyone.</h2>
+
+    <div class="quote-grid">
+      <blockquote>
+        <span>&#8220;</span>
+        <p>Clear structure supports better hiring decisions.</p>
+        <footer>Structured from profile to application</footer>
+      </blockquote>
+      <blockquote>
+        <span>&#8220;</span>
+        <p>Transparent matching helps people understand opportunity fit.</p>
+        <footer>Deterministic and server-authoritative</footer>
+      </blockquote>
+      <blockquote>
+        <span>&#8220;</span>
+        <p>Secure workflows create confidence for both sides.</p>
+        <footer>Role-based and privacy-conscious</footer>
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="about-section reveal" id="about">
+    <div class="about-media">
+      <img
+        src="/images/landing/hiresync-office.webp"
+        alt="Modern professional office environment"
+      />
+    </div>
+
+    <div class="about-copy">
+      <p class="eyebrow">About HireSync</p>
+      <h2>Built for a clearer, more connected recruitment journey.</h2>
+      <p>
+        HireSync is a structured recruitment platform designed to help Job
+        Seekers, Employers and Administrators work through secure, role-focused
+        workflows with consistent matching outcomes.
+      </p>
+      <div class="about-facts">
+        <span><strong>✓</strong> Role-focused workspaces</span>
+        <span><strong>✓</strong> Four deterministic match factors</span>
+        <span><strong>✓</strong> Server-authoritative results</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-cta reveal">
+    <p class="eyebrow section-eyebrow">Ready when you are</p>
+    <h2>Take the next step with HireSync.</h2>
+    <p>Build your profile, publish opportunities and move through recruitment with clarity.</p>
+    <div class="hero-actions cta-actions">
+      <a class="primary-action" routerLink="/register">Get Started <span aria-hidden="true">&rsaquo;</span></a>
+      <a class="secondary-action" routerLink="/login">Sign in</a>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="brand footer-brand">
+      <div class="brand-mark" aria-hidden="true">H</div>
+      <div>
+        <strong>HireSync</strong>
+        <span>Smart Recruitment Matching</span>
+      </div>
+    </div>
+
+    <div class="footer-nav" aria-label="Landing page information">
+      <span>Product</span>
+      <span>For Employers</span>
+      <span>For Job Seekers</span>
+      <span>About</span>
+    </div>
+
+    <p>Structured recruitment. Secure workflows. Clear decisions.</p>
+  </footer>
 </main>
