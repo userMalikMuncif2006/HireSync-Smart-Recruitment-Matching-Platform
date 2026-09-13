@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import {
   HttpErrorResponse,
 } from '@angular/common/http';
@@ -41,6 +42,7 @@ describe(
             AdminDashboardPage,
           ],
           providers: [
+            provideRouter([]),
             {
               provide:
                 AdminService,

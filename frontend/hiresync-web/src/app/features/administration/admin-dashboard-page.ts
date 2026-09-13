@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import {
   DatePipe,
 } from '@angular/common';
@@ -23,6 +24,7 @@ import {
   standalone: true,
   imports: [
     DatePipe,
+    RouterLink,
   ],
   templateUrl:
     './admin-dashboard-page.html',

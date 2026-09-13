@@ -297,3 +297,33 @@ button {
     align-items: flex-start;
   }
 }
+.admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 34px;
+  padding: 7px;
+  border: 1px solid #dce7e4;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.admin-nav a {
+  border-radius: 9px;
+  padding: 10px 14px;
+  color: #4c615d;
+  font-size: 0.88rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.admin-nav a.active {
+  background: #e6f5f1;
+  color: #08715f;
+}
+
+@media (max-width: 420px) {
+  .admin-nav {
+    display: grid;
+  }
+}

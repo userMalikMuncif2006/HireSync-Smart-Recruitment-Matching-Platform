@@ -1,0 +1,226 @@
+<main class="admin-page">
+  <nav
+    class="admin-nav"
+    aria-label="Administrator navigation"
+  >
+    <a routerLink="/admin/dashboard">
+      Dashboard
+    </a>
+
+    <a routerLink="/admin/users">
+      Accounts
+    </a>
+
+    <a
+      routerLink="/admin/employer-verification"
+      class="active"
+    >
+      Employer verification
+    </a>
+  </nav>
+
+  <header class="page-header">
+    <p class="eyebrow">
+      Administrator
+    </p>
+
+    <h1>
+      Employer verification
+    </h1>
+
+    <p>
+      Review pending Employer registrations and make
+      the final approval or rejection decision.
+    </p>
+  </header>
+
+  @if (actionError()) {
+    <section
+      class="state-card error"
+      role="alert"
+    >
+      {{ actionError() }}
+    </section>
+  }
+
+  @if (isLoading()) {
+    <section
+      class="state-card"
+      aria-live="polite"
+    >
+      <span class="loading-mark"></span>
+
+      <div>
+        <strong>
+          Loading pending Employers...
+        </strong>
+
+        <span>
+          Retrieving the latest verification queue.
+        </span>
+      </div>
+    </section>
+  } @else if (loadError()) {
+    <section
+      class="state-card error"
+      role="alert"
+    >
+      <strong>
+        Unable to load verification queue
+      </strong>
+
+      <span>
+        {{ loadError() }}
+      </span>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="reload()"
+      >
+        Try again
+      </button>
+    </section>
+  } @else {
+    @if (employers(); as items) {
+      <div class="queue-summary">
+        <strong>
+          {{ items.length }}
+          {{
+            items.length === 1
+              ? 'pending Employer'
+              : 'pending Employers'
+          }}
+        </strong>
+      </div>
+
+      @if (items.length === 0) {
+        <section class="state-card">
+          <strong>
+            Verification queue is clear
+          </strong>
+
+          <span>
+            There are currently no pending Employer
+            registrations.
+          </span>
+        </section>
+      } @else {
+        <section class="verification-list">
+          @for (
+            employer of items;
+            track employer.userId
+          ) {
+            <article class="verification-card">
+              <div>
+                <span class="pending-badge">
+                  Pending verification
+                </span>
+
+                <h2>
+                  {{ employer.displayName }}
+                </h2>
+
+                <p>
+                  {{ employer.email }}
+                </p>
+              </div>
+
+              @if (
+                pendingDecision()
+                  ?.employer
+                  ?.userId !==
+                    employer.userId
+              ) {
+                <div class="card-actions">
+                  <button
+                    type="button"
+                    class="primary-button"
+                    (click)="
+                      requestDecision(
+                        employer,
+                        'approve'
+                      )
+                    "
+                  >
+                    Approve
+                  </button>
+
+                  <button
+                    type="button"
+                    class="danger-outline"
+                    (click)="
+                      requestDecision(
+                        employer,
+                        'reject'
+                      )
+                    "
+                  >
+                    Reject
+                  </button>
+                </div>
+              } @else {
+                <div class="confirmation">
+                  <strong>
+                    {{
+                      pendingDecision()
+                        ?.decision ===
+                        'approve'
+                        ? 'Approve this Employer?'
+                        : 'Reject this Employer?'
+                    }}
+                  </strong>
+
+                  <span>
+                    This decision changes the Employer
+                    verification state.
+                  </span>
+
+                  <div>
+                    <button
+                      type="button"
+                      [class.primary-button]="
+                        pendingDecision()
+                          ?.decision ===
+                          'approve'
+                      "
+                      [class.danger-button]="
+                        pendingDecision()
+                          ?.decision ===
+                          'reject'
+                      "
+                      [disabled]="
+                        updatingId() ===
+                          employer.userId
+                      "
+                      (click)="confirmDecision()"
+                    >
+                      {{
+                        updatingId() ===
+                          employer.userId
+                          ? 'Updating...'
+                          : 'Confirm'
+                      }}
+                    </button>
+
+                    <button
+                      type="button"
+                      class="secondary-button"
+                      [disabled]="
+                        updatingId() ===
+                          employer.userId
+                      "
+                      (click)="cancelDecision()"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              }
+            </article>
+          }
+        </section>
+      }
+    }
+  }
+</main>

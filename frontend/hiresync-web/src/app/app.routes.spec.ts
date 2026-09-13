@@ -302,12 +302,35 @@ describe('application routes', () => {
           item.path === 'dashboard',
       );
 
+    const usersRoute =
+      route?.children?.find(
+        (item) =>
+          item.path === 'users',
+      );
+
+    const verificationRoute =
+      route?.children?.find(
+        (item) =>
+          item.path ===
+          'employer-verification',
+      );
+
     expect(
       defaultRoute?.redirectTo,
     ).toBe('dashboard');
 
     expect(
       typeof dashboardRoute
+        ?.loadComponent,
+    ).toBe('function');
+
+    expect(
+      typeof usersRoute
+        ?.loadComponent,
+    ).toBe('function');
+
+    expect(
+      typeof verificationRoute
         ?.loadComponent,
     ).toBe('function');
   });

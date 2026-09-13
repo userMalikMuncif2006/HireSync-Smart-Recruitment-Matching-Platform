@@ -217,6 +217,26 @@ export const routes: Routes = [
               module.AdminDashboardPage,
           ),
       },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import(
+            './features/administration/admin-users-page'
+          ).then(
+            (module) =>
+              module.AdminUsersPage,
+          ),
+      },
+      {
+        path: 'employer-verification',
+        loadComponent: () =>
+          import(
+            './features/administration/admin-employer-verification-page'
+          ).then(
+            (module) =>
+              module.AdminEmployerVerificationPage,
+          ),
+      },
     ],
   },
   {
