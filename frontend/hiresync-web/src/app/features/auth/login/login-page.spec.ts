@@ -457,6 +457,39 @@ describe('LoginPage', () => {
     ).toBeNull();
   });
 
+  it('navigates to forgot password recovery', () => {
+    component
+      .goToForgotPassword();
+
+    expect(
+      router.destinations,
+    ).toContain(
+      '/forgot-password',
+    );
+  });
+
+  it('shows password-reset success', () => {
+    route.setQueryParams({
+      reset:
+        'password',
+    });
+
+    fixture.detectChanges();
+
+    expect(
+      component.successMessage(),
+    ).toBe(
+      'Password reset successfully. You can now sign in with your new password.',
+    );
+
+    expect(
+      fixture.nativeElement
+        .textContent,
+    ).toContain(
+      'Password reset successfully.',
+    );
+  });
+
   class FakeAuthService {
     loginResult:
       Observable<LoginResponse> =

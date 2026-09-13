@@ -89,6 +89,13 @@ export class LoginPage {
       '/register',
     );
   }
+
+  goToForgotPassword(): void {
+    void this.router.navigateByUrl(
+      '/forgot-password',
+    );
+  }
+
   submit(
     form: NgForm,
   ): void {
@@ -205,6 +212,13 @@ export class LoginPage {
       'administrator'
     ) {
       return 'Administrator activation completed successfully. You can now sign in.';
+    }
+
+    if (
+      params.get('reset') ===
+      'password'
+    ) {
+      return 'Password reset successfully. You can now sign in with your new password.';
     }
 
     return null;

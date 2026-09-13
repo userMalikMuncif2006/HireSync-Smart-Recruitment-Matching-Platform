@@ -17,6 +17,7 @@ public sealed class AuthController : ControllerBase
     private readonly EmployerRegistrationService _employerRegistrationService;
     private readonly IEmployerEmailVerificationService _employerEmailVerificationService;
     private readonly IJobSeekerEmailVerificationService _jobSeekerEmailVerificationService;
+    private readonly IPasswordResetService _passwordResetService;
     private readonly AdministratorActivationService _administratorActivationService;
 
     public AuthController(
@@ -25,6 +26,7 @@ public sealed class AuthController : ControllerBase
         EmployerRegistrationService employerRegistrationService,
         IEmployerEmailVerificationService employerEmailVerificationService,
         IJobSeekerEmailVerificationService jobSeekerEmailVerificationService,
+        IPasswordResetService passwordResetService,
         AdministratorActivationService administratorActivationService)
     {
         _authService = authService;
@@ -32,6 +34,7 @@ public sealed class AuthController : ControllerBase
         _employerRegistrationService = employerRegistrationService;
         _employerEmailVerificationService = employerEmailVerificationService;
         _jobSeekerEmailVerificationService = jobSeekerEmailVerificationService;
+        _passwordResetService = passwordResetService;
         _administratorActivationService = administratorActivationService;
     }
 
@@ -82,6 +85,134 @@ public sealed class AuthController : ControllerBase
         };
     }
 
+    [AllowAnonymous]
+    [HttpPost("password-reset/request")]
+    [ProducesResponseType(
+        typeof(PasswordResetRequestResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<PasswordResetRequestResponse>>
+        RequestPasswordReset(
+            [FromBody] PasswordResetRequest request,
+            CancellationToken cancellationToken)
+    {
+        if (request is null ||
+            string.IsNullOrWhiteSpace(request.Email))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid password reset request",
+                detail: "Email is required.");
+        }
+
+        var accepted =
+            await _passwordResetService.RequestAsync(
+                request.Email,
+                cancellationToken);
+
+        if (!accepted)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid password reset request",
+                detail: "Email is required.");
+        }
+
+        return Ok(
+            new PasswordResetRequestResponse(
+                "If an account exists for this email, a reset code has been sent."));
+    }
+
+    [AllowAnonymous]
+    [HttpPost("password-reset/complete")]
+    [ProducesResponseType(
+        typeof(PasswordResetCompleteResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ValidationProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PasswordResetCompleteResponse>>
+        CompletePasswordReset(
+            [FromBody] PasswordResetCompleteRequest request,
+            CancellationToken cancellationToken)
+    {
+        var result =
+            await _passwordResetService.CompleteAsync(
+                request,
+                cancellationToken);
+
+        if (result.Succeeded)
+        {
+            return Ok(
+                new PasswordResetCompleteResponse(
+                    "Password reset successfully."));
+        }
+
+        if (result.FailureReason ==
+            PasswordResetCompleteFailureReason.InvalidPassword)
+        {
+            var errors =
+                result.PasswordErrors.Count > 0
+                    ? result.PasswordErrors.ToArray()
+                    : new[]
+                    {
+                        "The new password does not meet the password requirements."
+                    };
+
+            return BadRequest(
+                new ValidationProblemDetails(
+                    new Dictionary<string, string[]>
+                    {
+                        ["newPassword"] = errors
+                    })
+                {
+                    Status =
+                        StatusCodes.Status400BadRequest,
+                    Title =
+                        "Password does not meet requirements",
+                    Detail =
+                        "Choose a password that meets the HireSync password requirements."
+                });
+        }
+
+        return result.FailureReason switch
+        {
+            PasswordResetCompleteFailureReason.InvalidRequest =>
+                Problem(
+                    statusCode:
+                        StatusCodes.Status400BadRequest,
+                    title:
+                        "Invalid password reset request",
+                    detail:
+                        "Email, reset code and new password are required."),
+
+            PasswordResetCompleteFailureReason.InvalidOrExpiredCode =>
+                Problem(
+                    statusCode:
+                        StatusCodes.Status400BadRequest,
+                    title:
+                        "Password reset failed",
+                    detail:
+                        "The reset code is invalid or no longer usable."),
+
+            _ =>
+                Problem(
+                    statusCode:
+                        StatusCodes.Status500InternalServerError,
+                    title:
+                        "Password reset failed",
+                    detail:
+                        "The password could not be reset.")
+        };
+    }
     [AllowAnonymous]
     [HttpPost("jobseeker/otp/request")]
     [ProducesResponseType(

@@ -228,3 +228,30 @@ input:focus {
   outline: 3px solid rgb(15 118 110 / 0.14);
   outline-offset: 3px;
 }
+.forgot-password-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -0.45rem;
+}
+
+.forgot-password-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #0f766e;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.forgot-password-link:hover {
+  color: #115e59;
+  text-decoration: underline;
+}
+
+.forgot-password-link:focus-visible {
+  border-radius: 0.2rem;
+  outline: 3px solid rgb(15 118 110 / 0.14);
+  outline-offset: 3px;
+}

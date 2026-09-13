@@ -30,6 +30,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Controllers
 builder.Services.AddControllers();
+builder.Services.AddDataProtection();
 
 // Shared persistence
 var connectionString = builder.Configuration.GetConnectionString("HireSyncDatabase")
@@ -83,7 +84,8 @@ var localFileStorage =
 builder.Services
     .AddIdentityCore<ApplicationUser>()
     .AddRoles<IdentityRole<Guid>>()
-    .AddEntityFrameworkStores<HireSyncDbContext>();
+    .AddEntityFrameworkStores<HireSyncDbContext>()
+    .AddDefaultTokenProviders();
 
 // JWT settings
 var jwtSigningKey = builder.Configuration["Jwt:SigningKey"]
@@ -197,6 +199,7 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IJobSeekerEmailVerificationService,
     JobSeekerEmailVerificationService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<IAccessTokenStateValidator, AccessTokenStateValidator>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<

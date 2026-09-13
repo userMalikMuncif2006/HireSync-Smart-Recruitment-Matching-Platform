@@ -275,6 +275,72 @@ describe('AuthService', () => {
     });
   });
 
+  it('requests a password reset without exposing account state', () => {
+    const body = {
+      email:
+        'user@example.com',
+    };
+
+    service
+      .requestPasswordReset(
+        body,
+      )
+      .subscribe();
+
+    const request =
+      httpTesting.expectOne(
+        '/api/v1/auth/password-reset/request',
+      );
+
+    expect(
+      request.request.method,
+    ).toBe('POST');
+
+    expect(
+      request.request.body,
+    ).toEqual(body);
+
+    request.flush({
+      message:
+        'If an account exists for this email, a reset code has been sent.',
+    });
+  });
+
+  it('completes a password reset', () => {
+    const body = {
+      email:
+        'user@example.com',
+      code:
+        '123456',
+      newPassword:
+        'NewValidPassword456!',
+    };
+
+    service
+      .completePasswordReset(
+        body,
+      )
+      .subscribe();
+
+    const request =
+      httpTesting.expectOne(
+        '/api/v1/auth/password-reset/complete',
+      );
+
+    expect(
+      request.request.method,
+    ).toBe('POST');
+
+    expect(
+      request.request.body,
+    ).toEqual(body);
+
+    request.flush({
+      message:
+        'Password reset successfully.',
+    });
+  });
+
   it('clears the session on logout', () => {
     session.setSession(loginResponse);
 

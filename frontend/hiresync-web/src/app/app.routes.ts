@@ -34,6 +34,16 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import(
+        './features/auth/forgot-password/forgot-password-page'
+      ).then(
+        (module) =>
+          module.ForgotPasswordPage,
+      ),
+  },
+  {
     path: 'verify-jobseeker-email',
     loadComponent: () =>
       import(
