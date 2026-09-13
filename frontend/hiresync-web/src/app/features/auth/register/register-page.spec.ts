@@ -1,4 +1,4 @@
-﻿import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ComponentFixture,
   TestBed,
@@ -144,7 +144,7 @@ describe('RegisterPage', () => {
       .toHaveLength(0);
   });
 
-  it('submits trimmed Job Seeker details and navigates to login', () => {
+  it('submits trimmed Job Seeker details and navigates to email verification', () => {
     const navigateSpy =
       vi.spyOn(router, 'navigate')
         .mockResolvedValue(true);
@@ -170,10 +170,10 @@ describe('RegisterPage', () => {
 
     expect(navigateSpy)
       .toHaveBeenCalledWith(
-        ['/login'],
+        ['/verify-jobseeker-email'],
         {
           queryParams: {
-            registered: 'jobseeker',
+            email: 'seeker@example.com',
           },
         },
       );

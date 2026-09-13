@@ -34,6 +34,16 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'verify-jobseeker-email',
+    loadComponent: () =>
+      import(
+        './features/auth/jobseeker-email-verification/jobseeker-email-verification-page'
+      ).then(
+        (module) =>
+          module.JobSeekerEmailVerificationPage,
+      ),
+  },
+  {
     path: 'verify-employer-email',
     loadComponent: () =>
       import(

@@ -210,12 +210,12 @@ export class RegisterPage {
         }),
       )
       .subscribe({
-        next: () => {
+        next: (response) => {
           void this.router.navigate(
-            ['/login'],
+            ['/verify-jobseeker-email'],
             {
               queryParams: {
-                registered: 'jobseeker',
+                email: response.email,
               },
             },
           );

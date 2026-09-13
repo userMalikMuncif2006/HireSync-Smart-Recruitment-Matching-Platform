@@ -1,4 +1,4 @@
-﻿export type AuthRole =
+export type AuthRole =
   | 'JobSeeker'
   | 'Employer'
   | 'Administrator';
@@ -50,6 +50,19 @@ export interface RegisterEmployerResponse {
   employerVerificationStatus: number | string;
 }
 
+export interface JobSeekerOtpRequest {
+  email: string;
+}
+
+export interface JobSeekerOtpVerifyRequest {
+  email: string;
+  code: string;
+}
+
+export interface JobSeekerOtpVerificationResponse {
+  succeeded: boolean;
+  failureReason: number | string | null;
+}
 export interface EmployerOtpRequest {
   email: string;
 }
