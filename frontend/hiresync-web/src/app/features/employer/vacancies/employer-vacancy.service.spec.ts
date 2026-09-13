@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+﻿import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -258,6 +258,39 @@ describe('EmployerVacancyService', () => {
     });
   });
 
+  it('updates an application status using its concurrency row version', () => {
+    const payload:
+      UpdateApplicationStatusPayload = {
+        status: 3,
+        rowVersion: 'AQIDBA==',
+      };
+
+    service
+      .updateApplicationStatus(
+        'application-1',
+        payload,
+      )
+      .subscribe();
+
+    const request =
+      httpTesting.expectOne(
+        '/api/v1/employer/applications/application-1/status',
+      );
+
+    expect(request.request.method)
+      .toBe('PATCH');
+
+    expect(request.request.body)
+      .toEqual(payload);
+
+    request.flush({
+      id: 'application-1',
+      status: 3,
+      updatedAtUtc:
+        '2026-09-13T00:00:00Z',
+      rowVersion: 'BQYHCA==',
+    });
+  });
   it('loads ranked applicants with application-status filtering', () => {
     service
       .getRankedApplicants(

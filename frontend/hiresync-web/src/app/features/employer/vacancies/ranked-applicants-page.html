@@ -4,7 +4,7 @@
     class="back-button"
     (click)="backToVacancies()"
   >
-    â† Back to vacancies
+    Ã¢â€ Â Back to vacancies
   </button>
 
   <header class="page-header">
@@ -84,6 +84,24 @@
     </div>
   } @else {
     @if (result(); as applicantPage) {
+      @if (updateErrorMessage()) {
+        <div
+          class="state-card error"
+          role="alert"
+        >
+          {{ updateErrorMessage() }}
+        </div>
+      }
+
+      @if (updateSuccessMessage()) {
+        <div
+          class="state-card"
+          aria-live="polite"
+        >
+          {{ updateSuccessMessage() }}
+        </div>
+      }
+
       <div class="result-summary">
         <div>
           <strong>
@@ -159,6 +177,75 @@
                   </strong>
                 </div>
               </div>
+
+              <section class="filter-panel status-workflow" aria-label="Application status workflow">
+                <div class="status-workflow-copy">
+                  <strong>Application status</strong>
+
+                  @if (
+                    isTerminalStatus(
+                      applicant.status
+                    )
+                  ) {
+                    <span>
+                      This application is in a terminal state.
+                    </span>
+                  } @else {
+                    <span>
+                      Select a new status. The server validates the transition.
+                    </span>
+                  }
+                </div>
+
+                <div class="status-workflow-actions">
+                  <label
+                    [for]="'status-' + applicant.applicationId"
+                  >
+                    New status
+                  </label>
+
+                  <select
+                    [id]="'status-' + applicant.applicationId"
+                    [value]="selectedApplicationStatus(applicant)"
+                    [disabled]="
+                      isTerminalStatus(applicant.status) ||
+                      updatingApplicationId() !== null
+                    "
+                    (change)="
+                      changeSelectedApplicationStatus(
+                        applicant.applicationId,
+                        $any($event.target).value
+                      )
+                    "
+                  >
+                    <option [value]="1">Applied</option>
+                    <option [value]="2">Under review</option>
+                    <option [value]="3">Shortlisted</option>
+                    <option [value]="4">Selected</option>
+                    <option [value]="5">Rejected</option>
+                  </select>
+
+                  <button
+                    type="button"
+                    class="primary-button"
+                    [disabled]="
+                      !canUpdateApplicationStatus(applicant)
+                    "
+                    (click)="
+                      updateApplicationStatus(applicant)
+                    "
+                  >
+                    @if (
+                      updatingApplicationId() ===
+                      applicant.applicationId
+                    ) {
+                      Updating...
+                    } @else {
+                      Update status
+                    }
+                  </button>
+                </div>
+              </section>
 
               <div class="score-grid">
                 <div>
