@@ -170,6 +170,22 @@ describe(
       ).toBe('dashboard');
     });
 
+    it('lazy loads a dedicated wildcard 404 page', () => {
+      const route =
+        routes.find(
+          (item) =>
+            item.path === '**',
+        );
+
+      expect(
+        typeof route
+          ?.loadComponent,
+      ).toBe('function');
+
+      expect(
+        route?.redirectTo,
+      ).toBeUndefined();
+    });
     it('keeps every role feature page lazy loaded', () => {
       const roleRoutes =
         routes.filter(
