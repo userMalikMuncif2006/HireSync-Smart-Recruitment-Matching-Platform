@@ -17,31 +17,35 @@
     class="welcome-panel"
     aria-label="Workspace overview"
   >
-    <div>
+    <div class="welcome-copy">
       <span class="welcome-label">
-        HireSync
+        HireSync workspace
       </span>
 
       <h2>
-        Everything you need,
-        inside one workspace.
+        Your recruitment workflow,
+        organised in one place.
       </h2>
 
       <p>
-        Use the sidebar to move between features.
-        Only this workspace content changes while
-        your navigation remains available.
+        Use the persistent sidebar to move between
+        features while your workspace remains available.
       </p>
     </div>
 
-    <div class="welcome-decoration">
-      <span></span>
-      <span></span>
-      <span></span>
+    <div
+      class="welcome-visual"
+      aria-hidden="true"
+    >
+      <div class="visual-ring">
+        <div class="visual-core">
+          H
+        </div>
+      </div>
     </div>
   </section>
 
-  <div class="action-heading">
+  <div class="section-heading">
     <div>
       <span>
         Quick access
@@ -66,7 +70,14 @@
           class="action-icon"
           aria-hidden="true"
         >
-          {{ action.shortLabel }}
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              [attr.d]="action.iconPath"
+            />
+          </svg>
         </span>
 
         <div>
@@ -79,12 +90,16 @@
           </p>
         </div>
 
-        <span
+        <svg
           class="arrow"
+          viewBox="0 0 24 24"
+          fill="none"
           aria-hidden="true"
         >
-          →
-        </span>
+          <path
+            d="m9 18 6-6-6-6"
+          />
+        </svg>
       </a>
     }
   </section>

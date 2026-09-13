@@ -15,7 +15,7 @@ interface DashboardAction {
   title: string;
   description: string;
   route: string;
-  shortLabel: string;
+  iconPath: string;
 }
 
 interface DashboardConfiguration {
@@ -24,6 +24,26 @@ interface DashboardConfiguration {
   description: string;
   actions: DashboardAction[];
 }
+
+const icons = {
+  search:
+    'M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm10 2-4.35-4.35',
+
+  profile:
+    'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0',
+
+  applications:
+    'M6 3h12v18H6V3Zm3 4h6M9 11h6M9 15h4',
+
+  notifications:
+    'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4',
+
+  company:
+    'M4 21V7l8-4 8 4v14M8 21v-5h8v5M8 9h.01M12 9h.01M16 9h.01',
+
+  vacancies:
+    'M9 6V4h6v2m-10 0h14v14H5V6Zm4 5h3M8 11h1',
+} as const;
 
 @Component({
   selector: 'app-workspace-dashboard-page',
@@ -66,8 +86,8 @@ export class WorkspaceDashboardPage {
               'Create, edit, review and close your organisation vacancies.',
             route:
               '/employer/vacancies',
-            shortLabel:
-              'V',
+            iconPath:
+              icons.vacancies,
           },
           {
             title:
@@ -76,8 +96,8 @@ export class WorkspaceDashboardPage {
               'Review and maintain your Employer profile information.',
             route:
               '/employer/profile',
-            shortLabel:
-              'P',
+            iconPath:
+              icons.company,
           },
         ],
       };
@@ -95,11 +115,11 @@ export class WorkspaceDashboardPage {
           title:
             'Find jobs',
           description:
-            'Search available vacancies and review your server-calculated match.',
+            'Search vacancies and review your authoritative match results.',
           route:
             '/seeker/vacancies',
-          shortLabel:
-            'J',
+          iconPath:
+            icons.search,
         },
         {
           title:
@@ -108,18 +128,18 @@ export class WorkspaceDashboardPage {
             'Maintain your structured profile, skills and match-readiness information.',
           route:
             '/seeker/profile',
-          shortLabel:
-            'P',
+          iconPath:
+            icons.profile,
         },
         {
           title:
             'Applications',
           description:
-            'Track the latest status of every application you submitted.',
+            'Track the latest state of every application you submitted.',
           route:
             '/seeker/applications',
-          shortLabel:
-            'A',
+          iconPath:
+            icons.applications,
         },
         {
           title:
@@ -128,8 +148,8 @@ export class WorkspaceDashboardPage {
             'Review unread and previous application-status notifications.',
           route:
             '/seeker/notifications',
-          shortLabel:
-            'N',
+          iconPath:
+            icons.notifications,
         },
       ],
     };

@@ -1,14 +1,13 @@
 :host {
   display: block;
   min-height: 100dvh;
-  color: #18312d;
 }
 
 .workspace-shell {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 272px minmax(0, 1fr);
   min-height: 100dvh;
-  background: #f5f8f7;
+  background: var(--hs-background);
 }
 
 .sidebar {
@@ -17,24 +16,21 @@
   z-index: 30;
   display: flex;
   flex-direction: column;
-  width: 260px;
+  width: 272px;
   height: 100dvh;
-  box-sizing: border-box;
-  padding: 22px 18px 18px;
-  border-right: 1px solid #dbe7e3;
-  background:
-    linear-gradient(
-      180deg,
-      #ffffff 0%,
-      #f8fbfa 100%
-    );
+  padding: 24px 18px 18px;
+  border-right: 1px solid var(--hs-border);
+  background: var(--hs-surface);
+  box-shadow:
+    8px 0 30px
+    rgb(29 66 59 / 0.035);
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 50px;
+  padding: 0 7px;
 }
 
 .brand-mark {
@@ -47,50 +43,64 @@
   background:
     linear-gradient(
       145deg,
-      #087f6d,
-      #075d51
+      var(--hs-brand-600),
+      var(--hs-brand-800)
     );
-  color: #fff;
-  font-size: 1.15rem;
-  font-weight: 850;
+  box-shadow:
+    0 8px 18px
+    rgb(8 117 99 / 0.18);
 }
 
-.brand > div:last-child,
-.account-summary > div:last-child {
+.brand-mark svg {
+  width: 23px;
+  height: 23px;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brand-copy,
+.account-summary > div:last-child,
+.mobile-brand {
   min-width: 0;
   display: grid;
+}
+
+.brand-copy {
   gap: 2px;
 }
 
-.brand strong {
-  font-size: 1.08rem;
+.brand-copy strong {
+  color: var(--hs-text-900);
+  font-size: 1rem;
+  font-weight: 780;
+  letter-spacing: -0.02em;
 }
 
-.brand span,
-.account-summary span {
-  overflow: hidden;
-  color: #71807d;
-  font-size: 0.73rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.brand-copy span {
+  color: var(--hs-text-500);
+  font-size: 0.72rem;
 }
 
 .workspace-label {
   display: grid;
   gap: 3px;
-  margin: 27px 8px 13px;
+  margin: 31px 10px 12px;
 }
 
 .workspace-label span {
-  color: #8b9895;
-  font-size: 0.67rem;
-  font-weight: 750;
-  letter-spacing: 0.1em;
+  color: #8a9995;
+  font-size: 0.64rem;
+  font-weight: 760;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .workspace-label strong {
-  font-size: 0.87rem;
+  color: #334d47;
+  font-size: 0.78rem;
+  font-weight: 720;
 }
 
 .sidebar-nav {
@@ -99,15 +109,17 @@
 }
 
 .sidebar-nav a {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 11px;
-  min-height: 45px;
-  border-radius: 11px;
-  padding: 0 11px;
-  color: #4b605c;
-  font-size: 0.9rem;
-  font-weight: 680;
+  min-height: 46px;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 0 12px;
+  color: #536964;
+  font-size: 0.875rem;
+  font-weight: 650;
   text-decoration: none;
   transition:
     background 0.16s ease,
@@ -115,41 +127,76 @@
     transform 0.16s ease;
 }
 
+.sidebar-nav a::before {
+  position: absolute;
+  left: 0;
+  width: 3px;
+  height: 20px;
+  border-radius: 0 4px 4px 0;
+  background: var(--hs-brand-600);
+  content: "";
+  opacity: 0;
+  transform: scaleY(0.5);
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
+}
+
 .sidebar-nav a:hover {
-  background: #f0f6f4;
-  color: #08715f;
-  transform: translateX(2px);
+  background: #f3f8f6;
+  color: var(--hs-brand-800);
 }
 
 .sidebar-nav a.active {
-  background: #e1f3ee;
-  color: #066b5a;
+  background: var(--hs-brand-50);
+  color: var(--hs-brand-800);
+}
+
+.sidebar-nav a.active::before {
+  opacity: 1;
+  transform: scaleY(1);
 }
 
 .nav-icon {
   display: grid;
-  width: 29px;
-  height: 29px;
-  flex: 0 0 29px;
+  width: 31px;
+  height: 31px;
+  flex: 0 0 31px;
   place-items: center;
   border-radius: 9px;
-  background: #eef4f2;
-  color: #5e716d;
-  font-size: 0.72rem;
-  font-weight: 850;
+  color: #71837f;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.nav-icon svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .sidebar-nav a.active .nav-icon {
-  background: #ccebe3;
-  color: #056654;
+  background: #d8f0e9;
+  color: var(--hs-brand-700);
+}
+
+.nav-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebar-footer {
   display: grid;
   gap: 12px;
   margin-top: auto;
-  padding-top: 18px;
-  border-top: 1px solid #e2ebe8;
+  padding: 17px 6px 0;
+  border-top: 1px solid #e4ece9;
 }
 
 .account-summary {
@@ -165,40 +212,67 @@
   height: 38px;
   flex: 0 0 38px;
   place-items: center;
-  border-radius: 12px;
-  background: #e5f3ef;
-  color: #08715f;
-  font-weight: 850;
+  border-radius: 11px;
+  background:
+    linear-gradient(
+      145deg,
+      #ddf2ec,
+      #eef9f6
+    );
+  color: var(--hs-brand-800);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.account-summary > div:last-child {
+  gap: 2px;
 }
 
 .account-summary strong {
-  font-size: 0.82rem;
+  color: #304b45;
+  font-size: 0.78rem;
+  font-weight: 720;
+}
+
+.account-summary span {
+  overflow: hidden;
+  color: #82908d;
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .logout-button {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  min-height: 43px;
-  border: 1px solid transparent;
+  gap: 11px;
+  min-height: 42px;
+  border: 0;
   border-radius: 10px;
-  padding: 0 12px;
+  padding: 0 10px;
   background: transparent;
-  color: #a23a32;
+  color: #a33c33;
   font: inherit;
-  font-size: 0.86rem;
-  font-weight: 750;
+  font-size: 0.82rem;
+  font-weight: 700;
   cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
 }
 
 .logout-button:hover {
-  border-color: #f0d4d0;
-  background: #fff6f5;
+  background: var(--hs-danger-soft);
+  color: var(--hs-danger);
 }
 
-.logout-icon {
-  font-size: 1rem;
+.logout-button svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .workspace-main {
@@ -211,10 +285,7 @@
   overflow-x: hidden;
 }
 
-.mobile-header {
-  display: none;
-}
-
+.mobile-header,
 .mobile-overlay {
   display: none;
 }
@@ -229,10 +300,10 @@
     left: 0;
     top: 0;
     z-index: 50;
-    transform: translateX(-105%);
+    transform: translateX(-104%);
     box-shadow:
-      18px 0 45px
-      rgb(18 55 48 / 0.18);
+      20px 0 48px
+      rgb(17 48 42 / 0.2);
     transition:
       transform 0.2s ease;
   }
@@ -248,26 +319,12 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    min-height: 62px;
+    min-height: 64px;
     padding: 0 16px;
-    border-bottom: 1px solid #dce7e4;
+    border-bottom: 1px solid var(--hs-border);
     background:
       rgb(255 255 255 / 0.96);
     backdrop-filter: blur(12px);
-  }
-
-  .mobile-header > div {
-    display: grid;
-    gap: 1px;
-  }
-
-  .mobile-header strong {
-    font-size: 0.95rem;
-  }
-
-  .mobile-header span {
-    color: #71807d;
-    font-size: 0.72rem;
   }
 
   .menu-button {
@@ -275,12 +332,32 @@
     width: 40px;
     height: 40px;
     place-items: center;
-    border: 1px solid #d6e3df;
+    border: 1px solid var(--hs-border);
     border-radius: 10px;
     background: #fff;
-    color: #27443e;
-    font-size: 1rem;
+    color: #36534d;
     cursor: pointer;
+  }
+
+  .menu-button svg {
+    width: 21px;
+    height: 21px;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+
+  .mobile-brand {
+    gap: 1px;
+  }
+
+  .mobile-brand strong {
+    font-size: 0.9rem;
+  }
+
+  .mobile-brand span {
+    color: var(--hs-text-500);
+    font-size: 0.69rem;
   }
 
   .mobile-overlay {
@@ -290,7 +367,7 @@
     display: block;
     border: 0;
     background:
-      rgb(12 34 30 / 0.42);
+      rgb(11 34 29 / 0.44);
     opacity: 0;
     pointer-events: none;
     transition:
@@ -305,13 +382,13 @@
   .workspace-content {
     min-height:
       calc(
-        100dvh - 62px
+        100dvh - 64px
       );
   }
 }
 
 @media (max-width: 420px) {
   .sidebar {
-    width: min(84vw, 280px);
+    width: min(86vw, 288px);
   }
 }

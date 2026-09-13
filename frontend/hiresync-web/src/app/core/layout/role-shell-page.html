@@ -12,11 +12,21 @@
     [class.open]="menuOpen()"
   >
     <div class="brand">
-      <div class="brand-mark">
-        H
+      <div
+        class="brand-mark"
+        aria-hidden="true"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <path
+            d="M7 5v14M17 5v14M7 12h10"
+          />
+        </svg>
       </div>
 
-      <div>
+      <div class="brand-copy">
         <strong>
           HireSync
         </strong>
@@ -54,10 +64,17 @@
             class="nav-icon"
             aria-hidden="true"
           >
-            {{ item.shortLabel }}
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                [attr.d]="item.iconPath"
+              />
+            </svg>
           </span>
 
-          <span>
+          <span class="nav-label">
             {{ item.label }}
           </span>
         </a>
@@ -66,12 +83,11 @@
 
     <div class="sidebar-footer">
       <div class="account-summary">
-        <div class="avatar">
-          {{
-            email()
-              ? email().charAt(0).toUpperCase()
-              : 'H'
-          }}
+        <div
+          class="avatar"
+          aria-hidden="true"
+        >
+          {{ avatarLabel() }}
         </div>
 
         <div>
@@ -90,14 +106,19 @@
         class="logout-button"
         (click)="logout()"
       >
-        <span
-          class="logout-icon"
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
           aria-hidden="true"
         >
-          ↪
-        </span>
+          <path
+            d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"
+          />
+        </svg>
 
-        Logout
+        <span>
+          Logout
+        </span>
       </button>
     </div>
   </aside>
@@ -110,16 +131,24 @@
         aria-label="Open navigation"
         (click)="toggleMenu()"
       >
-        ☰
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M4 7h16M4 12h16M4 17h16"
+          />
+        </svg>
       </button>
 
-      <div>
+      <div class="mobile-brand">
         <strong>
           HireSync
         </strong>
 
         <span>
-          {{ roleLabel() }}
+          {{ roleLabel() }} workspace
         </span>
       </div>
     </header>
