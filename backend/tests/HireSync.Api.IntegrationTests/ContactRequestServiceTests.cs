@@ -15,6 +15,83 @@ namespace HireSync.Api.IntegrationTests;
 public sealed class ContactRequestServiceTests
 {
     [Fact]
+    public async Task Read_returns_only_owned_request_with_safe_context()
+    {
+        using var environment = CreateEnvironment();
+
+        var owned =
+            await SeedApplicationAsync(environment);
+
+        var ownedContact =
+            await SeedContactRequestAsync(
+                environment,
+                owned.ApplicationId);
+
+        var foreign =
+            await SeedApplicationAsync(environment);
+
+        await SeedContactRequestAsync(
+            environment,
+            foreign.ApplicationId);
+
+        var service = CreateService(environment);
+
+        var result =
+            await service.GetForOwnJobSeekerAsync(
+                owned.JobSeekerUserId,
+                CancellationToken.None);
+
+        var item = Assert.Single(result);
+
+        Assert.Equal(
+            ownedContact.ContactRequestId,
+            item.Id);
+
+        Assert.Equal(
+            owned.ApplicationId,
+            item.JobApplicationId);
+
+        Assert.Equal(
+            owned.VacancyId,
+            item.VacancyId);
+
+        Assert.Equal(
+            "Backend Developer",
+            item.VacancyTitle);
+
+        Assert.Equal(
+            "Contact Test Company",
+            item.EmployerCompanyName);
+
+        Assert.Equal(
+            ContactRequestStatus.Pending,
+            item.Status);
+
+        Assert.Equal(
+            ownedContact.RowVersion,
+            item.RowVersion);
+    }
+
+    [Fact]
+    public void Read_dto_has_no_contact_disclosure_fields()
+    {
+        var propertyNames =
+            typeof(JobSeekerContactRequestDto)
+                .GetProperties()
+                .Select(property => property.Name)
+                .ToHashSet(StringComparer.Ordinal);
+
+        Assert.DoesNotContain("Email", propertyNames);
+        Assert.DoesNotContain("Phone", propertyNames);
+        Assert.DoesNotContain("MobileNumber", propertyNames);
+        Assert.DoesNotContain("ContactPersonName", propertyNames);
+        Assert.DoesNotContain("Message", propertyNames);
+        Assert.DoesNotContain("Note", propertyNames);
+        Assert.DoesNotContain("Attachment", propertyNames);
+        Assert.DoesNotContain("Cv", propertyNames);
+    }
+
+    [Fact]
     public async Task Create_creates_pending_request_without_notification()
     {
         using var environment = CreateEnvironment();

@@ -29,6 +29,64 @@ public sealed class ContactRequestService
         _clock = clock;
     }
 
+    public async Task<IReadOnlyList<JobSeekerContactRequestDto>>
+        GetForOwnJobSeekerAsync(
+            Guid jobSeekerUserId,
+            CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (jobSeekerUserId == Guid.Empty)
+        {
+            return Array.Empty<JobSeekerContactRequestDto>();
+        }
+
+        return await (
+                from contactRequest in
+                    _dbContext.ContactRequests
+
+                join jobApplication in
+                    _dbContext.JobApplications
+                    on contactRequest.JobApplicationId
+                    equals jobApplication.Id
+
+                join jobSeekerProfile in
+                    _dbContext.JobSeekerProfiles
+                    on jobApplication.JobSeekerProfileId
+                    equals jobSeekerProfile.Id
+
+                join vacancy in
+                    _dbContext.Vacancies
+                    on jobApplication.VacancyId
+                    equals vacancy.Id
+
+                join employerProfile in
+                    _dbContext.EmployerProfiles
+                    on vacancy.EmployerProfileId
+                    equals employerProfile.Id
+
+                where
+                    jobSeekerProfile.UserId ==
+                        jobSeekerUserId
+
+                orderby
+                    contactRequest.RequestedAtUtc descending,
+                    contactRequest.Id
+
+                select new JobSeekerContactRequestDto(
+                    contactRequest.Id,
+                    jobApplication.Id,
+                    vacancy.Id,
+                    vacancy.Title,
+                    employerProfile.CompanyName,
+                    contactRequest.Status,
+                    contactRequest.RequestedAtUtc,
+                    contactRequest.RespondedAtUtc,
+                    contactRequest.RowVersion))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<ContactRequestWriteResult>
         CreateForOwnApplicationAsync(
             Guid employerUserId,

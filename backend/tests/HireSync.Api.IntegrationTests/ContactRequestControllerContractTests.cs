@@ -210,6 +210,106 @@ public sealed class ContactRequestControllerContractTests
     }
 
     [Fact]
+    public void JobSeeker_controller_uses_expected_read_route()
+    {
+        var method =
+            typeof(JobSeekerContactRequestsController)
+                .GetMethod(
+                    nameof(
+                        JobSeekerContactRequestsController
+                            .GetContactRequests));
+
+        Assert.NotNull(method);
+
+        var get =
+            method!
+                .GetCustomAttributes(
+                    typeof(HttpGetAttribute),
+                    inherit: true)
+                .Cast<HttpGetAttribute>()
+                .Single();
+
+        Assert.Null(get.Template);
+    }
+
+    [Fact]
+    public async Task JobSeeker_read_returns_200_and_forwards_current_user()
+    {
+        var jobSeekerUserId = Guid.NewGuid();
+
+        IReadOnlyList<JobSeekerContactRequestDto> expected =
+            new[]
+            {
+                new JobSeekerContactRequestDto(
+                    Guid.NewGuid(),
+                    Guid.NewGuid(),
+                    Guid.NewGuid(),
+                    "Backend Developer",
+                    "Contact Test Company",
+                    ContactRequestStatus.Pending,
+                    Utc(12),
+                    null,
+                    new byte[] { 1 })
+            };
+
+        var service =
+            new FakeContactRequestService
+            {
+                ReadResult = expected
+            };
+
+        var controller =
+            new JobSeekerContactRequestsController(
+                service,
+                new FakeCurrentUser(
+                    jobSeekerUserId,
+                    RoleNames.JobSeeker));
+
+        var action =
+            await controller.GetContactRequests(
+                CancellationToken.None);
+
+        var ok =
+            Assert.IsType<OkObjectResult>(
+                action.Result);
+
+        Assert.Equal(
+            StatusCodes.Status200OK,
+            ok.StatusCode);
+
+        Assert.Same(
+            expected,
+            ok.Value);
+
+        Assert.Equal(
+            jobSeekerUserId,
+            service.LastReadJobSeekerUserId);
+    }
+
+    [Fact]
+    public async Task JobSeeker_read_returns_401_for_invalid_current_user()
+    {
+        var controller =
+            new JobSeekerContactRequestsController(
+                new FakeContactRequestService(),
+                new FakeCurrentUser(
+                    null,
+                    RoleNames.JobSeeker));
+
+        var action =
+            await controller.GetContactRequests(
+                CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                action.Result);
+
+        Assert.Equal(
+            StatusCodes.Status401Unauthorized,
+            problem.StatusCode);
+    }
+
+    [Fact]
     public void JobSeeker_controller_uses_expected_response_route()
     {
         var route =
@@ -421,6 +521,10 @@ public sealed class ContactRequestControllerContractTests
     private sealed class FakeContactRequestService
         : IContactRequestService
     {
+        public IReadOnlyList<JobSeekerContactRequestDto>
+            ReadResult { get; set; } =
+                Array.Empty<JobSeekerContactRequestDto>();
+
         public ContactRequestWriteResult CreateResult { get; set; } =
             ContactRequestWriteResult.Failure(
                 ContactRequestWriteFailureReason.InvalidInput);
@@ -428,6 +532,8 @@ public sealed class ContactRequestControllerContractTests
         public ContactRequestWriteResult RespondResult { get; set; } =
             ContactRequestWriteResult.Failure(
                 ContactRequestWriteFailureReason.InvalidInput);
+
+        public Guid? LastReadJobSeekerUserId { get; private set; }
 
         public Guid? LastEmployerUserId { get; private set; }
 
@@ -439,6 +545,18 @@ public sealed class ContactRequestControllerContractTests
 
         public RespondContactRequestRequest?
             LastResponseRequest { get; private set; }
+
+        public Task<IReadOnlyList<JobSeekerContactRequestDto>>
+            GetForOwnJobSeekerAsync(
+                Guid jobSeekerUserId,
+                CancellationToken cancellationToken = default)
+        {
+            LastReadJobSeekerUserId =
+                jobSeekerUserId;
+
+            return Task.FromResult(
+                ReadResult);
+        }
 
         public Task<ContactRequestWriteResult>
             CreateForOwnApplicationAsync(

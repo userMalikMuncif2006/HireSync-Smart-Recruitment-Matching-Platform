@@ -4,6 +4,11 @@ namespace HireSync.Application.Interfaces.ContactRequests;
 
 public interface IContactRequestService
 {
+    Task<IReadOnlyList<JobSeekerContactRequestDto>>
+        GetForOwnJobSeekerAsync(
+            Guid jobSeekerUserId,
+            CancellationToken cancellationToken = default);
+
     Task<ContactRequestWriteResult>
         CreateForOwnApplicationAsync(
             Guid employerUserId,
