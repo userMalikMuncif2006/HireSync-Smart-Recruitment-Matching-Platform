@@ -1,340 +1,204 @@
-import { routes } from './app.routes';
-import { roleGuard } from './core/auth/role.guard';
+import {
+  routes,
+} from './app.routes';
 
-describe('application routes', () => {
-  it('lazy loads the login page', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path === 'login',
-      );
+import {
+  roleGuard,
+} from './core/auth/role.guard';
 
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
-  });
-
-  it('lazy loads the registration page', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path === 'register',
-      );
-
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
-
-    expect(route?.canMatch)
-      .toBeUndefined();
-  });
-  it('lazy loads Employer email verification', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path ===
+describe(
+  'application routes',
+  () => {
+    it('lazy loads public authentication routes', () => {
+      for (
+        const path of [
+          'login',
+          'register',
           'verify-employer-email',
+          'activate-admin',
+        ]
+      ) {
+        const route =
+          routes.find(
+            (item) =>
+              item.path === path,
+          );
+
+        expect(
+          typeof route
+            ?.loadComponent,
+        ).toBe('function');
+      }
+    });
+
+    it('uses one protected Job Seeker shell with dashboard and feature children', () => {
+      const route =
+        routes.find(
+          (item) =>
+            item.path === 'seeker',
+        );
+
+      expect(route?.canMatch)
+        .toContain(roleGuard);
+
+      expect(
+        route?.data?.['role'],
+      ).toBe('JobSeeker');
+
+      expect(
+        typeof route
+          ?.loadComponent,
+      ).toBe('function');
+
+      const paths =
+        route?.children?.map(
+          (item) =>
+            item.path,
+        ) ?? [];
+
+      expect(paths)
+        .toEqual(
+          expect.arrayContaining([
+            '',
+            'dashboard',
+            'contact-requests',
+            'notifications',
+            'applications',
+            'profile',
+            'vacancies',
+            'vacancies/:vacancyId',
+          ]),
+        );
+
+      expect(
+        route?.children?.find(
+          (item) =>
+            item.path === '',
+        )?.redirectTo,
+      ).toBe('dashboard');
+    });
+
+    it('uses one protected Employer shell with dashboard and existing vacancy workflows', () => {
+      const route =
+        routes.find(
+          (item) =>
+            item.path === 'employer',
+        );
+
+      expect(route?.canMatch)
+        .toContain(roleGuard);
+
+      expect(
+        route?.data?.['role'],
+      ).toBe('Employer');
+
+      expect(
+        typeof route
+          ?.loadComponent,
+      ).toBe('function');
+
+      const paths =
+        route?.children?.map(
+          (item) =>
+            item.path,
+        ) ?? [];
+
+      expect(paths)
+        .toEqual(
+          expect.arrayContaining([
+            '',
+            'dashboard',
+            'profile',
+            'vacancies',
+            'vacancies/new',
+            'vacancies/:vacancyId/edit',
+            'vacancies/:vacancyId/applicants',
+          ]),
+        );
+
+      expect(
+        route?.children?.find(
+          (item) =>
+            item.path === '',
+        )?.redirectTo,
+      ).toBe('dashboard');
+    });
+
+    it('uses one protected Administrator shell with dashboard and management children', () => {
+      const route =
+        routes.find(
+          (item) =>
+            item.path === 'admin',
+        );
+
+      expect(route?.canMatch)
+        .toContain(roleGuard);
+
+      expect(
+        route?.data?.['role'],
+      ).toBe(
+        'Administrator',
       );
 
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
+      expect(
+        typeof route
+          ?.loadComponent,
+      ).toBe('function');
 
-    expect(route?.canMatch)
-      .toBeUndefined();
-  });
-  it('lazy loads Administrator first activation', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path === 'activate-admin',
-      );
+      const paths =
+        route?.children?.map(
+          (item) =>
+            item.path,
+        ) ?? [];
 
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
+      expect(paths)
+        .toEqual(
+          expect.arrayContaining([
+            '',
+            'dashboard',
+            'users',
+            'employer-verification',
+          ]),
+        );
 
-    expect(route?.canMatch)
-      .toBeUndefined();
-  });
-  it('protects the Job Seeker role area', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path === 'seeker',
-      );
+      expect(
+        route?.children?.find(
+          (item) =>
+            item.path === '',
+        )?.redirectTo,
+      ).toBe('dashboard');
+    });
 
-    expect(route?.canMatch)
-      .toContain(roleGuard);
+    it('keeps every role feature page lazy loaded', () => {
+      const roleRoutes =
+        routes.filter(
+          (item) =>
+            item.path === 'seeker' ||
+            item.path === 'employer' ||
+            item.path === 'admin',
+        );
 
-    expect(route?.data?.['role'])
-      .toBe('JobSeeker');
+      for (
+        const roleRoute of
+          roleRoutes
+      ) {
+        for (
+          const child of
+            roleRoute.children ??
+            []
+        ) {
+          if (
+            child.path === ''
+          ) {
+            continue;
+          }
 
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
-  });
-
-  it('protects and lazy loads the Job Seeker contact requests page', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path ===
-          'seeker/contact-requests',
-      );
-
-    expect(route?.canMatch)
-      .toContain(roleGuard);
-
-    expect(route?.data?.['role'])
-      .toBe('JobSeeker');
-
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
-  });
-
-  it('protects and lazy loads the Job Seeker notifications page', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path ===
-          'seeker/notifications',
-      );
-
-    expect(route?.canMatch)
-      .toContain(roleGuard);
-
-    expect(route?.data?.['role'])
-      .toBe('JobSeeker');
-
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
-  });
-  it('protects and lazy loads the Job Seeker applications page', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path ===
-          'seeker/applications',
-      );
-
-    expect(route?.canMatch)
-      .toContain(roleGuard);
-
-    expect(route?.data?.['role'])
-      .toBe('JobSeeker');
-
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
-  });
-  it('protects and lazy loads the Job Seeker profile page', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path ===
-          'seeker/profile',
-      );
-
-    expect(route?.canMatch)
-      .toContain(roleGuard);
-
-    expect(route?.data?.['role'])
-      .toBe('JobSeeker');
-
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
-  });
-
-  it('protects and lazy loads the Job Seeker vacancy search page', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path ===
-          'seeker/vacancies',
-      );
-
-    expect(route?.canMatch)
-      .toContain(roleGuard);
-
-    expect(route?.data?.['role'])
-      .toBe('JobSeeker');
-
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
-  });
-
-  it('protects and lazy loads the Job Seeker vacancy detail page', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path ===
-          'seeker/vacancies/:vacancyId',
-      );
-
-    expect(route?.canMatch)
-      .toContain(roleGuard);
-
-    expect(route?.data?.['role'])
-      .toBe('JobSeeker');
-
-    expect(
-      typeof route?.loadComponent,
-    ).toBe('function');
-  });
-
-  it('protects the Employer area and exposes the profile page', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path === 'employer',
-      );
-
-    expect(route?.canMatch)
-      .toContain(roleGuard);
-
-    expect(route?.data?.['role'])
-      .toBe('Employer');
-
-    const defaultRoute =
-      route?.children?.find(
-        (item) =>
-          item.path === '',
-      );
-
-    const profileRoute =
-      route?.children?.find(
-        (item) =>
-          item.path === 'profile',
-      );
-
-    expect(
-      defaultRoute?.redirectTo,
-    ).toBe('profile');
-
-    expect(
-      typeof profileRoute
-        ?.loadComponent,
-    ).toBe('function');
-  });
-
-  it('lazy loads Employer vacancy and ranked-applicant pages inside the protected Employer area', () => {
-    const employer =
-      routes.find(
-        (item) =>
-          item.path === 'employer',
-      );
-
-    const vacancyRoute =
-      employer?.children?.find(
-        (item) =>
-          item.path === 'vacancies',
-      );
-
-    const createRoute =
-      employer?.children?.find(
-        (item) =>
-          item.path ===
-          'vacancies/new',
-      );
-
-    const editRoute =
-      employer?.children?.find(
-        (item) =>
-          item.path ===
-          'vacancies/:vacancyId/edit',
-      );
-
-    const applicantRoute =
-      employer?.children?.find(
-        (item) =>
-          item.path ===
-          'vacancies/:vacancyId/applicants',
-      );
-
-    expect(
-      typeof vacancyRoute
-        ?.loadComponent,
-    ).toBe('function');
-
-    expect(
-      typeof createRoute
-        ?.loadComponent,
-    ).toBe('function');
-
-    expect(
-      typeof editRoute
-        ?.loadComponent,
-    ).toBe('function');
-
-    expect(
-      typeof applicantRoute
-        ?.loadComponent,
-    ).toBe('function');
-  });
-
-  it('protects the Administrator area and exposes the dashboard route', () => {
-    const route =
-      routes.find(
-        (item) =>
-          item.path === 'admin',
-      );
-
-    expect(route?.canMatch)
-      .toContain(roleGuard);
-
-    expect(route?.data?.['role'])
-      .toBe('Administrator');
-
-    const defaultRoute =
-      route?.children?.find(
-        (item) =>
-          item.path === '',
-      );
-
-    const dashboardRoute =
-      route?.children?.find(
-        (item) =>
-          item.path === 'dashboard',
-      );
-
-    const usersRoute =
-      route?.children?.find(
-        (item) =>
-          item.path === 'users',
-      );
-
-    const verificationRoute =
-      route?.children?.find(
-        (item) =>
-          item.path ===
-          'employer-verification',
-      );
-
-    expect(
-      defaultRoute?.redirectTo,
-    ).toBe('dashboard');
-
-    expect(
-      typeof dashboardRoute
-        ?.loadComponent,
-    ).toBe('function');
-
-    expect(
-      typeof usersRoute
-        ?.loadComponent,
-    ).toBe('function');
-
-    expect(
-      typeof verificationRoute
-        ?.loadComponent,
-    ).toBe('function');
-  });
-});
-
-
-
+          expect(
+            typeof child
+              .loadComponent,
+          ).toBe('function');
+        }
+      }
+    });
+  },
+);

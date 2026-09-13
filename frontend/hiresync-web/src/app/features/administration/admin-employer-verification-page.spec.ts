@@ -1,4 +1,3 @@
-import { provideRouter } from '@angular/router';
 import {
   ComponentFixture,
   TestBed,
@@ -40,7 +39,6 @@ describe(
             AdminEmployerVerificationPage,
           ],
           providers: [
-            provideRouter([]),
             {
               provide:
                 AdminService,

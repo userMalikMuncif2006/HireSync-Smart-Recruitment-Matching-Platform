@@ -4,7 +4,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import {
   EmployerVerificationSummary,
@@ -26,9 +25,6 @@ interface PendingDecision {
   selector:
     'app-admin-employer-verification-page',
   standalone: true,
-  imports: [
-    RouterLink,
-  ],
   templateUrl:
     './admin-employer-verification-page.html',
   styleUrl:

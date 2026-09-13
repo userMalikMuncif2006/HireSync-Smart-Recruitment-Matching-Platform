@@ -9,7 +9,6 @@ import {
   FormControl,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 import {
   AdminAccountStatus,
@@ -34,7 +33,6 @@ interface PendingStatusChange {
   imports: [
     ReactiveFormsModule,
     DatePipe,
-    RouterLink,
   ],
   templateUrl: './admin-users-page.html',
   styleUrl: './admin-users-page.css',

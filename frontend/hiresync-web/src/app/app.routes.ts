@@ -13,14 +13,20 @@ export const routes: Routes = [
     loadComponent: () =>
       import(
         './features/auth/login/login-page'
-      ).then((module) => module.LoginPage),
+      ).then(
+        (module) =>
+          module.LoginPage,
+      ),
   },
   {
     path: 'register',
     loadComponent: () =>
       import(
         './features/auth/register/register-page'
-      ).then((module) => module.RegisterPage),
+      ).then(
+        (module) =>
+          module.RegisterPage,
+      ),
   },
   {
     path: 'verify-employer-email',
@@ -42,111 +48,137 @@ export const routes: Routes = [
           module.AdministratorActivationPage,
       ),
   },
-  {
-    path: 'seeker/contact-requests',
-    canMatch: [roleGuard],
-    data: {
-      role: 'JobSeeker',
-    },
-    loadComponent: () =>
-      import(
-        './features/seeker/contact-requests/job-seeker-contact-requests-page'
-      ).then(
-        (module) =>
-          module.JobSeekerContactRequestsPage,
-      ),
-  },
-  {
-    path: 'seeker/notifications',
-    canMatch: [roleGuard],
-    data: {
-      role: 'JobSeeker',
-    },
-    loadComponent: () =>
-      import(
-        './features/seeker/notifications/job-seeker-notifications-page'
-      ).then(
-        (module) =>
-          module.JobSeekerNotificationsPage,
-      ),
-  },
-  {
-    path: 'seeker/applications',
-    canMatch: [roleGuard],
-    data: {
-      role: 'JobSeeker',
-    },
-    loadComponent: () =>
-      import(
-        './features/seeker/applications/job-seeker-applications-page'
-      ).then(
-        (module) =>
-          module.JobSeekerApplicationsPage,
-      ),
-  },
-  {
-    path: 'seeker/profile',
-    canMatch: [roleGuard],
-    data: {
-      role: 'JobSeeker',
-    },
-    loadComponent: () =>
-      import(
-        './features/seeker/profile/job-seeker-profile-page'
-      ).then(
-        (module) =>
-          module.JobSeekerProfilePage,
-      ),
-  },
-  {
-    path: 'seeker/vacancies',
-    canMatch: [roleGuard],
-    data: {
-      role: 'JobSeeker',
-    },
-    loadComponent: () =>
-      import(
-        './features/seeker/vacancies/vacancy-search-page'
-      ).then(
-        (module) => module.VacancySearchPage,
-      ),
-  },
-  {
-    path: 'seeker/vacancies/:vacancyId',
-    canMatch: [roleGuard],
-    data: {
-      role: 'JobSeeker',
-    },
-    loadComponent: () =>
-      import(
-        './features/seeker/matching/job-match-page'
-      ).then((module) => module.JobMatchPage),
-  },
+
   {
     path: 'seeker',
-    canMatch: [roleGuard],
+    canMatch: [
+      roleGuard,
+    ],
     data: {
       role: 'JobSeeker',
-      title: 'Job Seeker Workspace',
-      message:
-        'Job Seeker features are provided through the assigned Job Seeker modules.',
     },
     loadComponent: () =>
       import(
-        './core/routing/role-home-page'
-      ).then((module) => module.RoleHomePage),
-  },
-  {
-    path: 'employer',
-    canMatch: [roleGuard],
-    data: {
-      role: 'Employer',
-    },
+        './core/layout/role-shell-page'
+      ).then(
+        (module) =>
+          module.RoleShellPage,
+      ),
     children: [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'profile',
+        redirectTo: 'dashboard',
+      },
+      {
+        path: 'dashboard',
+        data: {
+          workspaceRole: 'JobSeeker',
+        },
+        loadComponent: () =>
+          import(
+            './core/layout/workspace-dashboard-page'
+          ).then(
+            (module) =>
+              module.WorkspaceDashboardPage,
+          ),
+      },
+      {
+        path: 'contact-requests',
+        loadComponent: () =>
+          import(
+            './features/seeker/contact-requests/job-seeker-contact-requests-page'
+          ).then(
+            (module) =>
+              module.JobSeekerContactRequestsPage,
+          ),
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import(
+            './features/seeker/notifications/job-seeker-notifications-page'
+          ).then(
+            (module) =>
+              module.JobSeekerNotificationsPage,
+          ),
+      },
+      {
+        path: 'applications',
+        loadComponent: () =>
+          import(
+            './features/seeker/applications/job-seeker-applications-page'
+          ).then(
+            (module) =>
+              module.JobSeekerApplicationsPage,
+          ),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import(
+            './features/seeker/profile/job-seeker-profile-page'
+          ).then(
+            (module) =>
+              module.JobSeekerProfilePage,
+          ),
+      },
+      {
+        path: 'vacancies',
+        loadComponent: () =>
+          import(
+            './features/seeker/vacancies/vacancy-search-page'
+          ).then(
+            (module) =>
+              module.VacancySearchPage,
+          ),
+      },
+      {
+        path: 'vacancies/:vacancyId',
+        loadComponent: () =>
+          import(
+            './features/seeker/matching/job-match-page'
+          ).then(
+            (module) =>
+              module.JobMatchPage,
+          ),
+      },
+    ],
+  },
+
+  {
+    path: 'employer',
+    canMatch: [
+      roleGuard,
+    ],
+    data: {
+      role: 'Employer',
+    },
+    loadComponent: () =>
+      import(
+        './core/layout/role-shell-page'
+      ).then(
+        (module) =>
+          module.RoleShellPage,
+      ),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'dashboard',
+      },
+      {
+        path: 'dashboard',
+        data: {
+          workspaceRole: 'Employer',
+        },
+        loadComponent: () =>
+          import(
+            './core/layout/workspace-dashboard-page'
+          ).then(
+            (module) =>
+              module.WorkspaceDashboardPage,
+          ),
       },
       {
         path: 'vacancies',
@@ -154,7 +186,8 @@ export const routes: Routes = [
           import(
             './features/employer/vacancies/employer-vacancy-list-page'
           ).then(
-            (module) => module.EmployerVacancyListPage,
+            (module) =>
+              module.EmployerVacancyListPage,
           ),
       },
       {
@@ -163,7 +196,8 @@ export const routes: Routes = [
           import(
             './features/employer/vacancies/employer-vacancy-form-page'
           ).then(
-            (module) => module.EmployerVacancyFormPage,
+            (module) =>
+              module.EmployerVacancyFormPage,
           ),
       },
       {
@@ -172,7 +206,8 @@ export const routes: Routes = [
           import(
             './features/employer/vacancies/employer-vacancy-form-page'
           ).then(
-            (module) => module.EmployerVacancyFormPage,
+            (module) =>
+              module.EmployerVacancyFormPage,
           ),
       },
       {
@@ -181,7 +216,8 @@ export const routes: Routes = [
           import(
             './features/employer/vacancies/ranked-applicants-page'
           ).then(
-            (module) => module.RankedApplicantsPage,
+            (module) =>
+              module.RankedApplicantsPage,
           ),
       },
       {
@@ -190,17 +226,28 @@ export const routes: Routes = [
           import(
             './features/employer/profile/employer-profile-page'
           ).then(
-            (module) => module.EmployerProfilePage,
+            (module) =>
+              module.EmployerProfilePage,
           ),
       },
     ],
   },
+
   {
     path: 'admin',
-    canMatch: [roleGuard],
+    canMatch: [
+      roleGuard,
+    ],
     data: {
       role: 'Administrator',
     },
+    loadComponent: () =>
+      import(
+        './core/layout/role-shell-page'
+      ).then(
+        (module) =>
+          module.RoleShellPage,
+      ),
     children: [
       {
         path: '',
@@ -239,12 +286,9 @@ export const routes: Routes = [
       },
     ],
   },
+
   {
     path: '**',
     redirectTo: 'login',
   },
 ];
-
-
-
-

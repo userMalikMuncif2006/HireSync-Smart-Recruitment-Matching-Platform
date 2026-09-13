@@ -1,0 +1,91 @@
+<section class="dashboard-page">
+  <header class="dashboard-header">
+    <p class="eyebrow">
+      {{ configuration.eyebrow }}
+    </p>
+
+    <h1>
+      {{ configuration.title }}
+    </h1>
+
+    <p>
+      {{ configuration.description }}
+    </p>
+  </header>
+
+  <section
+    class="welcome-panel"
+    aria-label="Workspace overview"
+  >
+    <div>
+      <span class="welcome-label">
+        HireSync
+      </span>
+
+      <h2>
+        Everything you need,
+        inside one workspace.
+      </h2>
+
+      <p>
+        Use the sidebar to move between features.
+        Only this workspace content changes while
+        your navigation remains available.
+      </p>
+    </div>
+
+    <div class="welcome-decoration">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </section>
+
+  <div class="action-heading">
+    <div>
+      <span>
+        Quick access
+      </span>
+
+      <strong>
+        Continue your workflow
+      </strong>
+    </div>
+  </div>
+
+  <section class="action-grid">
+    @for (
+      action of configuration.actions;
+      track action.route
+    ) {
+      <a
+        class="action-card"
+        [routerLink]="action.route"
+      >
+        <span
+          class="action-icon"
+          aria-hidden="true"
+        >
+          {{ action.shortLabel }}
+        </span>
+
+        <div>
+          <h2>
+            {{ action.title }}
+          </h2>
+
+          <p>
+            {{ action.description }}
+          </p>
+        </div>
+
+        <span
+          class="arrow"
+          aria-hidden="true"
+        >
+          →
+        </span>
+      </a>
+    }
+  </section>
+</section>

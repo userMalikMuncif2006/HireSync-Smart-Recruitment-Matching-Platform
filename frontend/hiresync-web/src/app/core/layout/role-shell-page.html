@@ -1,0 +1,131 @@
+<div class="workspace-shell">
+  <button
+    type="button"
+    class="mobile-overlay"
+    [class.visible]="menuOpen()"
+    aria-label="Close navigation"
+    (click)="closeMenu()"
+  ></button>
+
+  <aside
+    class="sidebar"
+    [class.open]="menuOpen()"
+  >
+    <div class="brand">
+      <div class="brand-mark">
+        H
+      </div>
+
+      <div>
+        <strong>
+          HireSync
+        </strong>
+
+        <span>
+          Smart Recruitment
+        </span>
+      </div>
+    </div>
+
+    <div class="workspace-label">
+      <span>
+        Workspace
+      </span>
+
+      <strong>
+        {{ roleLabel() }}
+      </strong>
+    </div>
+
+    <nav
+      class="sidebar-nav"
+      aria-label="Workspace navigation"
+    >
+      @for (
+        item of navigation();
+        track item.route
+      ) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          (click)="closeMenu()"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            {{ item.shortLabel }}
+          </span>
+
+          <span>
+            {{ item.label }}
+          </span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="account-summary">
+        <div class="avatar">
+          {{
+            email()
+              ? email().charAt(0).toUpperCase()
+              : 'H'
+          }}
+        </div>
+
+        <div>
+          <strong>
+            {{ roleLabel() }}
+          </strong>
+
+          <span>
+            {{ email() }}
+          </span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="logout-button"
+        (click)="logout()"
+      >
+        <span
+          class="logout-icon"
+          aria-hidden="true"
+        >
+          ↪
+        </span>
+
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <section class="workspace-main">
+    <header class="mobile-header">
+      <button
+        type="button"
+        class="menu-button"
+        aria-label="Open navigation"
+        (click)="toggleMenu()"
+      >
+        ☰
+      </button>
+
+      <div>
+        <strong>
+          HireSync
+        </strong>
+
+        <span>
+          {{ roleLabel() }}
+        </span>
+      </div>
+    </header>
+
+    <main class="workspace-content">
+      <router-outlet />
+    </main>
+  </section>
+</div>
