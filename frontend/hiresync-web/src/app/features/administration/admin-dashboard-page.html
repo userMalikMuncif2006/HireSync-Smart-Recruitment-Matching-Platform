@@ -1,0 +1,180 @@
+<main class="admin-page">
+  <header class="page-header">
+    <p class="eyebrow">
+      Administrator
+    </p>
+
+    <h1>
+      Administration overview
+    </h1>
+
+    <p>
+      Review the current HireSync system totals before
+      moving into account management and Employer
+      verification.
+    </p>
+  </header>
+
+  @if (isLoading()) {
+    <section
+      class="state-card"
+      aria-live="polite"
+    >
+      <div class="loading-mark"></div>
+
+      <div>
+        <strong>
+          Loading dashboard...
+        </strong>
+
+        <span>
+          Retrieving the latest server-authoritative
+          system totals.
+        </span>
+      </div>
+    </section>
+  } @else if (loadError()) {
+    <section
+      class="state-card error"
+      role="alert"
+    >
+      <strong>
+        Unable to load dashboard
+      </strong>
+
+      <span>
+        {{ loadError() }}
+      </span>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="reload()"
+      >
+        Try again
+      </button>
+    </section>
+  } @else {
+    @if (dashboard(); as summary) {
+      <section
+        class="snapshot"
+        aria-label="HireSync usage summary"
+      >
+        <div class="snapshot-heading">
+          <div>
+            <span class="snapshot-label">
+              System snapshot
+            </span>
+
+            <strong>
+              Current HireSync activity
+            </strong>
+          </div>
+
+          <span class="updated-time">
+            Calculated
+            {{
+              summary.calculatedAtUtc
+                | date: 'medium'
+            }}
+          </span>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric-card">
+            <div
+              class="metric-icon"
+              aria-hidden="true"
+            >
+              U
+            </div>
+
+            <div>
+              <span>
+                Total users
+              </span>
+
+              <strong>
+                {{ summary.totalUsers }}
+              </strong>
+            </div>
+
+            <p>
+              All HireSync accounts across every role
+              and account state.
+            </p>
+          </article>
+
+          <article class="metric-card">
+            <div
+              class="metric-icon"
+              aria-hidden="true"
+            >
+              V
+            </div>
+
+            <div>
+              <span>
+                Total vacancies
+              </span>
+
+              <strong>
+                {{ summary.totalVacancies }}
+              </strong>
+            </div>
+
+            <p>
+              Vacancy records currently stored in the
+              recruitment platform.
+            </p>
+          </article>
+
+          <article class="metric-card">
+            <div
+              class="metric-icon"
+              aria-hidden="true"
+            >
+              A
+            </div>
+
+            <div>
+              <span>
+                Total applications
+              </span>
+
+              <strong>
+                {{ summary.totalApplications }}
+              </strong>
+            </div>
+
+            <p>
+              Job applications submitted through the
+              HireSync workflow.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="scope-card">
+        <div>
+          <p class="scope-kicker">
+            Administration scope
+          </p>
+
+          <h2>
+            Operational controls stay separate from
+            recruitment decisions.
+          </h2>
+        </div>
+
+        <p>
+          Administrator access is limited to system
+          oversight, account status management and
+          Employer verification. CV content and match
+          scores remain outside the Administrator
+          workflow.
+        </p>
+      </section>
+    }
+  }
+</main>

@@ -1,4 +1,4 @@
-﻿import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 
 import { roleGuard } from './core/auth/role.guard';
 
@@ -200,14 +200,24 @@ export const routes: Routes = [
     canMatch: [roleGuard],
     data: {
       role: 'Administrator',
-      title: 'Administrator Workspace',
-      message:
-        'Administrator features are available through the assigned administration modules.',
     },
-    loadComponent: () =>
-      import(
-        './core/routing/role-home-page'
-      ).then((module) => module.RoleHomePage),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'dashboard',
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import(
+            './features/administration/admin-dashboard-page'
+          ).then(
+            (module) =>
+              module.AdminDashboardPage,
+          ),
+      },
+    ],
   },
   {
     path: '**',

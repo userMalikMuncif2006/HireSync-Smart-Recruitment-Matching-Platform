@@ -1,4 +1,4 @@
-﻿import { routes } from './app.routes';
+import { routes } from './app.routes';
 import { roleGuard } from './core/auth/role.guard';
 
 describe('application routes', () => {
@@ -277,7 +277,7 @@ describe('application routes', () => {
     ).toBe('function');
   });
 
-  it('protects the Administrator role area', () => {
+  it('protects the Administrator area and exposes the dashboard route', () => {
     const route =
       routes.find(
         (item) =>
@@ -290,8 +290,25 @@ describe('application routes', () => {
     expect(route?.data?.['role'])
       .toBe('Administrator');
 
+    const defaultRoute =
+      route?.children?.find(
+        (item) =>
+          item.path === '',
+      );
+
+    const dashboardRoute =
+      route?.children?.find(
+        (item) =>
+          item.path === 'dashboard',
+      );
+
     expect(
-      typeof route?.loadComponent,
+      defaultRoute?.redirectTo,
+    ).toBe('dashboard');
+
+    expect(
+      typeof dashboardRoute
+        ?.loadComponent,
     ).toBe('function');
   });
 });
