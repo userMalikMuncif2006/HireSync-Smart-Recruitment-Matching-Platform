@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
@@ -21,13 +20,16 @@ import {
   RankedApplicantPage,
 } from './employer-vacancy.models';
 import { EmployerVacancyService } from './employer-vacancy.service';
+import {
+  RankedApplicantRowComponent,
+} from './ranked-applicant-row';
 
 @Component({
   selector: 'app-ranked-applicants-page',
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    DatePipe,
+    RankedApplicantRowComponent,
   ],
   templateUrl: './ranked-applicants-page.html',
   styleUrl: './ranked-applicants-page.css',

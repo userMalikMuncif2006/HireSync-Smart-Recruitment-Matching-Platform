@@ -1,0 +1,363 @@
+<article class="applicant-card">
+  <div class="card-heading">
+    <div class="rank">
+      #{{ applicant.rank }}
+    </div>
+
+    <div class="identity">
+      <div class="identity-heading">
+        <span
+          class="identity-avatar"
+          aria-hidden="true"
+        >
+          {{
+            applicant
+              .jobSeekerDisplayName
+              | initials
+          }}
+        </span>
+
+        <h2>
+          {{
+            applicant
+              .jobSeekerDisplayName
+          }}
+        </h2>
+      </div>
+
+      <div class="badges">
+        <span class="status-badge">
+          {{
+            applicationStatusLabel(
+              applicant.status
+            )
+          }}
+        </span>
+
+        <span class="contact-badge">
+          {{
+            contactStatusLabel(
+              applicant
+                .contactRequestStatus
+            )
+          }}
+        </span>
+      </div>
+    </div>
+
+    <div class="total-score">
+      <span>
+        Overall match
+      </span>
+
+      <strong>
+        {{
+          scoreLabel(
+            applicant
+              .match
+              .totalScore
+          )
+        }}
+      </strong>
+    </div>
+  </div>
+
+  <section
+    class="filter-panel status-workflow workflow"
+    aria-label="Application status workflow"
+  >
+    <div class="status-workflow-copy workflow-copy">
+      <strong>
+        Application status
+      </strong>
+
+      @if (isTerminalStatus()) {
+        <span>
+          This application is in a terminal state.
+        </span>
+      } @else {
+        <span>
+          Select a new status. The server validates the transition.
+        </span>
+      }
+    </div>
+
+    <div class="status-workflow-actions workflow-actions">
+      <label
+        [for]="
+          'status-' +
+          applicant.applicationId
+        "
+      >
+        New status
+      </label>
+
+      <select
+        [id]="
+          'status-' +
+          applicant.applicationId
+        "
+        [value]="selectedStatus"
+        [disabled]="
+          isTerminalStatus() ||
+          updatingApplicationId !== null
+        "
+        (change)="
+          selectStatus(
+            $any($event.target).value
+          )
+        "
+      >
+        <option [value]="1">
+          Applied
+        </option>
+
+        <option [value]="2">
+          Under review
+        </option>
+
+        <option [value]="3">
+          Shortlisted
+        </option>
+
+        <option [value]="4">
+          Selected
+        </option>
+
+        <option [value]="5">
+          Rejected
+        </option>
+      </select>
+
+      <button
+        type="button"
+        class="primary-button"
+        [disabled]="
+          !canUpdateStatus()
+        "
+        (click)="
+          updateRequested.emit()
+        "
+      >
+        @if (
+          updatingApplicationId ===
+          applicant.applicationId
+        ) {
+          Updating...
+        } @else {
+          Update status
+        }
+      </button>
+    </div>
+  </section>
+
+  <section
+    class="filter-panel status-workflow contact-workflow workflow"
+    aria-label="Contact request workflow"
+  >
+    <div class="status-workflow-copy workflow-copy">
+      <strong>
+        Contact request
+      </strong>
+
+      @if (
+        applicant
+          .contactRequestStatus ===
+          null
+      ) {
+        <span>
+          Create one workflow request without exposing personal contact details.
+        </span>
+      } @else {
+        <span>
+          {{
+            contactStatusLabel(
+              applicant
+                .contactRequestStatus
+            )
+          }}.
+          Acceptance changes workflow status only.
+        </span>
+      }
+    </div>
+
+    <div class="status-workflow-actions workflow-actions">
+      @if (
+        applicant
+          .contactRequestStatus ===
+          null
+      ) {
+        <button
+          type="button"
+          class="primary-button"
+          [disabled]="
+            !canCreateContactRequest()
+          "
+          (click)="
+            contactRequested.emit()
+          "
+        >
+          @if (
+            creatingContactApplicationId ===
+            applicant.applicationId
+          ) {
+            Creating...
+          } @else {
+            Create contact request
+          }
+        </button>
+      } @else {
+        <span class="contact-badge">
+          {{
+            contactStatusLabel(
+              applicant
+                .contactRequestStatus
+            )
+          }}
+        </span>
+      }
+    </div>
+  </section>
+
+  <div class="score-grid">
+    <div>
+      <span>
+        Skills
+      </span>
+
+      <strong>
+        {{
+          componentScoreLabel(
+            applicant
+              .match
+              .skillsScore,
+            50
+          )
+        }}
+      </strong>
+    </div>
+
+    <div>
+      <span>
+        Experience
+      </span>
+
+      <strong>
+        {{
+          componentScoreLabel(
+            applicant
+              .match
+              .experienceScore,
+            25
+          )
+        }}
+      </strong>
+    </div>
+
+    <div>
+      <span>
+        Education
+      </span>
+
+      <strong>
+        {{
+          componentScoreLabel(
+            applicant
+              .match
+              .educationScore,
+            15
+          )
+        }}
+      </strong>
+    </div>
+
+    <div>
+      <span>
+        Location
+      </span>
+
+      <strong>
+        {{
+          componentScoreLabel(
+            applicant
+              .match
+              .locationScore,
+            10
+          )
+        }}
+      </strong>
+    </div>
+  </div>
+
+  <div class="skill-columns">
+    <section>
+      <h3>
+        Matched skills
+      </h3>
+
+      @if (
+        applicant
+          .match
+          .matchedSkills
+          .length === 0
+      ) {
+        <p class="muted">
+          No matched skills.
+        </p>
+      } @else {
+        <div class="skill-list">
+          @for (
+            skill of
+              applicant
+                .match
+                .matchedSkills;
+            track skill.id
+          ) {
+            <span class="skill matched">
+              {{ skill.name }}
+            </span>
+          }
+        </div>
+      }
+    </section>
+
+    <section>
+      <h3>
+        Missing skills
+      </h3>
+
+      @if (
+        applicant
+          .match
+          .missingSkills
+          .length === 0
+      ) {
+        <p class="muted">
+          No missing skills.
+        </p>
+      } @else {
+        <div class="skill-list">
+          @for (
+            skill of
+              applicant
+                .match
+                .missingSkills;
+            track skill.id
+          ) {
+            <span class="skill missing">
+              {{ skill.name }}
+            </span>
+          }
+        </div>
+      }
+    </section>
+  </div>
+
+  <footer>
+    Applied
+    {{
+      applicant.appliedAtUtc
+        | date: 'medium'
+    }}
+  </footer>
+</article>

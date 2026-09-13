@@ -1,11 +1,21 @@
-﻿<main class="login-page">
+<main class="login-page">
   <section class="login-card">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true">H</span>
+      <span
+        class="brand-mark"
+        aria-hidden="true"
+      >
+        H
+      </span>
 
       <div>
-        <p class="eyebrow">HireSync</p>
-        <h1>Welcome back</h1>
+        <p class="eyebrow">
+          HireSync
+        </p>
+
+        <h1>
+          Welcome back
+        </h1>
       </div>
     </div>
 
@@ -21,32 +31,40 @@
         {{ successMessage() }}
       </p>
     }
+
     <form
-      [formGroup]="form"
-      (ngSubmit)="submit()"
+      #loginForm="ngForm"
+      (ngSubmit)="submit(loginForm)"
       novalidate
     >
       <div class="field">
-        <label for="email">Email address</label>
+        <label for="email">
+          Email address
+        </label>
 
         <input
           id="email"
+          name="email"
           type="email"
-          formControlName="email"
+          [(ngModel)]="credentials.email"
+          #emailModel="ngModel"
           autocomplete="email"
           placeholder="you@example.com"
+          required
+          email
+          appAutoFocus
         />
 
         @if (
-          form.controls.email.touched &&
-          form.controls.email.hasError('required')
+          emailModel.touched &&
+          emailModel.hasError('required')
         ) {
           <p class="validation-message">
             Email is required.
           </p>
         } @else if (
-          form.controls.email.touched &&
-          form.controls.email.hasError('email')
+          emailModel.touched &&
+          emailModel.hasError('email')
         ) {
           <p class="validation-message">
             Enter a valid email address.
@@ -55,19 +73,24 @@
       </div>
 
       <div class="field">
-        <label for="password">Password</label>
+        <label for="password">
+          Password
+        </label>
 
         <input
           id="password"
+          name="password"
           type="password"
-          formControlName="password"
+          [(ngModel)]="credentials.password"
+          #passwordModel="ngModel"
           autocomplete="current-password"
           placeholder="Enter your password"
+          required
         />
 
         @if (
-          form.controls.password.touched &&
-          form.controls.password.hasError('required')
+          passwordModel.touched &&
+          passwordModel.hasError('required')
         ) {
           <p class="validation-message">
             Password is required.
@@ -76,7 +99,10 @@
       </div>
 
       @if (errorMessage()) {
-        <p class="error-message" role="alert">
+        <p
+          class="error-message"
+          role="alert"
+        >
           {{ errorMessage() }}
         </p>
       }

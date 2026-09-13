@@ -1,0 +1,106 @@
+<section class="dashboard-page">
+  <header class="dashboard-header">
+    <p class="eyebrow">
+      {{ configuration.eyebrow }}
+    </p>
+
+    <h1>
+      {{ configuration.title }}
+    </h1>
+
+    <p>
+      {{ configuration.description }}
+    </p>
+  </header>
+
+  <section
+    class="welcome-panel"
+    aria-label="Workspace overview"
+  >
+    <div class="welcome-copy">
+      <span class="welcome-label">
+        HireSync workspace
+      </span>
+
+      <h2>
+        Your recruitment workflow,
+        organised in one place.
+      </h2>
+
+      <p>
+        Use the persistent sidebar to move between
+        features while your workspace remains available.
+      </p>
+    </div>
+
+    <div
+      class="welcome-visual"
+      aria-hidden="true"
+    >
+      <div class="visual-ring">
+        <div class="visual-core">
+          H
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-heading">
+    <div>
+      <span>
+        Quick access
+      </span>
+
+      <strong>
+        Continue your workflow
+      </strong>
+    </div>
+  </div>
+
+  <section class="action-grid">
+    @for (
+      action of configuration.actions;
+      track action.route
+    ) {
+      <a
+        class="action-card"
+        [routerLink]="action.route"
+      >
+        <span
+          class="action-icon"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              [attr.d]="action.iconPath"
+            />
+          </svg>
+        </span>
+
+        <div>
+          <h2>
+            {{ action.title }}
+          </h2>
+
+          <p>
+            {{ action.description }}
+          </p>
+        </div>
+
+        <svg
+          class="arrow"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="m9 18 6-6-6-6"
+          />
+        </svg>
+      </a>
+    }
+  </section>
+</section>

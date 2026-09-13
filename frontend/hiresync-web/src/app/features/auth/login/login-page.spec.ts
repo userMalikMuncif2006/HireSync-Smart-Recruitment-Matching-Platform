@@ -1,8 +1,16 @@
-﻿import { HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+} from '@angular/common/http';
 import {
   ComponentFixture,
   TestBed,
 } from '@angular/core/testing';
+import {
+  By,
+} from '@angular/platform-browser';
+import {
+  NgForm,
+} from '@angular/forms';
 import {
   ActivatedRoute,
   ParamMap,
@@ -20,150 +28,274 @@ import {
   LoginRequest,
   LoginResponse,
 } from '../../../core/auth/auth.models';
-import { AuthService } from '../../../core/auth/auth.service';
-import { LoginPage } from './login-page';
+import {
+  AuthService,
+} from '../../../core/auth/auth.service';
+import {
+  LoginPage,
+} from './login-page';
 
 describe('LoginPage', () => {
-  const employerResponse: LoginResponse = {
-    accessToken: 'employer-token',
-    expiresAtUtc: '2099-01-01T00:00:00Z',
-    userId: '11111111-1111-1111-1111-111111111111',
-    email: 'employer@example.com',
-    role: 'Employer',
-  };
+  const employerResponse:
+    LoginResponse = {
+      accessToken:
+        'employer-token',
+      expiresAtUtc:
+        '2099-01-01T00:00:00Z',
+      userId:
+        '11111111-1111-1111-1111-111111111111',
+      email:
+        'employer@example.com',
+      role:
+        'Employer',
+    };
 
-  let auth: FakeAuthService;
-  let router: FakeRouter;
-  let route: FakeActivatedRoute;
-  let fixture: ComponentFixture<LoginPage>;
-  let component: LoginPage;
+  let auth:
+    FakeAuthService;
+
+  let router:
+    FakeRouter;
+
+  let route:
+    FakeActivatedRoute;
+
+  let fixture:
+    ComponentFixture<LoginPage>;
+
+  let component:
+    LoginPage;
 
   beforeEach(async () => {
-    auth = new FakeAuthService();
-    router = new FakeRouter();
-    route = new FakeActivatedRoute();
+    auth =
+      new FakeAuthService();
 
-    await TestBed.configureTestingModule({
-      imports: [LoginPage],
-      providers: [
-        {
-          provide: AuthService,
-          useValue: auth,
-        },
-        {
-          provide: Router,
-          useValue: router,
-        },
-        {
-          provide: ActivatedRoute,
-          useValue: route,
-        },
-      ],
-    }).compileComponents();
+    router =
+      new FakeRouter();
+
+    route =
+      new FakeActivatedRoute();
+
+    await TestBed
+      .configureTestingModule({
+        imports: [
+          LoginPage,
+        ],
+        providers: [
+          {
+            provide:
+              AuthService,
+            useValue:
+              auth,
+          },
+          {
+            provide:
+              Router,
+            useValue:
+              router,
+          },
+          {
+            provide:
+              ActivatedRoute,
+            useValue:
+              route,
+          },
+        ],
+      })
+      .compileComponents();
 
     fixture =
-      TestBed.createComponent(LoginPage);
+      TestBed.createComponent(
+        LoginPage,
+      );
 
     component =
       fixture.componentInstance;
 
     fixture.detectChanges();
+
+    await fixture.whenStable();
+  });
+
+  function loginForm(): NgForm {
+    return fixture
+      .debugElement
+      .query(
+        By.directive(NgForm),
+      )
+      .injector
+      .get(NgForm);
+  }
+
+  it('uses a template-driven Angular form', () => {
+    const form =
+      loginForm();
+
+    expect(form)
+      .toBeTruthy();
+
+    expect(
+      fixture.nativeElement
+        .querySelector(
+          '[formgroup]',
+        ),
+    ).toBeNull();
+
+    expect(
+      fixture.nativeElement
+        .querySelector(
+          'input[name="email"]',
+        ),
+    ).not.toBeNull();
+
+    expect(
+      fixture.nativeElement
+        .querySelector(
+          'input[name="password"]',
+        ),
+    ).not.toBeNull();
   });
 
   it('submits trimmed email and preserves the password value', () => {
-    component.form.setValue({
-      email: '  employer@example.com  ',
-      password: ' Password123! ',
-    });
+    component.credentials.email =
+      '  employer@example.com  ';
 
-    component.submit();
+    component.credentials.password =
+      ' Password123! ';
 
-    expect(auth.loginRequests).toEqual([
+    fixture.detectChanges();
+
+    component.submit(
+      loginForm(),
+    );
+
+    expect(
+      auth.loginRequests,
+    ).toEqual([
       {
-        email: 'employer@example.com',
-        password: ' Password123! ',
+        email:
+          'employer@example.com',
+        password:
+          ' Password123! ',
       },
     ]);
 
-    expect(router.destinations).toEqual([
+    expect(
+      router.destinations,
+    ).toEqual([
       '/employer',
     ]);
   });
 
   it('does not submit an invalid form', () => {
-    component.form.setValue({
-      email: '',
-      password: '',
-    });
+    component.credentials.email =
+      '';
 
-    component.submit();
+    component.credentials.password =
+      '';
 
-    expect(auth.loginRequests).toHaveLength(0);
-    expect(component.form.controls.email.touched)
-      .toBe(true);
-    expect(component.form.controls.password.touched)
-      .toBe(true);
+    fixture.detectChanges();
+
+    const form =
+      loginForm();
+
+    component.submit(form);
+
+    expect(
+      auth.loginRequests,
+    ).toHaveLength(0);
+
+    expect(
+      form.controls['email']
+        .touched,
+    ).toBe(true);
+
+    expect(
+      form.controls['password']
+        .touched,
+    ).toBe(true);
   });
 
   it('shows an invalid credentials message for a 401 response', () => {
-    auth.loginResult = throwError(
-      () =>
-        new HttpErrorResponse({
-          status: 401,
-        }),
-    );
+    auth.loginResult =
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 401,
+          }),
+      );
 
-    component.form.setValue({
-      email: 'employer@example.com',
-      password: 'WrongPassword',
-    });
+    component.credentials.email =
+      'employer@example.com';
 
-    component.submit();
+    component.credentials.password =
+      'WrongPassword';
+
     fixture.detectChanges();
 
-    expect(component.errorMessage()).toBe(
+    component.submit(
+      loginForm(),
+    );
+
+    fixture.detectChanges();
+
+    expect(
+      component.errorMessage(),
+    ).toBe(
       'The email or password is incorrect.',
     );
 
     expect(
-      fixture.nativeElement.textContent,
+      fixture.nativeElement
+        .textContent,
     ).toContain(
       'The email or password is incorrect.',
     );
   });
 
   it('redirects Administrator login to the admin role area', () => {
-    auth.loginResult = of({
-      ...employerResponse,
-      role: 'Administrator',
-    });
+    auth.loginResult =
+      of({
+        ...employerResponse,
+        role:
+          'Administrator',
+      });
 
-    component.form.setValue({
-      email: 'admin@example.com',
-      password: 'Password123!',
-    });
+    component.credentials.email =
+      'admin@example.com';
 
-    component.submit();
+    component.credentials.password =
+      'Password123!';
 
-    expect(router.destinations).toEqual([
+    fixture.detectChanges();
+
+    component.submit(
+      loginForm(),
+    );
+
+    expect(
+      router.destinations,
+    ).toEqual([
       '/admin',
     ]);
   });
 
   it('shows Job Seeker registration success', () => {
     route.setQueryParams({
-      registered: 'jobseeker',
+      registered:
+        'jobseeker',
     });
 
     fixture.detectChanges();
 
-    expect(component.successMessage())
-      .toBe(
-        'Job Seeker account created successfully. You can now sign in.',
-      );
+    expect(
+      component.successMessage(),
+    ).toBe(
+      'Job Seeker account created successfully. You can now sign in.',
+    );
 
     expect(
-      fixture.nativeElement.textContent,
+      fixture.nativeElement
+        .textContent,
     ).toContain(
       'Job Seeker account created successfully.',
     );
@@ -171,18 +303,21 @@ describe('LoginPage', () => {
 
   it('shows Employer verification success while preserving approval lifecycle', () => {
     route.setQueryParams({
-      verified: 'employer',
+      verified:
+        'employer',
     });
 
     fixture.detectChanges();
 
-    expect(component.successMessage())
-      .toContain(
-        'Administrator approval',
-      );
+    expect(
+      component.successMessage(),
+    ).toContain(
+      'Administrator approval',
+    );
 
     expect(
-      fixture.nativeElement.textContent,
+      fixture.nativeElement
+        .textContent,
     ).toContain(
       'Employer email verified successfully.',
     );
@@ -190,18 +325,21 @@ describe('LoginPage', () => {
 
   it('shows Administrator first-activation success', () => {
     route.setQueryParams({
-      activated: 'administrator',
+      activated:
+        'administrator',
     });
 
     fixture.detectChanges();
 
-    expect(component.successMessage())
-      .toBe(
-        'Administrator activation completed successfully. You can now sign in.',
-      );
+    expect(
+      component.successMessage(),
+    ).toBe(
+      'Administrator activation completed successfully. You can now sign in.',
+    );
 
     expect(
-      fixture.nativeElement.textContent,
+      fixture.nativeElement
+        .textContent,
     ).toContain(
       'Administrator activation completed successfully.',
     );
@@ -209,35 +347,52 @@ describe('LoginPage', () => {
 
   it('does not show a success message for unrelated query parameters', () => {
     route.setQueryParams({
-      source: 'unknown',
+      source:
+        'unknown',
     });
 
     fixture.detectChanges();
 
-    expect(component.successMessage())
-      .toBeNull();
+    expect(
+      component.successMessage(),
+    ).toBeNull();
   });
 
   class FakeAuthService {
-    loginResult: Observable<LoginResponse> =
-      of(employerResponse);
+    loginResult:
+      Observable<LoginResponse> =
+        of(
+          employerResponse,
+        );
 
-    readonly loginRequests: LoginRequest[] = [];
+    readonly loginRequests:
+      LoginRequest[] = [];
 
     login(
       request: LoginRequest,
     ): Observable<LoginResponse> {
-      this.loginRequests.push(request);
+      this.loginRequests.push(
+        request,
+      );
+
       return this.loginResult;
     }
   }
 
   class FakeRouter {
-    readonly destinations: string[] = [];
+    readonly destinations:
+      string[] = [];
 
-    navigateByUrl(url: string): Promise<boolean> {
-      this.destinations.push(url);
-      return Promise.resolve(true);
+    navigateByUrl(
+      url: string,
+    ): Promise<boolean> {
+      this.destinations.push(
+        url,
+      );
+
+      return Promise.resolve(
+        true,
+      );
     }
   }
 
@@ -251,10 +406,13 @@ describe('LoginPage', () => {
       this.params.asObservable();
 
     setQueryParams(
-      params: Record<string, string>,
+      params:
+        Record<string, string>,
     ): void {
       this.params.next(
-        convertToParamMap(params),
+        convertToParamMap(
+          params,
+        ),
       );
     }
   }

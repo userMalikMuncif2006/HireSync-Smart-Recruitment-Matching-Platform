@@ -1,0 +1,55 @@
+@media (max-width: 900px) {
+  .register-page {
+    padding: 1rem;
+  }
+
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-panel {
+    position: static;
+    padding: 1.5rem;
+  }
+
+  .benefit-list {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .benefit {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .role-selector,
+  .field-grid,
+  .benefit-list {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .register-page {
+    padding: 0.7rem;
+  }
+
+  .welcome-panel,
+  .register-card {
+    border-radius: 1rem;
+  }
+
+  .welcome-panel,
+  .register-card {
+    padding: 1.15rem;
+  }
+
+  .form-section {
+    padding: 0.9rem;
+  }
+}

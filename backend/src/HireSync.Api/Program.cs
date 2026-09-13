@@ -201,6 +201,9 @@ builder.Services.AddScoped<
     EmployerRegistrationProvisioner>();
 builder.Services.AddScoped<IAdministratorActivationCompleter, AdministratorActivationCompleter>();
 builder.Services.AddScoped<IEmployerVerificationAdminService, EmployerVerificationAdminService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+builder.Services.AddScoped<IAdminUserService, AdminUserService>();
+builder.Services.AddScoped<IAdminAccountStatusService, AdminAccountStatusService>();
 builder.Services.AddScoped<IEmployerProfileService, EmployerProfileService>();
 builder.Services.AddScoped<IJobSeekerProfileService, JobSeekerProfileService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
