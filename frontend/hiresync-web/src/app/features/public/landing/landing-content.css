@@ -1,0 +1,149 @@
+.steps {
+  margin-top: 38px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  text-align: left;
+}
+
+.steps article {
+  display: flex;
+  gap: 13px;
+}
+
+.steps article > span {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--hs-brand-700);
+  color: #fff;
+  font-size: 0.73rem;
+  font-weight: 850;
+}
+
+.steps strong {
+  color: #23463e;
+  font-size: 0.78rem;
+}
+
+.steps p {
+  margin: 6px 0 0;
+  color: var(--hs-text-500);
+  font-size: 0.69rem;
+  line-height: 1.45;
+}
+
+.quotes-section {
+  width: 100%;
+  max-width: none;
+  padding-inline: max(24px, calc((100vw - 1180px) / 2));
+  background: #eff9f6;
+}
+
+.quote-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.quote-grid blockquote {
+  margin: 0;
+  padding: 24px;
+}
+
+.quote-grid blockquote > span {
+  color: var(--hs-brand-600);
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.quote-grid blockquote p {
+  margin: 7px 0 18px;
+  color: #31534b;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.quote-grid footer {
+  color: var(--hs-text-500);
+  font-size: 0.68rem;
+}
+
+.about-section {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  align-items: center;
+  gap: 52px;
+  padding: 88px 0;
+}
+
+.about-media {
+  min-height: 310px;
+}
+
+.about-media img {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  box-shadow: 0 22px 50px rgb(25 68 59 / 0.12);
+}
+
+.about-facts {
+  margin-top: 23px;
+  display: grid;
+  gap: 9px;
+}
+
+.about-facts span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--hs-text-700);
+  font-size: 0.76rem;
+}
+
+.about-facts strong {
+  min-width: 26px;
+  color: var(--hs-brand-700);
+  font-size: 1.08rem;
+}
+
+.final-cta {
+  width: 100%;
+  max-width: none;
+  padding-inline: 24px;
+  background:
+    radial-gradient(circle at 15% 70%, rgb(10 138 117 / 0.08), transparent 11rem),
+    radial-gradient(circle at 85% 30%, rgb(10 138 117 / 0.08), transparent 12rem),
+    #f3faf8;
+}
+
+.cta-actions {
+  justify-content: center;
+}
+
+.landing-footer {
+  min-height: 110px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 34px;
+}
+
+.footer-nav {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  color: var(--hs-text-500);
+  font-size: 0.68rem;
+}
+
+.landing-footer > p {
+  margin: 0;
+  max-width: 250px;
+  color: var(--hs-text-500);
+  font-size: 0.64rem;
+  text-align: right;
+}

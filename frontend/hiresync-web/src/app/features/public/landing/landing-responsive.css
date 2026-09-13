@@ -1,34 +1,69 @@
-@media (max-width: 900px) {
+@media (max-width: 960px) {
+  .landing-nav {
+    display: none;
+  }
+
+  .landing-header {
+    grid-template-columns: 1fr auto;
+  }
+
   .hero {
     grid-template-columns: 1fr;
-    gap: 20px;
-    padding-top: 45px;
+    padding-top: 36px;
   }
 
-  .hero-visual {
-    min-height: 390px;
-    max-width: 560px;
+  .hero-media {
+    min-height: 460px;
   }
 
-  .value-strip {
+  .platform-strip,
+  .feature-grid,
+  .steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .platform-strip article:first-child,
+  .platform-strip article:last-child {
+    padding-inline: 22px;
+  }
+
+  .split-section,
+  .about-section {
     grid-template-columns: 1fr;
+    gap: 34px;
   }
 
-  .value-strip article + article {
-    border-left: 0;
-    border-top: 1px solid var(--hs-border);
+  .split-reverse .section-copy {
+    order: 2;
+  }
+
+  .split-reverse .section-media {
+    order: 1;
+  }
+
+  .landing-footer {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    padding-block: 28px;
+  }
+
+  .landing-footer > p {
+    text-align: center;
   }
 }
 
 @media (max-width: 600px) {
   .landing-header,
   .hero,
-  .value-strip {
+  .split-section,
+  .about-section,
+  .landing-footer {
     width: calc(100% - 28px);
   }
 
   .landing-header {
-    min-height: 74px;
+    min-height: 72px;
+    gap: 12px;
   }
 
   .brand span,
@@ -36,13 +71,69 @@
     display: none;
   }
 
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+  }
+
+  .outline-action {
+    min-height: 40px;
+    padding-inline: 13px;
+  }
+
   .hero {
     min-height: auto;
-    padding: 48px 0 64px;
+    gap: 32px;
+    padding: 40px 0 48px;
   }
 
   .hero h1 {
-    font-size: clamp(2.55rem, 14vw, 3.7rem);
+    font-size: clamp(2.55rem, 13vw, 3.7rem);
+  }
+
+  .hero-media {
+    min-height: 330px;
+  }
+
+  .floating-card {
+    right: 12px;
+    bottom: 14px;
+    width: min(230px, calc(100% - 24px));
+  }
+
+  .hero-note {
+    display: none;
+  }
+
+  .platform-strip,
+  .feature-grid,
+  .quote-grid,
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .platform-strip article {
+    min-height: 82px;
+    padding: 18px 20px;
+  }
+
+  .split-section,
+  .feature-section,
+  .how-section,
+  .quotes-section,
+  .about-section,
+  .final-cta {
+    padding-block: 64px;
+  }
+
+  .section-media,
+  .about-media {
+    min-height: 300px;
+  }
+
+  .feature-section,
+  .quotes-section {
+    padding-inline: 14px;
   }
 
   .hero-actions {
@@ -50,11 +141,23 @@
     flex-direction: column;
   }
 
-  .hero-visual {
-    display: none;
+  .hero-actions a {
+    width: 100%;
   }
 
-  .trust-row {
-    margin-top: 24px;
+  .hero-proof {
+    align-items: flex-start;
+    line-height: 1.45;
+  }
+
+  .footer-nav {
+    flex-wrap: wrap;
+    gap: 10px 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
   }
 }

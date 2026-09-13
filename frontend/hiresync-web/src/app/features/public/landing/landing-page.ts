@@ -15,6 +15,8 @@ import {
   styleUrls: [
     './landing-page.css',
     './landing-visual.css',
+    './landing-sections.css',
+    './landing-content.css',
     './landing-responsive.css',
   ],
 })
