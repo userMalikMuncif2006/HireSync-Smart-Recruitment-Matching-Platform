@@ -11,12 +11,15 @@ import {
 import {
   Observable,
   of,
+  Subject,
   throwError,
 } from 'rxjs';
 
 import {
   ApplicationStatus,
   ApplicationStatusResult,
+  ContactRequestResult,
+  ContactRequestStatus,
   RankedApplicantPage,
   UpdateApplicationStatusPayload,
 } from './employer-vacancy.models';
@@ -271,6 +274,194 @@ describe('RankedApplicantsPage', () => {
     ).toBe(4);
   });
 
+  it('creates a contact request and re-fetches authoritative applicant data', async () => {
+    await createComponent(
+      createApplicantPage(
+        3,
+        'AQIDBA==',
+        null,
+      ),
+    );
+
+    service.createContactResponse =
+      of({
+        id:
+          'contact-1',
+        jobApplicationId:
+          'application-1',
+        status:
+          1,
+        requestedAtUtc:
+          '2026-09-13T03:00:00Z',
+        respondedAtUtc:
+          null,
+        rowVersion:
+          'AQIDBA==',
+      });
+
+    service.response =
+      of(
+        createApplicantPage(
+          3,
+          'AQIDBA==',
+          1,
+        ),
+      );
+
+    const button =
+      fixture.nativeElement
+        .querySelector(
+          '.contact-workflow button',
+        ) as HTMLButtonElement;
+
+    expect(button)
+      .not.toBeNull();
+
+    button.click();
+
+    fixture.detectChanges();
+
+    expect(service.contactCreates)
+      .toEqual([
+        'application-1',
+      ]);
+
+    expect(service.queries)
+      .toHaveLength(2);
+
+    expect(
+      fixture.componentInstance
+        .result()
+        ?.items[0]
+        .contactRequestStatus,
+    ).toBe(1);
+
+    expect(
+      fixture.componentInstance
+        .contactSuccessMessage(),
+    ).toBe(
+      'Contact request created successfully.',
+    );
+
+    expect(
+      fixture.nativeElement
+        .querySelector(
+          '.contact-workflow button',
+        ),
+    ).toBeNull();
+  });
+
+  it('prevents duplicate contact submission while creation is in progress', async () => {
+    await createComponent(
+      createApplicantPage(
+        3,
+        'AQIDBA==',
+        null,
+      ),
+    );
+
+    const pending =
+      new Subject<ContactRequestResult>();
+
+    service.createContactResponse =
+      pending;
+
+    const button =
+      fixture.nativeElement
+        .querySelector(
+          '.contact-workflow button',
+        ) as HTMLButtonElement;
+
+    button.click();
+    fixture.detectChanges();
+
+    expect(service.contactCreates)
+      .toEqual([
+        'application-1',
+      ]);
+
+    expect(button.disabled)
+      .toBe(true);
+
+    fixture.componentInstance
+      .createContactRequest(
+        fixture.componentInstance
+          .result()!
+          .items[0],
+      );
+
+    expect(service.contactCreates)
+      .toHaveLength(1);
+
+    pending.complete();
+  });
+
+  it('surfaces backend ProblemDetails when contact creation fails', async () => {
+    await createComponent(
+      createApplicantPage(
+        3,
+        'AQIDBA==',
+        null,
+      ),
+    );
+
+    service.createContactResponse =
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status:
+              409,
+            error: {
+              detail:
+                'A contact request already exists for this application.',
+            },
+          }),
+      );
+
+    fixture.componentInstance
+      .createContactRequest(
+        fixture.componentInstance
+          .result()!
+          .items[0],
+      );
+
+    fixture.detectChanges();
+
+    expect(
+      fixture.componentInstance
+        .contactErrorMessage(),
+    ).toBe(
+      'A contact request already exists for this application.',
+    );
+
+    expect(service.queries)
+      .toHaveLength(1);
+  });
+
+  it('does not offer another contact request when one already exists', async () => {
+    await createComponent(
+      createApplicantPage(
+        3,
+        'AQIDBA==',
+        2,
+      ),
+    );
+
+    expect(
+      fixture.nativeElement
+        .querySelector(
+          '.contact-workflow button',
+        ),
+    ).toBeNull();
+
+    expect(
+      fixture.nativeElement
+        .textContent as string,
+    ).toContain(
+      'Contact accepted',
+    );
+  });
+
   it('surfaces backend ProblemDetails for an invalid transition', async () => {
     await createComponent();
 
@@ -419,6 +610,8 @@ function createApplicantPage(
   status:
     ApplicationStatus = 3,
   rowVersion = 'AQIDBA==',
+  contactRequestStatus:
+    ContactRequestStatus | null = 1,
 ): RankedApplicantPage {
   return {
     vacancyId:
@@ -440,8 +633,7 @@ function createApplicantPage(
         updatedAtUtc:
           '2026-09-12T09:00:00Z',
         rowVersion,
-        contactRequestStatus:
-          1,
+        contactRequestStatus,
         match: {
           totalScore:
             88.25,
@@ -492,6 +684,26 @@ class FakeRankedApplicantService {
           'AQIDBA==',
       });
 
+  createContactResponse:
+    Observable<ContactRequestResult> =
+      of({
+        id:
+          'contact-1',
+        jobApplicationId:
+          'application-1',
+        status:
+          1,
+        requestedAtUtc:
+          '2026-09-13T03:00:00Z',
+        respondedAtUtc:
+          null,
+        rowVersion:
+          'AQIDBA==',
+      });
+
+  readonly contactCreates:
+    string[] = [];
+
   readonly queries:
     Array<{
       vacancyId: string;
@@ -523,6 +735,16 @@ class FakeRankedApplicantService {
     });
 
     return this.response;
+  }
+
+  createContactRequest(
+    applicationId: string,
+  ): Observable<ContactRequestResult> {
+    this.contactCreates.push(
+      applicationId,
+    );
+
+    return this.createContactResponse;
   }
 
   updateApplicationStatus(

@@ -87,6 +87,15 @@ export interface UpdateApplicationStatusPayload {
   rowVersion: string;
 }
 
+export interface ContactRequestResult {
+  id: string;
+  jobApplicationId: string;
+  status: ContactRequestStatus;
+  requestedAtUtc: string;
+  respondedAtUtc: string | null;
+  rowVersion: string;
+}
+
 export interface ApplicationStatusResult {
   id: string;
   status: ApplicationStatus;

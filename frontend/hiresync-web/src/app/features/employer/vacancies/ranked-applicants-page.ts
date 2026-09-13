@@ -84,6 +84,15 @@ export class RankedApplicantsPage {
   readonly updateSuccessMessage =
     signal<string | null>(null);
 
+  readonly creatingContactApplicationId =
+    signal<string | null>(null);
+
+  readonly contactErrorMessage =
+    signal<string | null>(null);
+
+  readonly contactSuccessMessage =
+    signal<string | null>(null);
+
   constructor() {
     if (!this.vacancyId) {
       this.errorMessage.set(
@@ -269,6 +278,59 @@ export class RankedApplicantsPage {
       });
   }
 
+  canCreateContactRequest(
+    applicant: RankedApplicant,
+  ): boolean {
+    return (
+      applicant.contactRequestStatus === null &&
+      this.creatingContactApplicationId() === null
+    );
+  }
+
+  createContactRequest(
+    applicant: RankedApplicant,
+  ): void {
+    if (!this.canCreateContactRequest(applicant)) {
+      return;
+    }
+
+    this.creatingContactApplicationId.set(
+      applicant.applicationId,
+    );
+
+    this.contactErrorMessage.set(null);
+    this.contactSuccessMessage.set(null);
+
+    this.service
+      .createContactRequest(
+        applicant.applicationId,
+      )
+      .subscribe({
+        next: () => {
+          this.creatingContactApplicationId.set(
+            null,
+          );
+
+          this.contactSuccessMessage.set(
+            'Contact request created successfully.',
+          );
+
+          this.load(
+            this.result()?.page ?? 1,
+          );
+        },
+        error: (error: unknown) => {
+          this.creatingContactApplicationId.set(
+            null,
+          );
+
+          this.contactErrorMessage.set(
+            this.readContactError(error),
+          );
+        },
+      });
+  }
+
   contactStatusLabel(
     status: ContactRequestStatus | null,
   ): string {
@@ -352,6 +414,28 @@ export class RankedApplicantsPage {
     return Number(
       this.statusFilter.value,
     ) as ApplicationStatus;
+  }
+
+  private readContactError(
+    error: unknown,
+  ): string {
+    if (error instanceof HttpErrorResponse) {
+      const detail =
+        error.error?.detail;
+
+      if (
+        typeof detail === 'string' &&
+        detail.trim().length > 0
+      ) {
+        return detail;
+      }
+
+      if (error.status === 409) {
+        return 'A contact request already exists or can no longer be created. Reload the applicants and try again.';
+      }
+    }
+
+    return 'The contact request could not be created. Please try again.';
   }
 
   private readUpdateError(

@@ -258,6 +258,35 @@ describe('EmployerVacancyService', () => {
     });
   });
 
+  it('creates a contact request for an application', () => {
+    service
+      .createContactRequest(
+        'application-1',
+      )
+      .subscribe();
+
+    const request =
+      httpTesting.expectOne(
+        '/api/v1/employer/applications/application-1/contact-requests',
+      );
+
+    expect(request.request.method)
+      .toBe('POST');
+
+    expect(request.request.body)
+      .toBeNull();
+
+    request.flush({
+      id: 'contact-1',
+      jobApplicationId: 'application-1',
+      status: 1,
+      requestedAtUtc:
+        '2026-09-13T03:00:00Z',
+      respondedAtUtc: null,
+      rowVersion: 'AQIDBA==',
+    });
+  });
+
   it('updates an application status using its concurrency row version', () => {
     const payload:
       UpdateApplicationStatusPayload = {

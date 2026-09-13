@@ -29,6 +29,39 @@ public sealed class JobSeekerContactRequestsController
             currentUser;
     }
 
+    [HttpGet]
+    [ProducesResponseType(
+        typeof(IReadOnlyList<JobSeekerContactRequestDto>),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<IReadOnlyList<JobSeekerContactRequestDto>>>
+        GetContactRequests(
+            CancellationToken cancellationToken)
+    {
+        if (!_currentUser.IsAuthenticated ||
+            !_currentUser.UserId.HasValue ||
+            _currentUser.UserId.Value == Guid.Empty)
+        {
+            return Problem(
+                statusCode:
+                    StatusCodes.Status401Unauthorized,
+                title:
+                    "Invalid authenticated user",
+                detail:
+                    "The authenticated Job Seeker identifier is invalid.");
+        }
+
+        var contactRequests =
+            await _contactRequestService
+                .GetForOwnJobSeekerAsync(
+                    _currentUser.UserId.Value,
+                    cancellationToken);
+
+        return Ok(contactRequests);
+    }
+
     [HttpPatch("{contactRequestId:guid}/status")]
     [ProducesResponseType(
         typeof(ContactRequestDto),

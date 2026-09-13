@@ -1,0 +1,216 @@
+<main class="contact-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">
+        Job Seeker workspace
+      </p>
+
+      <h1>
+        Contact requests
+      </h1>
+
+      <p class="intro">
+        Review employer contact workflow requests.
+        Accepting a request changes its workflow status only
+        and does not reveal personal contact details.
+      </p>
+    </div>
+
+    <div class="count-card">
+      <strong>
+        {{ requests().length }}
+      </strong>
+
+      <span>
+        request{{ requests().length === 1 ? '' : 's' }}
+      </span>
+    </div>
+  </header>
+
+  @if (responseErrorMessage()) {
+    <section
+      class="message error-message"
+      role="alert"
+    >
+      {{ responseErrorMessage() }}
+    </section>
+  }
+
+  @if (responseSuccessMessage()) {
+    <section
+      class="message success-message"
+      aria-live="polite"
+    >
+      {{ responseSuccessMessage() }}
+    </section>
+  }
+
+  @if (isLoading()) {
+    <section
+      class="state-card"
+      aria-live="polite"
+    >
+      Loading your contact requests...
+    </section>
+  } @else if (errorMessage()) {
+    <section
+      class="state-card error-state"
+      role="alert"
+    >
+      <div>
+        <strong>
+          Contact requests unavailable
+        </strong>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="retry()"
+      >
+        Retry
+      </button>
+    </section>
+  } @else if (requests().length === 0) {
+    <section class="state-card empty-state">
+      <div>
+        <strong>
+          No contact requests
+        </strong>
+
+        <p>
+          Employer contact requests will appear here when
+          one is created for one of your applications.
+        </p>
+      </div>
+    </section>
+  } @else {
+    <section
+      class="contact-list"
+      aria-label="Contact requests"
+    >
+      @for (
+        request of requests();
+        track request.id
+      ) {
+        <article class="contact-card">
+          <div class="card-main">
+            <div class="card-heading">
+              <div>
+                <p class="company-name">
+                  {{ request.employerCompanyName }}
+                </p>
+
+                <h2>
+                  {{ request.vacancyTitle }}
+                </h2>
+              </div>
+
+              <span
+                class="status-badge"
+                [attr.data-status]="request.status"
+              >
+                {{ statusLabel(request.status) }}
+              </span>
+            </div>
+
+            <dl class="request-details">
+              <div>
+                <dt>
+                  Requested
+                </dt>
+
+                <dd>
+                  {{
+                    request.requestedAtUtc
+                      | date:'medium'
+                  }}
+                </dd>
+              </div>
+
+              @if (request.respondedAtUtc) {
+                <div>
+                  <dt>
+                    Responded
+                  </dt>
+
+                  <dd>
+                    {{
+                      request.respondedAtUtc
+                        | date:'medium'
+                    }}
+                  </dd>
+                </div>
+              }
+
+              <div>
+                <dt>
+                  Workflow
+                </dt>
+
+                <dd>
+                  One request per application
+                </dd>
+              </div>
+            </dl>
+
+            <p class="privacy-note">
+              No employer email, phone number, message,
+              attachment or CV is exposed by this workflow.
+            </p>
+          </div>
+
+          <div class="response-actions">
+            @if (
+              request.status ===
+                ContactRequestStatus.Pending
+            ) {
+              <button
+                type="button"
+                class="primary-button accept-button"
+                [disabled]="!canRespond(request)"
+                (click)="
+                  respond(
+                    request,
+                    ContactRequestStatus.Accepted
+                  )
+                "
+              >
+                @if (
+                  respondingContactRequestId() ===
+                    request.id
+                ) {
+                  Saving...
+                } @else {
+                  Accept
+                }
+              </button>
+
+              <button
+                type="button"
+                class="secondary-button decline-button"
+                [disabled]="!canRespond(request)"
+                (click)="
+                  respond(
+                    request,
+                    ContactRequestStatus.Declined
+                  )
+                "
+              >
+                Decline
+              </button>
+            } @else {
+              <span class="terminal-note">
+                This request is complete.
+              </span>
+            }
+          </div>
+        </article>
+      }
+    </section>
+  }
+</main>
