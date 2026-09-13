@@ -102,6 +102,24 @@
         </div>
       }
 
+      @if (contactErrorMessage()) {
+        <div
+          class="state-card error"
+          role="alert"
+        >
+          {{ contactErrorMessage() }}
+        </div>
+      }
+
+      @if (contactSuccessMessage()) {
+        <div
+          class="state-card"
+          aria-live="polite"
+        >
+          {{ contactSuccessMessage() }}
+        </div>
+      }
+
       <div class="result-summary">
         <div>
           <strong>
@@ -244,6 +262,66 @@
                       Update status
                     }
                   </button>
+                </div>
+              </section>
+
+              <section
+                class="filter-panel status-workflow contact-workflow"
+                aria-label="Contact request workflow"
+              >
+                <div class="status-workflow-copy">
+                  <strong>Contact request</strong>
+
+                  @if (
+                    applicant.contactRequestStatus === null
+                  ) {
+                    <span>
+                      Create one workflow request without exposing personal contact details.
+                    </span>
+                  } @else {
+                    <span>
+                      {{
+                        contactStatusLabel(
+                          applicant.contactRequestStatus
+                        )
+                      }}.
+                      Acceptance changes workflow status only.
+                    </span>
+                  }
+                </div>
+
+                <div class="status-workflow-actions">
+                  @if (
+                    applicant.contactRequestStatus === null
+                  ) {
+                    <button
+                      type="button"
+                      class="primary-button"
+                      [disabled]="
+                        !canCreateContactRequest(applicant)
+                      "
+                      (click)="
+                        createContactRequest(applicant)
+                      "
+                    >
+                      @if (
+                        creatingContactApplicationId() ===
+                        applicant.applicationId
+                      ) {
+                        Creating...
+                      } @else {
+                        Create contact request
+                      }
+                    </button>
+                  } @else {
+                    <span class="contact-badge">
+                      {{
+                        contactStatusLabel(
+                          applicant.contactRequestStatus
+                        )
+                      }}
+                    </span>
+                  }
                 </div>
               </section>
 
