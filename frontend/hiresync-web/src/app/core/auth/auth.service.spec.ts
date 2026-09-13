@@ -1,4 +1,4 @@
-﻿import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -126,6 +126,55 @@ describe('AuthService', () => {
     });
   });
 
+  it('requests a Job Seeker OTP', () => {
+    service
+      .requestJobSeekerOtp({
+        email: 'seeker@example.com',
+      })
+      .subscribe();
+
+    const request = httpTesting.expectOne(
+      '/api/v1/auth/jobseeker/otp/request',
+    );
+
+    expect(request.request.method).toBe('POST');
+
+    expect(request.request.body).toEqual({
+      email: 'seeker@example.com',
+    });
+
+    request.flush({
+      succeeded: true,
+      expiresAtUtc: '2099-01-01T00:05:00Z',
+      failureReason: null,
+      retryAfterSeconds: null,
+    });
+  });
+
+  it('verifies a Job Seeker OTP', () => {
+    service
+      .verifyJobSeekerOtp({
+        email: 'seeker@example.com',
+        code: '123456',
+      })
+      .subscribe();
+
+    const request = httpTesting.expectOne(
+      '/api/v1/auth/jobseeker/otp/verify',
+    );
+
+    expect(request.request.method).toBe('POST');
+
+    expect(request.request.body).toEqual({
+      email: 'seeker@example.com',
+      code: '123456',
+    });
+
+    request.flush({
+      succeeded: true,
+      failureReason: null,
+    });
+  });
   it('requests an Employer OTP', () => {
     service
       .requestEmployerOtp({

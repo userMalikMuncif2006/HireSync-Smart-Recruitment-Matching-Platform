@@ -68,6 +68,15 @@ public sealed class AuthService
                 LoginFailureReason.EmployerEmailVerificationRequired);
         }
 
+        if (string.Equals(
+                identity.Role,
+                RoleNames.JobSeeker,
+                StringComparison.Ordinal) &&
+            !identity.EmailConfirmed)
+        {
+            return LoginResult.Failure(
+                LoginFailureReason.JobSeekerEmailVerificationRequired);
+        }
         var token = _tokenService.CreateAccessToken(
             identity.UserId,
             identity.Email,

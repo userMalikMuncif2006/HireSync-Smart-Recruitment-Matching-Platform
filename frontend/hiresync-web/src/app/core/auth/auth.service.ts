@@ -1,4 +1,4 @@
-﻿import { HttpClient } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
@@ -10,6 +10,9 @@ import {
   EmployerOtpRequest,
   EmployerOtpVerificationResponse,
   EmployerOtpVerifyRequest,
+  JobSeekerOtpRequest,
+  JobSeekerOtpVerificationResponse,
+  JobSeekerOtpVerifyRequest,
   LoginRequest,
   LoginResponse,
   OtpRequestResponse,
@@ -62,6 +65,23 @@ export class AuthService {
     );
   }
 
+  requestJobSeekerOtp(
+    request: JobSeekerOtpRequest,
+  ): Observable<OtpRequestResponse> {
+    return this.http.post<OtpRequestResponse>(
+      `${this.authBaseUrl}/jobseeker/otp/request`,
+      request,
+    );
+  }
+
+  verifyJobSeekerOtp(
+    request: JobSeekerOtpVerifyRequest,
+  ): Observable<JobSeekerOtpVerificationResponse> {
+    return this.http.post<JobSeekerOtpVerificationResponse>(
+      `${this.authBaseUrl}/jobseeker/otp/verify`,
+      request,
+    );
+  }
   requestEmployerOtp(
     request: EmployerOtpRequest,
   ): Observable<OtpRequestResponse> {

@@ -1180,13 +1180,142 @@ public class AuthControllerContractTests
 
         Assert.Equal(500, problem.StatusCode);
     }
+    [Fact]
+    public async Task RequestJobSeekerOtp_returns_200_for_unverified_job_seeker()
+    {
+        var verification =
+            new FakeJobSeekerEmailVerificationService
+            {
+                RequestResult =
+                    JobSeekerEmailVerificationRequestResult.Success(
+                        new DateTime(
+                            2026,
+                            9,
+                            14,
+                            1,
+                            0,
+                            0,
+                            DateTimeKind.Utc))
+            };
+
+        var controller = CreateController(
+            identity: null,
+            jobSeekerEmailVerificationService: verification);
+
+        var result = await controller.RequestJobSeekerOtp(
+            new JobSeekerOtpRequest(
+                "seeker@example.com"),
+            CancellationToken.None);
+
+        var ok =
+            Assert.IsType<OkObjectResult>(
+                result.Result);
+
+        Assert.Equal(200, ok.StatusCode);
+        Assert.Equal(1, verification.RequestCallCount);
+        Assert.Equal(
+            "seeker@example.com",
+            verification.LastRequestEmail);
+    }
+
+    [Fact]
+    public async Task VerifyJobSeekerOtp_returns_200_for_valid_code()
+    {
+        var verification =
+            new FakeJobSeekerEmailVerificationService
+            {
+                Result =
+                    JobSeekerEmailVerificationResult.Success()
+            };
+
+        var controller = CreateController(
+            identity: null,
+            jobSeekerEmailVerificationService: verification);
+
+        var result = await controller.VerifyJobSeekerOtp(
+            new JobSeekerOtpVerifyRequest(
+                "seeker@example.com",
+                "123456"),
+            CancellationToken.None);
+
+        var ok =
+            Assert.IsType<OkObjectResult>(
+                result.Result);
+
+        Assert.Equal(200, ok.StatusCode);
+        Assert.Equal(1, verification.VerifyCallCount);
+        Assert.Equal(
+            "seeker@example.com",
+            verification.LastVerifyEmail);
+        Assert.Equal(
+            "123456",
+            verification.LastCode);
+    }
+
+    [Fact]
+    public async Task Login_returns_403_for_unverified_job_seeker()
+    {
+        var controller = CreateController(
+            identity: new AuthenticatedIdentity(
+                Guid.NewGuid(),
+                "seeker@example.com",
+                RoleNames.JobSeeker,
+                1,
+                AccountStatus.Active,
+                false));
+
+        var result = await controller.Login(
+            new LoginRequest(
+                "seeker@example.com",
+                "ValidPassword123!"),
+            CancellationToken.None);
+
+        var problem =
+            Assert.IsType<ObjectResult>(
+                result.Result);
+
+        Assert.Equal(403, problem.StatusCode);
+    }
+
+    [Fact]
+    public async Task Login_returns_200_for_verified_job_seeker()
+    {
+        var controller = CreateController(
+            identity: new AuthenticatedIdentity(
+                Guid.NewGuid(),
+                "seeker@example.com",
+                RoleNames.JobSeeker,
+                1,
+                AccountStatus.Active,
+                true));
+
+        var result = await controller.Login(
+            new LoginRequest(
+                "seeker@example.com",
+                "ValidPassword123!"),
+            CancellationToken.None);
+
+        var ok =
+            Assert.IsType<OkObjectResult>(
+                result.Result);
+
+        var response =
+            Assert.IsType<LoginResponse>(
+                ok.Value);
+
+        Assert.Equal(200, ok.StatusCode);
+        Assert.Equal(
+            RoleNames.JobSeeker,
+            response.Role);
+    }
     private static AuthController CreateController(
         AuthenticatedIdentity? identity,
         IdentityUserCreationResult? creationResult = null,
         FakeEmailOtpService? otpService = null,
         FakeAdministratorActivationCompleter? activationCompleter = null,
         EmployerRegistrationResult? employerRegistrationResult = null,
-        FakeEmployerEmailVerificationService? employerEmailVerificationService = null)
+        FakeEmployerEmailVerificationService? employerEmailVerificationService = null,
+        FakeJobSeekerEmailVerificationService? jobSeekerEmailVerificationService = null)
     {
         var identityService = new FakeIdentityService(
             identity,
@@ -1218,6 +1347,10 @@ public class AuthControllerContractTests
             employerEmailVerificationService ??
             new FakeEmployerEmailVerificationService();
 
+        var resolvedJobSeekerEmailVerificationService =
+            jobSeekerEmailVerificationService ??
+            new FakeJobSeekerEmailVerificationService();
+
         var resolvedActivationCompleter =
             activationCompleter ??
             new FakeAdministratorActivationCompleter();
@@ -1233,6 +1366,7 @@ public class AuthControllerContractTests
             registrationService,
             employerRegistrationService,
             resolvedEmployerEmailVerificationService,
+            resolvedJobSeekerEmailVerificationService,
             administratorActivationService);
 
         controller.ControllerContext = new ControllerContext
@@ -1289,6 +1423,51 @@ public class AuthControllerContractTests
         }
     }
 
+    private sealed class FakeJobSeekerEmailVerificationService
+        : IJobSeekerEmailVerificationService
+    {
+        public JobSeekerEmailVerificationRequestResult RequestResult { get; set; } =
+            JobSeekerEmailVerificationRequestResult.Failure(
+                JobSeekerEmailVerificationRequestFailureReason.InvalidRequest);
+
+        public JobSeekerEmailVerificationResult Result { get; set; } =
+            JobSeekerEmailVerificationResult.Failure(
+                JobSeekerEmailVerificationFailureReason.InvalidRequest);
+
+        public int RequestCallCount { get; private set; }
+
+        public string? LastRequestEmail { get; private set; }
+
+        public int VerifyCallCount { get; private set; }
+
+        public string? LastVerifyEmail { get; private set; }
+
+        public string? LastCode { get; private set; }
+
+        public Task<JobSeekerEmailVerificationRequestResult> RequestAsync(
+            string email,
+            CancellationToken cancellationToken = default)
+        {
+            RequestCallCount++;
+            LastRequestEmail = email;
+
+            return Task.FromResult(
+                RequestResult);
+        }
+
+        public Task<JobSeekerEmailVerificationResult> VerifyAsync(
+            string email,
+            string code,
+            CancellationToken cancellationToken = default)
+        {
+            VerifyCallCount++;
+            LastVerifyEmail = email;
+            LastCode = code;
+
+            return Task.FromResult(
+                Result);
+        }
+    }
     private sealed class FakeEmployerRegistrationProvisioner
         : IEmployerRegistrationProvisioner
     {

@@ -16,6 +16,7 @@ public sealed class AuthController : ControllerBase
     private readonly RegistrationService _registrationService;
     private readonly EmployerRegistrationService _employerRegistrationService;
     private readonly IEmployerEmailVerificationService _employerEmailVerificationService;
+    private readonly IJobSeekerEmailVerificationService _jobSeekerEmailVerificationService;
     private readonly AdministratorActivationService _administratorActivationService;
 
     public AuthController(
@@ -23,12 +24,14 @@ public sealed class AuthController : ControllerBase
         RegistrationService registrationService,
         EmployerRegistrationService employerRegistrationService,
         IEmployerEmailVerificationService employerEmailVerificationService,
+        IJobSeekerEmailVerificationService jobSeekerEmailVerificationService,
         AdministratorActivationService administratorActivationService)
     {
         _authService = authService;
         _registrationService = registrationService;
         _employerRegistrationService = employerRegistrationService;
         _employerEmailVerificationService = employerEmailVerificationService;
+        _jobSeekerEmailVerificationService = jobSeekerEmailVerificationService;
         _administratorActivationService = administratorActivationService;
     }
 
@@ -67,6 +70,11 @@ public sealed class AuthController : ControllerBase
                 title: "Employer email verification required",
                 detail: "This Employer account must verify its email before signing in."),
 
+
+            LoginFailureReason.JobSeekerEmailVerificationRequired => Problem(
+                statusCode: StatusCodes.Status403Forbidden,
+                title: "Job Seeker email verification required",
+                detail: "This Job Seeker account must verify its email before signing in."),
             _ => Problem(
                 statusCode: StatusCodes.Status401Unauthorized,
                 title: "Invalid credentials",
@@ -74,6 +82,181 @@ public sealed class AuthController : ControllerBase
         };
     }
 
+    [AllowAnonymous]
+    [HttpPost("jobseeker/otp/request")]
+    [ProducesResponseType(
+        typeof(OtpRequestResult),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status409Conflict)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status429TooManyRequests)]
+    public async Task<ActionResult<OtpRequestResult>> RequestJobSeekerOtp(
+        [FromBody] JobSeekerOtpRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result =
+            await _jobSeekerEmailVerificationService.RequestAsync(
+                request.Email,
+                cancellationToken);
+
+        if (result.Succeeded &&
+            result.ExpiresAtUtc.HasValue)
+        {
+            return Ok(
+                OtpRequestResult.Success(
+                    result.ExpiresAtUtc.Value));
+        }
+
+        if (result.FailureReason ==
+                JobSeekerEmailVerificationRequestFailureReason.CooldownActive)
+        {
+            if (result.RetryAfterSeconds.HasValue)
+            {
+                Response.Headers["Retry-After"] =
+                    result.RetryAfterSeconds.Value.ToString();
+            }
+
+            return Problem(
+                statusCode: StatusCodes.Status429TooManyRequests,
+                title: "OTP request cooldown active",
+                detail: "Please wait before requesting another verification code.");
+        }
+
+        return result.FailureReason switch
+        {
+            JobSeekerEmailVerificationRequestFailureReason.Suspended =>
+                Problem(
+                    statusCode: StatusCodes.Status403Forbidden,
+                    title: "JobSeeker account suspended",
+                    detail: "This JobSeeker account is currently suspended."),
+
+            JobSeekerEmailVerificationRequestFailureReason.AlreadyVerified =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "JobSeeker email already verified",
+                    detail: "This JobSeeker email has already been verified."),
+
+            JobSeekerEmailVerificationRequestFailureReason.InvalidAccount =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid JobSeeker account",
+                    detail: "A valid registered JobSeeker account is required."),
+
+            JobSeekerEmailVerificationRequestFailureReason.InvalidRequest =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid OTP request",
+                    detail: "Email is required."),
+
+            _ =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "OTP request failed",
+                    detail: "The verification code could not be requested.")
+        };
+    }
+    [AllowAnonymous]
+    [HttpPost("jobseeker/otp/verify")]
+    [ProducesResponseType(
+        typeof(JobSeekerEmailVerificationResult),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status409Conflict)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<JobSeekerEmailVerificationResult>>
+        VerifyJobSeekerOtp(
+            [FromBody] JobSeekerOtpVerifyRequest request,
+            CancellationToken cancellationToken)
+    {
+        var result =
+            await _jobSeekerEmailVerificationService.VerifyAsync(
+                request.Email,
+                request.Code,
+                cancellationToken);
+
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return result.FailureReason switch
+        {
+            JobSeekerEmailVerificationFailureReason.Suspended =>
+                Problem(
+                    statusCode: StatusCodes.Status403Forbidden,
+                    title: "JobSeeker account suspended",
+                    detail: "This JobSeeker account is currently suspended."),
+
+            JobSeekerEmailVerificationFailureReason.AlreadyVerified =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "JobSeeker email already verified",
+                    detail: "This JobSeeker email has already been verified."),
+
+            JobSeekerEmailVerificationFailureReason.AlreadyUsed =>
+                Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Verification code already used",
+                    detail: "This verification code has already been consumed."),
+
+            JobSeekerEmailVerificationFailureReason.AttemptsExceeded =>
+                Problem(
+                    statusCode: StatusCodes.Status429TooManyRequests,
+                    title: "Verification attempt limit reached",
+                    detail: "The maximum number of verification attempts has been reached."),
+
+            JobSeekerEmailVerificationFailureReason.Expired =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Verification code expired",
+                    detail: "The verification code has expired."),
+
+            JobSeekerEmailVerificationFailureReason.PersistenceFailed =>
+                Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "JobSeeker email verification failed",
+                    detail: "The JobSeeker email verification could not be saved."),
+
+            JobSeekerEmailVerificationFailureReason.InvalidAccount =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid JobSeeker account",
+                    detail: "A valid registered JobSeeker account is required."),
+
+            JobSeekerEmailVerificationFailureReason.InvalidRequest =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid OTP verification request",
+                    detail: "Email and verification code are required."),
+
+            _ =>
+                Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid verification code",
+                    detail: "The verification code is invalid.")
+        };
+    }
     [AllowAnonymous]
     [HttpPost("employer/otp/request")]
     [ProducesResponseType(

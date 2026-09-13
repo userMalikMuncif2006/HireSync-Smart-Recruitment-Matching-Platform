@@ -151,6 +151,23 @@ export class LoginPage {
         },
 
         error: (error: unknown) => {
+          if (
+            this.shouldRedirectToJobSeekerVerification(
+              error,
+            )
+          ) {
+            void this.router.navigate(
+              ['/verify-jobseeker-email'],
+              {
+                queryParams: {
+                  email,
+                },
+              },
+            );
+
+            return;
+          }
+
           this.errorMessage.set(
             this.loginErrorMessage(
               error,
@@ -170,6 +187,12 @@ export class LoginPage {
       return 'Job Seeker account created successfully. You can now sign in.';
     }
 
+    if (
+      params.get('verified') ===
+      'jobseeker'
+    ) {
+      return 'Job Seeker email verified successfully. You can now sign in.';
+    }
     if (
       params.get('verified') ===
       'employer'
@@ -195,6 +218,16 @@ export class LoginPage {
     );
   }
 
+  private shouldRedirectToJobSeekerVerification(
+    error: unknown,
+  ): boolean {
+    return (
+      error instanceof HttpErrorResponse &&
+      error.status === 403 &&
+      error.error?.title ===
+        'Job Seeker email verification required'
+    );
+  }
   private loginErrorMessage(
     error: unknown,
   ): string {

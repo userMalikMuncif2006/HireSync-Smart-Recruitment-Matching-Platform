@@ -194,6 +194,9 @@ builder.Services.AddScoped<IEmailOtpChallengeStore, EmailOtpChallengeStore>();
 builder.Services.AddScoped<
     IEmployerEmailVerificationService,
     EmployerEmailVerificationService>();
+builder.Services.AddScoped<
+    IJobSeekerEmailVerificationService,
+    JobSeekerEmailVerificationService>();
 builder.Services.AddScoped<IAccessTokenStateValidator, AccessTokenStateValidator>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<

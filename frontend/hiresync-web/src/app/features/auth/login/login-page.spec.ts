@@ -252,6 +252,84 @@ describe('LoginPage', () => {
     );
   });
 
+  it('redirects an unverified Job Seeker to email verification', () => {
+    auth.loginResult =
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 403,
+            error: {
+              title:
+                'Job Seeker email verification required',
+            },
+          }),
+      );
+
+    component.credentials.email =
+      '  seeker@example.com  ';
+
+    component.credentials.password =
+      'Password123!';
+
+    fixture.detectChanges();
+
+    component.submit(
+      loginForm(),
+    );
+
+    expect(
+      router.navigations,
+    ).toEqual([
+      {
+        commands: [
+          '/verify-jobseeker-email',
+        ],
+        queryParams: {
+          email: 'seeker@example.com',
+        },
+      },
+    ]);
+
+    expect(
+      component.errorMessage(),
+    ).toBeNull();
+  });
+
+  it('does not redirect another 403 response to Job Seeker verification', () => {
+    auth.loginResult =
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 403,
+            error: {
+              title:
+                'Account suspended',
+            },
+          }),
+      );
+
+    component.credentials.email =
+      'seeker@example.com';
+
+    component.credentials.password =
+      'Password123!';
+
+    fixture.detectChanges();
+
+    component.submit(
+      loginForm(),
+    );
+
+    expect(
+      router.navigations,
+    ).toHaveLength(0);
+
+    expect(
+      component.errorMessage(),
+    ).toBe(
+      'Sign in is not available for this account.',
+    );
+  });
   it('redirects Administrator login to the admin role area', () => {
     auth.loginResult =
       of({
@@ -301,6 +379,27 @@ describe('LoginPage', () => {
     );
   });
 
+  it('shows Job Seeker email verification success', () => {
+    route.setQueryParams({
+      verified:
+        'jobseeker',
+    });
+
+    fixture.detectChanges();
+
+    expect(
+      component.successMessage(),
+    ).toBe(
+      'Job Seeker email verified successfully. You can now sign in.',
+    );
+
+    expect(
+      fixture.nativeElement
+        .textContent,
+    ).toContain(
+      'Job Seeker email verified successfully.',
+    );
+  });
   it('shows Employer verification success while preserving approval lifecycle', () => {
     route.setQueryParams({
       verified:
@@ -380,9 +479,32 @@ describe('LoginPage', () => {
   }
 
   class FakeRouter {
+    readonly navigations:
+      Array<{
+        commands: string[];
+        queryParams:
+          Record<string, string>;
+      }> = [];
     readonly destinations:
       string[] = [];
 
+    navigate(
+      commands: string[],
+      extras: {
+        queryParams:
+          Record<string, string>;
+      },
+    ): Promise<boolean> {
+      this.navigations.push({
+        commands,
+        queryParams:
+          extras.queryParams,
+      });
+
+      return Promise.resolve(
+        true,
+      );
+    }
     navigateByUrl(
       url: string,
     ): Promise<boolean> {
