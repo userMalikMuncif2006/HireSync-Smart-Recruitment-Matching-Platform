@@ -11,6 +11,7 @@ import { Observable } from 'rxjs';
 import {
   ApplicationStatus,
   ApplicationStatusResult,
+  ContactRequestResult,
   CreateVacancyPayload,
   EmployerVacancy,
   EmployerVacancyPage,
@@ -116,6 +117,15 @@ export class EmployerVacancyService {
         status: 2,
         rowVersion,
       },
+    );
+  }
+
+  createContactRequest(
+    applicationId: string,
+  ): Observable<ContactRequestResult> {
+    return this.http.post<ContactRequestResult>(
+      `/api/v1/employer/applications/${encodeURIComponent(applicationId)}/contact-requests`,
+      null,
     );
   }
 
