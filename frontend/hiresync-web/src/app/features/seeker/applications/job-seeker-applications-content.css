@@ -1,0 +1,150 @@
+/* ISSUE45_APPLICATIONS_GIRL_HERO_START */
+
+/*
+ * Approved Applications hero:
+ * - same size as Contact Requests
+ * - AI-realistic professional woman
+ * - no extra gradient/shade over the subject
+ * - rest of Applications page remains unchanged
+ */
+.applications-hero {
+  box-sizing: border-box !important;
+
+  height: 238px !important;
+  min-height: 238px !important;
+  max-height: 238px !important;
+
+  overflow: hidden !important;
+
+  background-image:
+    url('/images/seeker/applications-hero.webp') !important;
+
+  background-size:
+    cover !important;
+
+  background-position:
+    center center !important;
+
+  background-repeat:
+    no-repeat !important;
+}
+
+/*
+ * Disable decorative hero overlays that caused the previous
+ * professional image to appear washed-out. The approved image
+ * already has clean blank copy space on the left.
+ */
+.applications-hero::before,
+.applications-hero::after {
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.applications-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 760px) {
+  .applications-hero {
+    height: 218px !important;
+    min-height: 218px !important;
+    max-height: 218px !important;
+
+    background-position:
+      68% center !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .applications-hero {
+    height: 214px !important;
+    min-height: 214px !important;
+    max-height: 214px !important;
+
+    background-size:
+      auto 100% !important;
+
+    background-position:
+      69% center !important;
+  }
+}
+
+/* ISSUE45_APPLICATIONS_GIRL_HERO_END */
+
+/* ISSUE45_APPLICATIONS_VISIBLE_HERO_START */
+
+/* Applications hero only — do not change page content */
+.applications-hero {
+  box-sizing: border-box !important;
+
+  height: 238px !important;
+  min-height: 238px !important;
+  max-height: 238px !important;
+
+  overflow: hidden !important;
+
+  background-color: #f5fbf9 !important;
+
+  background-image:
+    url('/images/seeker/applications-hero.webp') !important;
+
+  /*
+   * Approved hero asset was prepared to the same wide ratio,
+   * so this prevents unnecessary zoom/cropping.
+   */
+  background-size:
+    100% auto !important;
+
+  background-position:
+    center center !important;
+
+  background-repeat:
+    no-repeat !important;
+}
+
+/* Remove the old wash/shade above the photo */
+.applications-hero::before,
+.applications-hero::after {
+  background: transparent !important;
+  background-image: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.applications-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 760px) {
+  .applications-hero {
+    height: 218px !important;
+    min-height: 218px !important;
+    max-height: 218px !important;
+
+    background-size:
+      auto 100% !important;
+
+    background-position:
+      68% center !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .applications-hero {
+    height: 214px !important;
+    min-height: 214px !important;
+    max-height: 214px !important;
+
+    background-size:
+      auto 100% !important;
+
+    background-position:
+      70% center !important;
+  }
+}
+
+/* ISSUE45_APPLICATIONS_VISIBLE_HERO_END */

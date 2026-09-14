@@ -107,6 +107,115 @@ describe(
       expect(text)
         .toContain('Decline');
 
+      expect(text)
+        .toContain(
+          'does not reveal personal contact details',
+        );
+
+      expect(service.loads)
+        .toBe(1);
+    });
+
+    it('renders the polished hero, live status summary and C6 privacy guidance', async () => {
+      await createComponent(
+        of([
+          createRequest(
+            ContactRequestStatus.Pending,
+          ),
+          createRequest(
+            ContactRequestStatus.Accepted,
+            'BQYHCA==',
+            '2026-09-13T03:05:00Z',
+            'contact-2',
+          ),
+          createRequest(
+            ContactRequestStatus.Declined,
+            'CQoLDA==',
+            '2026-09-13T03:06:00Z',
+            'contact-3',
+          ),
+        ]),
+      );
+
+      const element =
+        fixture.nativeElement as HTMLElement;
+
+      expect(element.textContent)
+        .toContain(
+          'Manage contact requests',
+        );
+
+      expect(
+        element.querySelector(
+          '[data-testid="contact-total-count"]',
+        )?.textContent?.trim(),
+      ).toBe('3');
+
+      expect(
+        element.querySelector(
+          '[data-testid="contact-pending-count"]',
+        )?.textContent?.trim(),
+      ).toBe('1');
+
+      expect(
+        element.querySelector(
+          '[data-testid="contact-accepted-count"]',
+        )?.textContent?.trim(),
+      ).toBe('1');
+
+      expect(
+        element.querySelector(
+          '[data-testid="contact-declined-count"]',
+        )?.textContent?.trim(),
+      ).toBe('1');
+
+      expect(element.textContent)
+        .toContain(
+          'Privacy by design',
+        );
+
+      expect(element.textContent)
+        .toContain(
+          'One request per application',
+        );
+    });
+
+    it('filters contact requests locally without mutating workflow state', async () => {
+      await createComponent(
+        of([
+          createRequest(
+            ContactRequestStatus.Pending,
+          ),
+          createRequest(
+            ContactRequestStatus.Accepted,
+            'BQYHCA==',
+            '2026-09-13T03:05:00Z',
+            'contact-2',
+          ),
+        ]),
+      );
+
+      fixture.componentInstance
+        .selectFilter(
+          ContactRequestStatus.Accepted,
+        );
+
+      fixture.detectChanges();
+
+      expect(
+        fixture.componentInstance
+          .filteredRequests()
+          .length,
+      ).toBe(1);
+
+      expect(
+        fixture.componentInstance
+          .filteredRequests()[0]
+          .status,
+      ).toBe(
+        ContactRequestStatus.Accepted,
+      );
+
       expect(service.loads)
         .toBe(1);
     });
@@ -331,7 +440,6 @@ describe(
   },
 );
 
-
 function createRequest(
   status:
     ContactRequestStatus =
@@ -339,14 +447,14 @@ function createRequest(
   rowVersion = 'AQIDBA==',
   respondedAtUtc:
     string | null = null,
+  id = 'contact-1',
 ): JobSeekerContactRequest {
   return {
-    id:
-      'contact-1',
+    id,
     jobApplicationId:
-      'application-1',
+      `application-${id}`,
     vacancyId:
-      'vacancy-1',
+      `vacancy-${id}`,
     vacancyTitle:
       'Backend Developer',
     employerCompanyName:
@@ -358,7 +466,6 @@ function createRequest(
     rowVersion,
   };
 }
-
 
 class FakeContactRequestsService {
   listResponse:

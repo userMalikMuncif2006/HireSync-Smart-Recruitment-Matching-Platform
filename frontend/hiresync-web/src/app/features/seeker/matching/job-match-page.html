@@ -1,17 +1,34 @@
 <main class="match-page">
-  <div class="page-heading">
-    <p class="eyebrow">
-      Job Seeker
-    </p>
+  <section
+    class="match-hero"
+    aria-labelledby="vacancy-detail-heading"
+  >
+    <div class="match-hero__copy">
+      <p class="match-hero__eyebrow">
+        Job Seeker workspace
+      </p>
 
-    <h1>Vacancy details</h1>
+      <h1 id="vacancy-detail-heading">
+        Vacancy &amp; match details
+      </h1>
 
-    <p>
-      Review the vacancy requirements,
-      deterministic match result and
-      application readiness.
-    </p>
-  </div>
+      <p>
+        Review the role, your authoritative HireSync match
+        result and application readiness.
+      </p>
+
+      <a
+        class="back-link"
+        routerLink="/seeker/vacancies"
+        queryParamsHandling="preserve"
+      >
+        <span aria-hidden="true">
+          &larr;
+        </span>
+        Back to Find Jobs
+      </a>
+    </div>
+  </section>
 
   <app-job-match-result
     [vacancyId]="vacancyId()"

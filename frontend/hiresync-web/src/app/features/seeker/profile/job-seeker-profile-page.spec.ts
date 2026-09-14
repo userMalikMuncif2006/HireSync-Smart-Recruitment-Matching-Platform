@@ -107,7 +107,20 @@ describe(
 
       expect(text)
         .toContain(
-          'Not match ready',
+          'Needs details',
+        );
+
+      expect(
+        fixture.nativeElement.querySelector(
+          '[data-testid="profile-readiness-summary"]',
+        )?.textContent?.trim(),
+      ).toBe(
+        'Needs details',
+      );
+
+      expect(text)
+        .not.toContain(
+          '%',
         );
 
       expect(
@@ -123,6 +136,66 @@ describe(
       });
     });
 
+    it('renders the polished profile hero and authoritative summary', async () => {
+      await createComponent();
+
+      const element =
+        fixture.nativeElement as HTMLElement;
+
+      expect(
+        element.textContent,
+      ).toContain(
+        'Build your professional profile',
+      );
+
+      expect(
+        element.textContent,
+      ).toContain(
+        'Profile essentials',
+      );
+
+      expect(
+        element.textContent,
+      ).toContain(
+        'Server-authoritative matching',
+      );
+
+      expect(
+        element.textContent,
+      ).toContain(
+        'CV privacy',
+      );
+
+      expect(
+        element.querySelector(
+          '[data-testid="profile-readiness-summary"]',
+        )?.textContent?.trim(),
+      ).toBe(
+        'Needs details',
+      );
+
+      expect(
+        element.querySelector(
+          '[data-testid="profile-skill-count"]',
+        )?.textContent?.trim(),
+      ).toBe(
+        '1',
+      );
+
+      expect(
+        element.querySelector(
+          '[data-testid="profile-cv-status"]',
+        )?.textContent?.trim(),
+      ).toBe(
+        'Uploaded',
+      );
+
+      expect(
+        element.textContent,
+      ).not.toContain(
+        '%',
+      );
+    });
     it('saves canonical skill IDs only', async () => {
       await createComponent();
 

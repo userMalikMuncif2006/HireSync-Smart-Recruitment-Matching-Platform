@@ -1,0 +1,160 @@
+.search-panel {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.45fr)
+    minmax(0, 1fr)
+    minmax(180px, 0.55fr);
+  gap: 16px;
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid #d6e5e1;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(27 67 59 / 0.035);
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.field label {
+  color: #2b4942;
+  font-size: 0.8rem;
+  font-weight: 740;
+}
+
+.field-control {
+  display: flex;
+  min-width: 0;
+  min-height: 46px;
+  align-items: center;
+  border: 1px solid #c7d8d4;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.field-control:focus-within {
+  border-color: #087f6d;
+  outline: 3px solid rgb(8 127 109 / 0.12);
+}
+
+.field-control svg {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+  margin-left: 13px;
+  color: #6c8580;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 0 12px;
+  color: #28433d;
+  font: inherit;
+}
+
+.field small {
+  color: #b42318;
+  font-size: 0.76rem;
+}
+
+.search-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  padding-top: 2px;
+}
+
+button {
+  min-height: 42px;
+  border-radius: 10px;
+  padding: 0 16px;
+  font: inherit;
+  font-weight: 720;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary-button,
+.details-button {
+  border: 1px solid #087f6d;
+  background: #087f6d;
+  color: #fff;
+}
+
+.secondary-button {
+  border: 1px solid #bfd0cc;
+  background: #fff;
+  color: #27413d;
+}
+
+.result-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 28px 0 14px;
+}
+
+.result-summary > div {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.result-summary strong {
+  color: #294941;
+  font-size: 0.98rem;
+}
+
+.result-summary span {
+  color: #74847f;
+  font-size: 0.78rem;
+}
+
+.match-note {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #e8f6f2;
+  color: #08715f !important;
+  font-weight: 720;
+}
+
+@media (max-width: 760px) {
+  .search-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .search-actions {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .search-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .result-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

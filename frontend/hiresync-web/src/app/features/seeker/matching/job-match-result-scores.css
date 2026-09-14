@@ -1,0 +1,134 @@
+.match-overview {
+  padding: 21px;
+}
+
+.match-overview__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.match-overview__heading > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.match-overview__heading > div:first-child span {
+  color: #85938f;
+  font-size: 0.67rem;
+  font-weight: 780;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.match-overview__heading h3 {
+  margin: 0;
+  color: #294941;
+  font-size: 0.95rem;
+  font-weight: 760;
+}
+
+.total-score {
+  display: grid;
+  justify-items: end;
+  gap: 1px;
+  min-width: 105px;
+  border-radius: 13px;
+  background: #e8f6f2;
+  padding: 9px 12px;
+}
+
+.total-score span {
+  color: #607c75;
+  font-size: 0.65rem;
+  font-weight: 720;
+}
+
+.total-score strong {
+  color: #08715f;
+  font-size: 1.2rem;
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.score-grid article {
+  display: grid;
+  gap: 5px;
+  border: 1px solid #e0ebe8;
+  border-radius: 13px;
+  background: #fbfdfc;
+  padding: 13px;
+}
+
+.score-grid span {
+  color: #72847f;
+  font-size: 0.7rem;
+}
+
+.score-grid strong {
+  color: #294941;
+  font-size: 0.87rem;
+}
+
+.skill-sections {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  margin-top: 18px;
+}
+
+.skill-sections section {
+  border-top: 1px solid #e3ece9;
+  padding-top: 14px;
+}
+
+.skill-sections h3 {
+  margin: 0 0 10px;
+  color: #294941;
+  font-size: 0.84rem;
+  font-weight: 750;
+}
+
+.matched-list li {
+  background: #e8f5f1;
+}
+
+.missing-list li {
+  background: #f7efee;
+  color: #8b4c47;
+}
+
+@media (max-width: 760px) {
+  .score-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .match-overview {
+    padding: 17px;
+  }
+
+  .match-overview__heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .total-score {
+    justify-items: start;
+  }
+
+  .score-grid,
+  .skill-sections {
+    grid-template-columns: 1fr;
+  }
+}

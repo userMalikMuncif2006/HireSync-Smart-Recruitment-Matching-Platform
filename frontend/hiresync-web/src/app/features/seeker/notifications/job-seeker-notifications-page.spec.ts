@@ -115,10 +115,60 @@ describe(
       expect(
         fixture.nativeElement
           .querySelectorAll(
-            '.notification-card.unread',
+            '.notification-card--unread',
           )
           .length,
       ).toBe(1);
+    });
+
+    it('renders the polished hero, truthful page summary and guidance', async () => {
+      await createComponent();
+
+      const element =
+        fixture.nativeElement as HTMLElement;
+
+      expect(element.textContent)
+        .toContain(
+          'Stay on top of your updates',
+        );
+
+      expect(
+        element.querySelector(
+          '[data-testid="notification-total-count"]',
+        )?.textContent?.trim(),
+      ).toBe('2');
+
+      expect(
+        element.querySelector(
+          '[data-testid="notification-unread-count"]',
+        )?.textContent?.trim(),
+      ).toBe('1');
+
+      expect(
+        element.querySelector(
+          '[data-testid="notification-read-count"]',
+        )?.textContent?.trim(),
+      ).toBe('1');
+
+      expect(element.textContent)
+        .toContain(
+          'Notification tips',
+        );
+
+      expect(element.textContent)
+        .toContain(
+          'Application updates',
+        );
+
+      expect(element.textContent)
+        .not.toContain(
+          'Contact updates',
+        );
+
+      expect(element.textContent)
+        .not.toContain(
+          'New message',
+        );
     });
 
     it('marks one notification read and reloads server state', async () => {
