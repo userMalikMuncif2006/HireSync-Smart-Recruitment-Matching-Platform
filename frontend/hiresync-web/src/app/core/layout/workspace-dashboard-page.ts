@@ -19,7 +19,24 @@ import {
   ActivatedRoute,
   RouterLink,
 } from '@angular/router';
+import {
+  forkJoin,
+} from 'rxjs';
 
+import {
+  EmployerProfile,
+} from '../../features/employer/profile/employer-profile.models';
+import {
+  EmployerProfileService,
+} from '../../features/employer/profile/employer-profile.service';
+import {
+  EmployerVacancyListItem,
+  EmployerVacancyPage,
+  VacancyStatus as EmployerVacancyStatus,
+} from '../../features/employer/vacancies/employer-vacancy.models';
+import {
+  EmployerVacancyService,
+} from '../../features/employer/vacancies/employer-vacancy.service';
 import {
   JobSeekerApplicationsService,
 } from '../../features/seeker/applications/job-seeker-applications.service';
@@ -103,6 +120,7 @@ const icons = {
     './workspace-dashboard-page.css',
     './workspace-dashboard-jobseeker.css',
     './workspace-dashboard-jobseeker-activity.css',
+    './workspace-dashboard-employer.css',
   ],
 })
 export class WorkspaceDashboardPage
@@ -112,6 +130,12 @@ export class WorkspaceDashboardPage
 
   private readonly destroyRef =
     inject(DestroyRef);
+
+  private readonly employerProfileService =
+    inject(EmployerProfileService);
+
+  private readonly employerVacancyService =
+    inject(EmployerVacancyService);
 
   private readonly profileService =
     inject(JobSeekerProfileService);
@@ -133,6 +157,10 @@ export class WorkspaceDashboardPage
   readonly isJobSeeker =
     this.workspaceRole ===
     'JobSeeker';
+
+  readonly isEmployer =
+    this.workspaceRole ===
+    'Employer';
 
   readonly configuration =
     this.readConfiguration(
@@ -161,6 +189,38 @@ export class WorkspaceDashboardPage
       null,
     );
 
+  readonly employerProfile =
+    signal<EmployerProfile | null>(
+      null,
+    );
+
+  readonly employerVacancies =
+    signal<EmployerVacancyPage | null>(
+      null,
+    );
+
+  readonly employerOpenVacancyCount =
+    signal<number | null>(
+      null,
+    );
+
+  readonly employerClosedVacancyCount =
+    signal<number | null>(
+      null,
+    );
+
+  readonly employerProfileLoading =
+    signal(false);
+
+  readonly employerVacanciesLoading =
+    signal(false);
+
+  readonly employerProfileError =
+    signal(false);
+
+  readonly employerVacanciesError =
+    signal(false);
+
   readonly profileLoading =
     signal(false);
 
@@ -184,6 +244,39 @@ export class WorkspaceDashboardPage
 
   readonly contactRequestsError =
     signal(false);
+
+  readonly employerProfileStatusLabel =
+    computed(() => {
+      const profile =
+        this.employerProfile();
+
+      return profile?.isProfileComplete
+        ? 'Complete'
+        : 'Needs details';
+    });
+
+  readonly employerWelcomeLabel =
+    computed(() => {
+      const companyName =
+        this.employerProfile()
+          ?.companyName
+          ?.trim();
+
+      return companyName
+        ? `Welcome back, ${companyName}.`
+        : 'Welcome back, Employer.';
+    });
+
+  readonly recentEmployerVacancies =
+    computed<EmployerVacancyListItem[]>(
+      () =>
+        this.employerVacancies()
+          ?.items
+          .slice(
+            0,
+            3,
+          ) ?? [],
+    );
 
   readonly profileReadinessLabel =
     computed(() => {
@@ -254,14 +347,25 @@ export class WorkspaceDashboardPage
     );
 
   ngOnInit(): void {
-    if (!this.isJobSeeker) {
+    if (this.isJobSeeker) {
+      this.loadProfile();
+      this.loadApplications();
+      this.loadNotifications();
+      this.loadContactRequests();
+
       return;
     }
 
-    this.loadProfile();
-    this.loadApplications();
-    this.loadNotifications();
-    this.loadContactRequests();
+    this.loadEmployerProfile();
+    this.loadEmployerVacancyOverview();
+  }
+
+  employerVacancyStatusLabel(
+    status: EmployerVacancyStatus,
+  ): string {
+    return status === 1
+      ? 'Open'
+      : 'Closed';
   }
 
   applicationStatusLabel(
@@ -286,6 +390,136 @@ export class WorkspaceDashboardPage
       default:
         return 'Updated';
     }
+  }
+
+  private loadEmployerProfile(): void {
+    this.employerProfileLoading.set(
+      true,
+    );
+
+    this.employerProfileError.set(
+      false,
+    );
+
+    this.employerProfileService
+      .getOwnProfile()
+      .pipe(
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+      )
+      .subscribe({
+        next: (profile) => {
+          this.employerProfile.set(
+            profile,
+          );
+
+          this.employerProfileLoading.set(
+            false,
+          );
+        },
+
+        error: (
+          error:
+            HttpErrorResponse,
+        ) => {
+          if (error.status === 404) {
+            this.employerProfile.set(
+              null,
+            );
+
+            this.employerProfileError.set(
+              false,
+            );
+
+            this.employerProfileLoading.set(
+              false,
+            );
+
+            return;
+          }
+
+          this.employerProfileError.set(
+            true,
+          );
+
+          this.employerProfileLoading.set(
+            false,
+          );
+        },
+      });
+  }
+
+  private loadEmployerVacancyOverview(): void {
+    this.employerVacanciesLoading.set(
+      true,
+    );
+
+    this.employerVacanciesError.set(
+      false,
+    );
+
+    forkJoin({
+      all:
+        this.employerVacancyService
+          .getVacancies(
+            null,
+            1,
+            3,
+          ),
+      open:
+        this.employerVacancyService
+          .getVacancies(
+            1,
+            1,
+            1,
+          ),
+      closed:
+        this.employerVacancyService
+          .getVacancies(
+            2,
+            1,
+            1,
+          ),
+    })
+      .pipe(
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+      )
+      .subscribe({
+        next: ({
+          all,
+          open,
+          closed,
+        }) => {
+          this.employerVacancies.set(
+            all,
+          );
+
+          this.employerOpenVacancyCount.set(
+            open.totalCount,
+          );
+
+          this.employerClosedVacancyCount.set(
+            closed.totalCount,
+          );
+
+          this.employerVacanciesLoading.set(
+            false,
+          );
+        },
+
+        error: () => {
+          this.employerVacanciesError.set(
+            true,
+          );
+
+          this.employerVacanciesLoading.set(
+            false,
+          );
+        },
+      });
   }
 
   private loadProfile(): void {

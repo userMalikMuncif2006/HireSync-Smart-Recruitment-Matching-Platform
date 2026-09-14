@@ -1,0 +1,191 @@
+.employer-dashboard {
+  width:
+    min(
+      1180px,
+      calc(100% - 52px)
+    );
+  padding-top: 38px;
+}
+
+.employer-hero {
+  position: relative;
+  display: flex;
+  min-height: 238px;
+  align-items: center;
+  overflow: hidden;
+  padding: 38px;
+  border: 1px solid #c9e3dc;
+  border-radius: 24px;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(246 252 250 / 0.99) 0%,
+      rgb(246 252 250 / 0.96) 38%,
+      rgb(246 252 250 / 0.65) 54%,
+      rgb(246 252 250 / 0.05) 72%
+    ),
+    url('/images/dashboard/employer-recruitment-hero.webp')
+      center / cover no-repeat;
+  box-shadow:
+    0 18px 42px
+    rgb(24 67 58 / 0.07);
+}
+
+.employer-hero__copy {
+  position: relative;
+  z-index: 1;
+  max-width: 610px;
+}
+
+.employer-hero__eyebrow {
+  margin: 0 0 9px;
+  color: var(--hs-brand-700);
+  font-size: 0.72rem;
+  font-weight: 820;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.employer-hero h1 {
+  max-width: 590px;
+  margin: 0;
+  color: #123d35;
+  font-size:
+    clamp(
+      2.2rem,
+      4vw,
+      3.15rem
+    );
+  font-weight: 780;
+  letter-spacing: -0.05em;
+  line-height: 1.04;
+}
+
+.employer-hero__greeting {
+  margin: 15px 0 0;
+  color: #264f47;
+  font-size: 1rem;
+  font-weight: 720;
+}
+
+.employer-hero__description {
+  max-width: 520px;
+  margin: 7px 0 0;
+  color: #58716b;
+  font-size: 0.9rem;
+  line-height: 1.62;
+}
+
+.employer-summary-word {
+  font-size: 1.06rem;
+}
+
+.employer-activity-grid {
+  grid-template-columns: 1fr;
+}
+
+.employer-vacancy-row {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto
+    auto;
+}
+
+.employer-status-pill--closed {
+  background: #f0f3f2;
+  color: #64746f;
+}
+
+.employer-row-action {
+  align-self: center;
+  color: var(--hs-brand-700);
+  font-size: 0.75rem;
+  font-weight: 760;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.employer-row-action:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+  .employer-dashboard {
+    width:
+      calc(
+        100% - 28px
+      );
+    padding-top: 28px;
+  }
+
+  .employer-hero {
+    min-height: 225px;
+    padding: 27px;
+    background:
+      linear-gradient(
+        90deg,
+        rgb(246 252 250 / 0.99) 0%,
+        rgb(246 252 250 / 0.96) 58%,
+        rgb(246 252 250 / 0.55) 100%
+      ),
+      url('/images/dashboard/employer-recruitment-hero.webp')
+        68% center / cover no-repeat;
+  }
+
+  .employer-hero__copy {
+    max-width: 78%;
+  }
+
+  .employer-vacancy-row {
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto;
+  }
+
+  .employer-row-action {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 520px) {
+  .employer-dashboard {
+    width:
+      calc(
+        100% - 20px
+      );
+  }
+
+  .employer-hero {
+    min-height: 255px;
+    padding: 22px;
+    border-radius: 19px;
+    background:
+      linear-gradient(
+        90deg,
+        rgb(246 252 250 / 0.99) 0%,
+        rgb(246 252 250 / 0.95) 70%,
+        rgb(246 252 250 / 0.7) 100%
+      ),
+      url('/images/dashboard/employer-recruitment-hero.webp')
+        72% center / cover no-repeat;
+  }
+
+  .employer-hero__copy {
+    max-width: 100%;
+  }
+
+  .employer-vacancy-row {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .employer-vacancy-row
+    .activity-row__meta {
+    justify-items: start;
+  }
+
+  .employer-row-action {
+    grid-column: auto;
+  }
+}

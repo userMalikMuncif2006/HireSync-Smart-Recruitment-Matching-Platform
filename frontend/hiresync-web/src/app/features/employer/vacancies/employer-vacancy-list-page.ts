@@ -26,7 +26,7 @@ import { EmployerVacancyService } from './employer-vacancy.service';
     DatePipe,
   ],
   templateUrl: './employer-vacancy-list-page.html',
-  styleUrl: './employer-vacancy-list-page.css',
+  styleUrls: ['./employer-vacancy-list-page.css', './employer-vacancy-list-cards.css', './employer-vacancy-list-hero-final.css'],
 })
 export class EmployerVacancyListPage {
   private readonly service =

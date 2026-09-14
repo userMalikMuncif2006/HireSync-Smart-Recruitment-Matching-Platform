@@ -16,6 +16,20 @@ import {
 } from 'rxjs';
 
 import {
+  EmployerProfile,
+  EmployerVerificationStatus,
+} from '../../features/employer/profile/employer-profile.models';
+import {
+  EmployerProfileService,
+} from '../../features/employer/profile/employer-profile.service';
+import {
+  EmployerVacancyPage,
+  VacancyStatus as EmployerVacancyStatus,
+} from '../../features/employer/vacancies/employer-vacancy.models';
+import {
+  EmployerVacancyService,
+} from '../../features/employer/vacancies/employer-vacancy.service';
+import {
   ApplicationStatus,
   JobSeekerApplicationPage,
   VacancyStatus,
@@ -76,6 +90,10 @@ describe(
             new FakeNotificationsService(),
           contacts:
             new FakeContactRequestsService(),
+          employerProfile:
+            new FakeEmployerProfileService(),
+          employerVacancies:
+            new FakeEmployerVacancyService(),
         };
 
       configure?.(
@@ -123,6 +141,18 @@ describe(
                 JobSeekerContactRequestsService,
               useValue:
                 services.contacts,
+            },
+            {
+              provide:
+                EmployerProfileService,
+              useValue:
+                services.employerProfile,
+            },
+            {
+              provide:
+                EmployerVacancyService,
+              useValue:
+                services.employerVacancies,
             },
           ],
         })
@@ -408,7 +438,7 @@ describe(
       );
     });
 
-    it('preserves the existing Employer dashboard and does not load Job Seeker data', async () => {
+    it('renders live Employer dashboard data without loading Job Seeker services', async () => {
       const {
         fixture,
         services,
@@ -423,19 +453,69 @@ describe(
       expect(
         element.textContent,
       ).toContain(
-        'Recruitment dashboard',
+        'Recruit talent for a brighter tomorrow',
+      );
+
+      expect(
+        textOf(
+          element,
+          '[data-testid="employer-profile-value"]',
+        ),
+      ).toBe(
+        'Complete',
+      );
+
+      expect(
+        textOf(
+          element,
+          '[data-testid="employer-total-vacancies"]',
+        ),
+      ).toBe(
+        '5',
+      );
+
+      expect(
+        textOf(
+          element,
+          '[data-testid="employer-open-vacancies"]',
+        ),
+      ).toBe(
+        '3',
+      );
+
+      expect(
+        textOf(
+          element,
+          '[data-testid="employer-closed-vacancies"]',
+        ),
+      ).toBe(
+        '2',
       );
 
       expect(
         element.textContent,
       ).toContain(
-        'Your recruitment workflow',
+        'Senior Software Engineer',
       );
 
       expect(
-        element.textContent,
-      ).toContain(
-        'Manage vacancies',
+        element.querySelectorAll(
+          '[data-testid="recent-employer-vacancy-row"]',
+        ).length,
+      ).toBe(
+        3,
+      );
+
+      expect(
+        services.employerProfile.calls,
+      ).toBe(
+        1,
+      );
+
+      expect(
+        services.employerVacancies.calls,
+      ).toBe(
+        3,
       );
 
       expect(
@@ -474,6 +554,54 @@ interface TestServices {
     FakeNotificationsService;
   contacts:
     FakeContactRequestsService;
+  employerProfile:
+    FakeEmployerProfileService;
+  employerVacancies:
+    FakeEmployerVacancyService;
+}
+
+class FakeEmployerProfileService {
+  calls = 0;
+
+  result:
+    Observable<EmployerProfile> =
+      of(
+        employerProfile,
+      );
+
+  getOwnProfile():
+    Observable<EmployerProfile> {
+    this.calls++;
+
+    return this.result;
+  }
+}
+
+class FakeEmployerVacancyService {
+  calls = 0;
+
+  getVacancies(
+    status:
+      EmployerVacancyStatus | null,
+  ): Observable<EmployerVacancyPage> {
+    this.calls++;
+
+    if (status === 1) {
+      return of(
+        employerOpenVacancies,
+      );
+    }
+
+    if (status === 2) {
+      return of(
+        employerClosedVacancies,
+      );
+    }
+
+    return of(
+      employerVacancies,
+    );
+  }
 }
 
 class FakeProfileService {
@@ -543,6 +671,115 @@ class FakeContactRequestsService {
     return this.result;
   }
 }
+
+const employerProfile:
+  EmployerProfile = {
+    id:
+      '91111111-1111-1111-1111-111111111111',
+    companyName:
+      'Nolimit Technologies',
+    description:
+      'Product engineering company.',
+    location:
+      'Colombo',
+    contactPersonName:
+      'Hiring Manager',
+    contactPersonDesignation:
+      'Talent Lead',
+    businessRegistrationNumber:
+      'BR-2026-001',
+    mobileNumber:
+      '0712345678',
+    companyWebsite:
+      'https://example.com',
+    businessEmail:
+      'hiring@example.com',
+    employerVerificationStatus:
+      EmployerVerificationStatus.Approved,
+    isProfileComplete:
+      true,
+    isVacancyReady:
+      true,
+  };
+
+const employerVacancies:
+  EmployerVacancyPage = {
+    page: 1,
+    pageSize: 3,
+    totalCount: 5,
+    items: [
+      {
+        id:
+          'a1111111-1111-1111-1111-111111111111',
+        title:
+          'Senior Software Engineer',
+        location:
+          'Colombo',
+        status:
+          1,
+        publishedAtUtc:
+          '2026-09-13T08:00:00Z',
+        updatedAtUtc:
+          '2026-09-13T08:00:00Z',
+        closedAtUtc:
+          null,
+        rowVersion:
+          'row-1',
+      },
+      {
+        id:
+          'a2111111-1111-1111-1111-111111111111',
+        title:
+          'UI UX Designer',
+        location:
+          'Remote',
+        status:
+          1,
+        publishedAtUtc:
+          '2026-09-12T08:00:00Z',
+        updatedAtUtc:
+          '2026-09-12T08:00:00Z',
+        closedAtUtc:
+          null,
+        rowVersion:
+          'row-2',
+      },
+      {
+        id:
+          'a3111111-1111-1111-1111-111111111111',
+        title:
+          'HR Executive',
+        location:
+          'Kandy',
+        status:
+          2,
+        publishedAtUtc:
+          '2026-09-10T08:00:00Z',
+        updatedAtUtc:
+          '2026-09-11T08:00:00Z',
+        closedAtUtc:
+          '2026-09-11T08:00:00Z',
+        rowVersion:
+          'row-3',
+      },
+    ],
+  };
+
+const employerOpenVacancies:
+  EmployerVacancyPage = {
+    page: 1,
+    pageSize: 1,
+    totalCount: 3,
+    items: [],
+  };
+
+const employerClosedVacancies:
+  EmployerVacancyPage = {
+    page: 1,
+    pageSize: 1,
+    totalCount: 2,
+    items: [],
+  };
 
 const readyProfile:
   JobSeekerProfile = {

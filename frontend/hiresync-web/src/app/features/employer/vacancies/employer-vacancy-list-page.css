@@ -1,70 +1,214 @@
 :host {
   display: block;
   min-height: 100%;
-  background: #f5f7f7;
-  color: #172322;
+  background: #f4f9f7;
+  color: #123f3a;
 }
 
 .employer-page {
-  width: min(1120px, calc(100% - 32px));
+  width: min(100%, 1120px);
   margin: 0 auto;
-  padding: 48px 0 72px;
+  padding: 2rem 1rem 4rem;
 }
 
-.page-header {
-  max-width: 760px;
-  margin-bottom: 26px;
+.vacancy-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.08fr)
+    minmax(330px, 0.78fr);
+  align-items: stretch;
+  min-height: 18.5rem;
+  overflow: hidden;
+  border: 1px solid #b9dfd9;
+  border-radius: 1.5rem;
+  background: #eef9f6;
+  box-shadow: 0 18px 44px rgba(17, 75, 67, 0.06);
 }
 
-.eyebrow {
-  margin: 0 0 6px;
-  color: #087f6d;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
+.vacancy-hero__copy {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 2.3rem;
+  background:
+    linear-gradient(
+      90deg,
+      #f8fffd 0%,
+      #f5fdfa 76%,
+      rgba(245, 253, 250, 0.90) 88%,
+      rgba(245, 253, 250, 0.48) 100%
+    );
+}
+
+.eyebrow,
+.section-kicker {
+  margin: 0 0 0.5rem;
+  color: #007d6d;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.page-header h1 {
+.vacancy-hero h1 {
+  max-width: 620px;
   margin: 0;
-  font-size: clamp(2rem, 4vw, 3.1rem);
+  color: #073f38;
+  font-size: clamp(2.35rem, 4.2vw, 3.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
 }
 
-.page-header > p:last-child {
-  color: #61706e;
-  line-height: 1.65;
+.vacancy-hero__lead {
+  max-width: 590px;
+  margin: 1rem 0 0;
+  color: #4d6f6a;
+  font-size: 0.96rem;
+  line-height: 1.68;
+}
+
+.hero-action {
+  align-self: flex-start;
+  margin-top: 1.35rem;
+}
+
+.vacancy-hero__photo {
+  position: relative;
+  z-index: 1;
+  min-height: 18.5rem;
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(238, 249, 246, 0.28) 0%,
+      rgba(238, 249, 246, 0.05) 22%,
+      rgba(238, 249, 246, 0) 48%
+    ),
+    url('/images/employer/vacancy-recruitment-woman-hero.webp');
+  background-repeat: no-repeat;
+  background-position:
+    center,
+    58% center;
+  background-size:
+    cover,
+    auto 100%;
+}
+
+.vacancy-hero__workflow {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  right: 1.1rem;
+  display: grid;
+  width: min(29%, 305px);
+  gap: 0.62rem;
+  transform: translateY(-50%);
+}
+
+.workflow-card {
+  display: grid;
+  grid-template-columns: 2.35rem minmax(0, 1fr);
+  gap: 0.72rem;
+  align-items: center;
+  padding: 0.82rem 0.88rem;
+  border: 1px solid rgba(134, 201, 190, 0.9);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.93);
+  backdrop-filter: blur(9px);
+  box-shadow: 0 8px 22px rgba(18, 83, 73, 0.07);
+}
+
+.workflow-card > span {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  place-items: center;
+  border-radius: 0.7rem;
+  color: #007d6d;
+  background: #e3f7f2;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.workflow-card > div {
+  display: grid;
+  gap: 0.14rem;
+}
+
+.workflow-card strong {
+  color: #104940;
+  font-size: 0.82rem;
+}
+
+.workflow-card small {
+  color: #708681;
+  font-size: 0.69rem;
+  line-height: 1.35;
+}
+.vacancy-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin: 1rem 0;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid #d3e5e1;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.toolbar-copy h2 {
+  margin: 0;
+  color: #0b443d;
+  font-size: 1rem;
+}
+
+.toolbar-copy > p:last-child {
+  max-width: 530px;
+  margin: 0.35rem 0 0;
+  color: #6b817d;
+  font-size: 0.78rem;
+  line-height: 1.55;
 }
 
 .filter-panel {
   display: flex;
+  flex: 0 0 auto;
   align-items: end;
-  gap: 12px;
-  padding: 18px;
-  border: 1px solid #dce5e3;
-  border-radius: 16px;
-  background: #fff;
+  gap: 0.65rem;
 }
 
-.filter-panel label {
+.filter-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.filter-field label {
+  color: #345c56;
+  font-size: 0.76rem;
   font-weight: 700;
 }
 
-.filter-panel select {
-  min-width: 180px;
-  min-height: 42px;
-  border: 1px solid #cbd8d5;
-  border-radius: 10px;
-  padding: 0 12px;
-  background: #fff;
+.filter-field select {
+  min-width: 175px;
+  min-height: 2.65rem;
+  border: 1px solid #bfd3cf;
+  border-radius: 0.7rem;
+  padding: 0 0.8rem;
+  background: #fbfefd;
+  color: #173f3a;
   font: inherit;
 }
 
 button {
-  min-height: 42px;
-  border-radius: 10px;
-  padding: 0 16px;
+  min-height: 2.65rem;
+  border-radius: 0.7rem;
+  padding: 0 1rem;
   font: inherit;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -86,9 +230,9 @@ button:disabled {
 }
 
 .danger-outline {
-  border: 1px solid #c83b31;
+  border: 1px solid #d06a62;
   background: #fff;
-  color: #a92b23;
+  color: #aa342b;
 }
 
 .danger-button {
@@ -97,134 +241,231 @@ button:disabled {
   color: #fff;
 }
 
-.result-summary {
-  margin: 28px 0 14px;
-}
-
-.result-summary > div {
+.portfolio-summary {
   display: grid;
-  gap: 4px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 0 0 1rem;
 }
 
-.result-summary span {
-  color: #687674;
-}
-
-.vacancy-grid {
+.portfolio-summary > div {
   display: grid;
-  gap: 14px;
-}
-
-.vacancy-card,
-.state-card {
-  border: 1px solid #dce5e3;
-  border-radius: 16px;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid #d3e5e1;
+  border-radius: 0.9rem;
   background: #fff;
-  padding: 22px;
 }
 
-.vacancy-card h2 {
-  margin: 10px 0 4px;
-  font-size: 1.3rem;
+.summary-label {
+  color: #718783;
+  font-size: 0.72rem;
 }
 
-.location {
-  margin: 0;
-  color: #657370;
+.portfolio-summary strong {
+  overflow: hidden;
+  color: #0e4740;
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.status-badge {
-  display: inline-flex;
-  border-radius: 999px;
-  background: #e8f6f2;
-  padding: 5px 9px;
-  color: #08715f;
-  font-size: 0.76rem;
-  font-weight: 700;
-}
-
-.status-badge.closed {
-  background: #eef1f1;
-  color: #566360;
-}
-
-.facts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  margin: 20px 0;
-}
-
-.facts div {
-  display: grid;
-  gap: 4px;
-}
-
-.facts dt {
-  color: #788481;
-  font-size: 0.78rem;
-}
-
-.facts dd {
-  margin: 0;
-  font-weight: 650;
-}
-
-.card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.close-confirmation {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  color: #7b2923;
+.state-card,
+.empty-state {
+  border: 1px solid #d3e5e1;
+  border-radius: 1rem;
+  background: #fff;
 }
 
 .state-card {
-  display: grid;
-  gap: 8px;
-  margin-top: 24px;
-  color: #5d6c69;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding: 1rem;
 }
 
-.state-card.error {
+.state-card > div:last-child {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.state-card span,
+.empty-state p {
+  color: #667f7a;
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.state-card--error {
   border-color: #efc4bf;
   background: #fff8f7;
-  color: #8a251e;
 }
 
-.state-card button {
-  justify-self: start;
+.state-icon,
+.empty-state__mark {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.75rem;
+  color: #087f6d;
+  background: #e5f8f4;
+  font-weight: 800;
+}
+
+.state-icon {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.state-action {
+  width: fit-content;
+  margin-top: 0.45rem;
+}
+
+.empty-state {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.35rem;
+}
+
+.empty-state__mark {
+  width: 3rem;
+  height: 3rem;
+}
+
+.empty-state h2 {
+  margin: 0;
+  color: #0b443d;
+  font-size: 1.05rem;
+}
+
+.empty-state p {
+  margin: 0.35rem 0 0;
 }
 
 .pagination {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-top: 24px;
+  gap: 1rem;
+  margin-top: 1.2rem;
 }
 
-@media (max-width: 700px) {
-  .employer-page {
-    width: min(100% - 24px, 1120px);
-    padding-top: 28px;
+.pagination span {
+  color: #617873;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 920px) {
+  .vacancy-hero {
+    grid-template-columns: 1fr;
   }
 
-  .filter-panel {
+  .vacancy-hero__copy {
+    padding: 1.6rem 1.35rem 10rem;
+    background:
+      linear-gradient(
+        180deg,
+        rgba(248, 255, 253, 0.99) 0%,
+        rgba(248, 255, 253, 0.96) 58%,
+        rgba(248, 255, 253, 0.58) 78%,
+        rgba(248, 255, 253, 0.08) 100%
+      );
+  }
+
+  .vacancy-hero__photo {
+    position: absolute;
+    inset: 0;
+    background-position:
+      center,
+      right center;
+    background-size:
+      cover,
+      auto 78%;
+  }
+
+  .vacancy-hero__workflow {
+    top: auto;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    width: auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    transform: none;
+  }
+
+  .vacancy-toolbar {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .filter-panel select {
+  .filter-panel {
+    align-items: stretch;
+  }
+
+  .portfolio-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 620px) {
+  .employer-page {
+    padding: 1rem 0.65rem 3rem;
+  }
+
+  .vacancy-hero {
+    min-height: 32rem;
+    border-radius: 1.05rem;
+  }
+
+  .vacancy-hero h1 {
+    font-size: clamp(1.95rem, 9.5vw, 2.45rem);
+  }
+
+  .vacancy-hero__copy {
+    padding: 1.35rem 1.15rem 14rem;
+  }
+
+  .vacancy-hero__photo {
+    background-position:
+      center,
+      right bottom;
+    background-size:
+      cover,
+      auto 54%;
+  }
+
+  .vacancy-hero__workflow {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .workflow-card {
+    padding: 0.68rem 0.72rem;
+  }
+
+  .vacancy-hero__visual,
+  .portfolio-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-panel {
+    flex-direction: column;
+  }
+
+  .filter-field select,
+  .apply-filter-button,
+  .empty-state .primary-button {
     width: 100%;
   }
 
-  .facts {
+  .empty-state {
     grid-template-columns: 1fr;
   }
 
@@ -232,9 +473,4 @@ button:disabled {
     align-items: stretch;
     flex-direction: column;
   }
-}
-.page-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 14px;
 }

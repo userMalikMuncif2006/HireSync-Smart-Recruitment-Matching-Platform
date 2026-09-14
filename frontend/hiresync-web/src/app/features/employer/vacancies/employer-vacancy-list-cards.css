@@ -1,0 +1,190 @@
+.vacancy-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.vacancy-card {
+  position: relative;
+  padding: 1.2rem;
+  overflow: hidden;
+  border: 1px solid #d3e5e1;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(20, 74, 66, 0.035);
+}
+
+.vacancy-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0.24rem;
+  background: #15947d;
+}
+
+.vacancy-card--closed::before {
+  background: #98aaa6;
+}
+
+.card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.card-reference {
+  color: #8a9b98;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.55rem;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+  color: #08715f;
+  background: #e7f7f2;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.status-badge.closed {
+  color: #5d6c69;
+  background: #eef2f1;
+}
+
+.card-heading {
+  margin-top: 0.75rem;
+}
+
+.vacancy-card h2 {
+  margin: 0;
+  color: #0b4039;
+  font-size: 1.25rem;
+  letter-spacing: -0.015em;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0;
+  color: #687d79;
+  font-size: 0.82rem;
+}
+
+.location span {
+  color: #15947d;
+  font-size: 0.55rem;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+
+.facts div {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem 0.8rem;
+  border-radius: 0.75rem;
+  background: #f7fbfa;
+}
+
+.facts dt {
+  color: #788b87;
+  font-size: 0.7rem;
+}
+
+.facts dd {
+  margin: 0;
+  color: #294e48;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.card-divider {
+  height: 1px;
+  margin: 0 0 0.9rem;
+  background: #e9f0ee;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.close-confirmation {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem;
+  border: 1px solid #efcac6;
+  border-radius: 0.75rem;
+  background: #fff8f7;
+}
+
+.close-confirmation > div:first-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.close-confirmation strong {
+  color: #8e2d26;
+  font-size: 0.8rem;
+}
+
+.close-confirmation span {
+  color: #9a5a54;
+  font-size: 0.72rem;
+}
+
+.close-confirmation__actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+}
+
+.closed-note {
+  color: #71817e;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .card-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .card-actions > button {
+    width: 100%;
+  }
+
+  .close-confirmation {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .close-confirmation__actions {
+    flex-direction: column;
+  }
+
+  .close-confirmation__actions button {
+    width: 100%;
+  }
+}
