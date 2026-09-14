@@ -1,9 +1,3 @@
-/*
-  Final Employer Vacancies hero correction.
-  Dedicated columns prevent the headline, recruiter image and workflow cards
-  from overlapping each other on desktop.
-*/
-
 .vacancy-hero {
   display: grid !important;
   grid-template-columns: 46% 29% 25% !important;
@@ -16,39 +10,41 @@
   overflow: hidden !important;
   background: #eef9f6 !important;
   background-image: none !important;
+  border: 1px solid #b9dfd9 !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 18px 44px rgba(17, 75, 67, 0.06) !important;
 }
 
 .vacancy-hero__copy {
-  position: relative !important;
   z-index: 2 !important;
   grid-column: 1 !important;
   display: flex !important;
-  width: auto !important;
   min-width: 0 !important;
   flex-direction: column !important;
   justify-content: center !important;
   padding: 1.8rem 1.45rem 1.8rem 2.25rem !important;
-  overflow: visible !important;
-  background:
-    linear-gradient(
-      90deg,
-      #f8fffd 0%,
-      #f6fdfa 82%,
-      rgba(246, 253, 250, 0.92) 100%
-    ) !important;
+  background: linear-gradient(90deg, #f8fffd 0%, #f6fdfa 82%, rgba(246, 253, 250, 0.92) 100%) !important;
+}
+
+.eyebrow,
+.section-kicker {
+  margin: 0 0 0.5rem;
+  color: #007d6d;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .vacancy-hero h1 {
   max-width: 100% !important;
   margin: 0 !important;
-  overflow: visible !important;
   color: #073f38 !important;
   font-size: clamp(2.15rem, 3.4vw, 3rem) !important;
   font-weight: 800 !important;
   line-height: 1.02 !important;
   letter-spacing: -0.04em !important;
   white-space: normal !important;
-  text-wrap: balance;
 }
 
 .vacancy-hero__lead {
@@ -65,8 +61,6 @@
 }
 
 .vacancy-hero__photo {
-  position: relative !important;
-  inset: auto !important;
   z-index: 1 !important;
   grid-column: 2 !important;
   width: 100% !important;
@@ -74,41 +68,24 @@
   min-height: 18.5rem !important;
   background-color: #edf8f5 !important;
   background-image:
-    linear-gradient(
-      90deg,
-      rgba(238, 249, 246, 0.28) 0%,
-      rgba(238, 249, 246, 0.02) 28%,
-      rgba(238, 249, 246, 0) 100%
-    ),
+    linear-gradient(90deg, rgba(238, 249, 246, 0.28) 0%, rgba(238, 249, 246, 0.02) 28%, rgba(238, 249, 246, 0) 100%),
     url('/images/employer/vacancy-recruitment-woman-hero.webp') !important;
   background-repeat: no-repeat !important;
-  background-position:
-    center,
-    center bottom !important;
-  background-size:
-    cover,
-    contain !important;
+  background-position: center, center bottom !important;
+  background-size: cover, contain !important;
 }
 
 .vacancy-hero__workflow {
-  position: static !important;
-  inset: auto !important;
   z-index: 2 !important;
   grid-column: 3 !important;
   display: grid !important;
-  width: auto !important;
   min-width: 0 !important;
   align-content: center !important;
   gap: 0.62rem !important;
   margin: 0 !important;
   padding: 1.1rem 1rem !important;
   transform: none !important;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(228, 247, 242, 0.98) 0%,
-      rgba(238, 250, 247, 0.98) 100%
-    ) !important;
+  background: linear-gradient(180deg, rgba(228, 247, 242, 0.98) 0%, rgba(238, 250, 247, 0.98) 100%) !important;
 }
 
 .workflow-card {
@@ -122,7 +99,6 @@
   border-radius: 0.85rem !important;
   background: rgba(255, 255, 255, 0.92) !important;
   box-shadow: 0 7px 18px rgba(18, 83, 73, 0.05) !important;
-  backdrop-filter: none !important;
 }
 
 .workflow-card > span {
@@ -155,78 +131,4 @@
   color: #708681 !important;
   font-size: 0.66rem !important;
   line-height: 1.35 !important;
-}
-
-@media (max-width: 1020px) {
-  .vacancy-hero {
-    grid-template-columns: 53% 47% !important;
-    height: auto !important;
-    min-height: 21rem !important;
-  }
-
-  .vacancy-hero__copy {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    padding: 1.6rem 1.3rem !important;
-  }
-
-  .vacancy-hero__photo {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    min-height: 15rem !important;
-    background-size:
-      cover,
-      contain !important;
-  }
-
-  .vacancy-hero__workflow {
-    grid-column: 1 / -1 !important;
-    grid-row: 2 !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    padding: 0.85rem 1rem !important;
-  }
-}
-
-@media (max-width: 720px) {
-  .vacancy-hero {
-    grid-template-columns: 1fr !important;
-    min-height: auto !important;
-    border-radius: 1.05rem !important;
-  }
-
-  .vacancy-hero__copy,
-  .vacancy-hero__photo,
-  .vacancy-hero__workflow {
-    grid-column: 1 !important;
-  }
-
-  .vacancy-hero__copy {
-    grid-row: 1 !important;
-    padding: 1.3rem 1.1rem !important;
-  }
-
-  .vacancy-hero h1 {
-    font-size: clamp(1.95rem, 9vw, 2.4rem) !important;
-  }
-
-  .vacancy-hero__photo {
-    grid-row: 2 !important;
-    min-height: 14rem !important;
-    background-position:
-      center,
-      center bottom !important;
-    background-size:
-      cover,
-      contain !important;
-  }
-
-  .vacancy-hero__workflow {
-    grid-row: 3 !important;
-    grid-template-columns: 1fr !important;
-    padding: 0.75rem !important;
-  }
-
-  .workflow-card strong {
-    white-space: normal !important;
-  }
 }
