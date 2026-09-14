@@ -1,0 +1,267 @@
+:host {
+  display: block;
+}
+
+.applicant-card {
+  padding: 1.25rem;
+  border: 1px solid var(--hs-border);
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.card-heading {
+  display: grid;
+  grid-template-columns:
+    auto minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+}
+
+.rank {
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.75rem;
+  background: var(--hs-brand-50);
+  color: var(--hs-brand-700);
+  font-weight: 800;
+}
+
+.identity {
+  min-width: 0;
+}
+
+.identity-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.identity-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: grid;
+  place-items: center;
+  flex: 0 0 2.25rem;
+  border-radius: 50%;
+  background: #e4f3ef;
+  color: var(--hs-brand-800);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h2 {
+  margin-bottom: 0;
+  color: #213c36;
+  font-size: 1.05rem;
+}
+
+.badges {
+  margin-top: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.status-badge,
+.contact-badge,
+.skill {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.status-badge {
+  background: #edf7f4;
+  color: #0b6d5d;
+}
+
+.contact-badge {
+  background: #f1f5f4;
+  color: #536963;
+}
+
+.total-score {
+  display: grid;
+  justify-items: end;
+  gap: 0.25rem;
+}
+
+.total-score span {
+  color: var(--hs-text-500);
+  font-size: 0.72rem;
+}
+
+.total-score strong {
+  color: var(--hs-brand-800);
+  font-size: 1.35rem;
+}
+
+.workflow {
+  margin-top: 1rem;
+  padding: 1rem;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid #e1eae7;
+  border-radius: 0.85rem;
+  background: #fafcfb;
+}
+
+.workflow-copy {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.workflow-copy span {
+  color: var(--hs-text-500);
+  font-size: 0.78rem;
+}
+
+.workflow-actions {
+  display: flex;
+  align-items: end;
+  gap: 0.55rem;
+}
+
+.workflow-actions label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+select,
+button {
+  min-height: 2.55rem;
+  border-radius: 0.65rem;
+  font: inherit;
+}
+
+select {
+  border: 1px solid var(--hs-border-strong);
+  padding: 0 0.7rem;
+  background: #fff;
+}
+
+.primary-button {
+  border: 0;
+  padding: 0 0.9rem;
+  background: var(--hs-brand-700);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.score-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.score-grid > div {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.8rem;
+  border-radius: 0.75rem;
+  background: #f5f9f8;
+}
+
+.score-grid span {
+  color: var(--hs-text-500);
+  font-size: 0.7rem;
+}
+
+.score-grid strong {
+  color: #28443e;
+  font-size: 0.82rem;
+}
+
+.skill-columns {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.skill-columns section {
+  padding: 0.95rem;
+  border: 1px solid #e1ebe8;
+  border-radius: 0.85rem;
+}
+
+.skill-columns h3 {
+  margin-bottom: 0.65rem;
+  color: #314c46;
+  font-size: 0.82rem;
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.skill.matched {
+  background: #e8f7f2;
+  color: #08715f;
+}
+
+.skill.missing {
+  background: #fff4ed;
+  color: #9a4d21;
+}
+
+.muted {
+  margin-bottom: 0;
+  color: var(--hs-text-500);
+  font-size: 0.78rem;
+}
+
+footer {
+  margin-top: 1rem;
+  color: #82918d;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 720px) {
+  .card-heading,
+  .score-grid,
+  .skill-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .total-score {
+    justify-items: start;
+  }
+
+  .workflow,
+  .workflow-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .workflow-actions {
+    display: flex;
+  }
+}

@@ -1,0 +1,437 @@
+<main class="applications-page">
+  <section
+    class="applications-hero issue45-applications-hero-root"
+    aria-labelledby="applications-title"
+  >
+    <!-- ISSUE45_APPLICATIONS_REAL_IMAGE_START -->
+    <img
+      class="issue45-applications-hero-image"
+      src="/images/seeker/applications-hero.webp"
+      alt=""
+      aria-hidden="true"
+    />
+    <!-- ISSUE45_APPLICATIONS_REAL_IMAGE_END -->
+    <div class="applications-hero__copy issue45-applications-hero-copy">
+      <p class="applications-hero__eyebrow">
+        Job Seeker workspace
+      </p>
+
+      <h1 id="applications-title">
+        Track your applications
+      </h1>
+
+      <p>
+        Follow every submitted application and stay current as
+        employers move your application through the HireSync workflow.
+      </p>
+    </div>
+  </section>
+
+  <section
+    class="status-filter"
+    aria-label="Application status filter"
+  >
+    <button
+      type="button"
+      [class.status-filter__item--active]="isStatusSelected(null)"
+      (click)="selectStatusFilter(null)"
+    >
+      All
+    </button>
+
+    <button
+      type="button"
+      [class.status-filter__item--active]="
+        isStatusSelected(ApplicationStatus.Applied)
+      "
+      (click)="selectStatusFilter(ApplicationStatus.Applied)"
+    >
+      Applied
+    </button>
+
+    <button
+      type="button"
+      [class.status-filter__item--active]="
+        isStatusSelected(ApplicationStatus.UnderReview)
+      "
+      (click)="selectStatusFilter(ApplicationStatus.UnderReview)"
+    >
+      Under review
+    </button>
+
+    <button
+      type="button"
+      [class.status-filter__item--active]="
+        isStatusSelected(ApplicationStatus.Shortlisted)
+      "
+      (click)="selectStatusFilter(ApplicationStatus.Shortlisted)"
+    >
+      Shortlisted
+    </button>
+
+    <button
+      type="button"
+      [class.status-filter__item--active]="
+        isStatusSelected(ApplicationStatus.Selected)
+      "
+      (click)="selectStatusFilter(ApplicationStatus.Selected)"
+    >
+      Selected
+    </button>
+
+    <button
+      type="button"
+      [class.status-filter__item--active]="
+        isStatusSelected(ApplicationStatus.Rejected)
+      "
+      (click)="selectStatusFilter(ApplicationStatus.Rejected)"
+    >
+      Rejected
+    </button>
+  </section>
+
+  @if (isLoading()) {
+    <section class="state-card">
+      <strong>
+        Loading your applications...
+      </strong>
+
+      <span>
+        Checking the latest application states.
+      </span>
+    </section>
+  } @else if (errorMessage()) {
+    <section
+      class="state-card error-state"
+      role="alert"
+    >
+      <div>
+        <strong>
+          Applications unavailable
+        </strong>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="retry()"
+      >
+        Retry
+      </button>
+    </section>
+  } @else {
+    @if (result(); as current) {
+      <section class="applications-summary">
+        <div>
+          <strong>
+            {{ current.totalCount }}
+            {{
+              current.totalCount === 1
+                ? 'application'
+                : 'applications'
+            }}
+          </strong>
+
+          <span>
+            {{ selectedStatusLabel() }}
+          </span>
+        </div>
+
+        <span>
+          Page {{ current.page }}
+          of {{ totalPages() }}
+        </span>
+      </section>
+
+      <section class="applications-layout">
+        <div class="applications-main">
+          @if (current.items.length === 0) {
+            <section class="state-card empty-state">
+              <div>
+                <strong>
+                  No applications found
+                </strong>
+
+                <p>
+                  You do not have applications matching this
+                  status filter.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class="primary-button"
+                (click)="browseVacancies()"
+              >
+                Browse vacancies
+              </button>
+            </section>
+          } @else {
+            <section
+              class="application-list"
+              aria-label="Job applications"
+            >
+              @for (
+                application of current.items;
+                track application.applicationId
+              ) {
+                <article class="application-card">
+                  <div
+                    class="company-mark"
+                    aria-hidden="true"
+                  >
+                    {{
+                      companyInitial(
+                        application.companyName
+                      )
+                    }}
+                  </div>
+
+                  <div class="application-main">
+                    <div class="card-heading">
+                      <div>
+                        <p class="company-name">
+                          {{ application.companyName }}
+                        </p>
+
+                        <h2>
+                          {{ application.vacancyTitle }}
+                        </h2>
+                      </div>
+
+                      <span
+                        class="status-badge"
+                        [attr.data-status]="application.status"
+                      >
+                        {{
+                          applicationStatusLabel(
+                            application.status
+                          )
+                        }}
+                      </span>
+                    </div>
+
+                    <dl class="application-details">
+                      <div>
+                        <dt>
+                          Location
+                        </dt>
+
+                        <dd>
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                            />
+                          </svg>
+
+                          {{ application.vacancyLocation }}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt>
+                          Applied
+                        </dt>
+
+                        <dd>
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M6 3v3m12-3v3M4 8h16v12H4V8Zm4 4h3m2 0h3"
+                            />
+                          </svg>
+
+                          {{
+                            application.appliedAtUtc
+                              | date:'mediumDate'
+                          }}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt>
+                          Last updated
+                        </dt>
+
+                        <dd>
+                          {{
+                            application.updatedAtUtc
+                              | date:'mediumDate'
+                          }}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt>
+                          Vacancy
+                        </dt>
+
+                        <dd>
+                          {{
+                            vacancyStatusLabel(
+                              application.vacancyStatus
+                            )
+                          }}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <div class="card-actions">
+                    <button
+                      type="button"
+                      class="details-button"
+                      (click)="openVacancy(application.vacancyId)"
+                    >
+                      View vacancy
+                      <span aria-hidden="true">
+                        &rarr;
+                      </span>
+                    </button>
+                  </div>
+                </article>
+              }
+            </section>
+
+            @if (current.totalCount > current.pageSize) {
+              <nav
+                class="pagination"
+                aria-label="Application pages"
+              >
+                <button
+                  type="button"
+                  class="secondary-button"
+                  [disabled]="current.page <= 1 || isLoading()"
+                  (click)="previousPage()"
+                >
+                  Previous
+                </button>
+
+                <span>
+                  Page {{ current.page }}
+                  of {{ totalPages() }}
+                </span>
+
+                <button
+                  type="button"
+                  class="secondary-button"
+                  [disabled]="
+                    current.page >= totalPages() ||
+                    isLoading()
+                  "
+                  (click)="nextPage()"
+                >
+                  Next
+                </button>
+              </nav>
+            }
+          }
+        </div>
+
+        <aside
+          class="applications-guidance"
+          aria-label="Application guidance"
+        >
+          <article class="guidance-card">
+            <span
+              class="guidance-icon"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M9 18h6M10 22h4M8.5 14.5C6.9 13.4 6 11.6 6 9.5a6 6 0 1 1 12 0c0 2.1-.9 3.9-2.5 5"
+                />
+              </svg>
+            </span>
+
+            <div>
+              <h2>
+                Application tips
+              </h2>
+
+              <p>
+                Keep your structured HireSync information current
+                while employers review your applications.
+              </p>
+
+              <ul class="guidance-list">
+                <li>Keep your profile up to date</li>
+                <li>Review relevant vacancy details</li>
+                <li>Track application status changes</li>
+                <li>Check notifications for updates</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="guidance-card">
+            <span
+              class="guidance-icon"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M5 20V10m5 10V4m5 16v-7m4 7V7"
+                />
+              </svg>
+            </span>
+
+            <div>
+              <h2>
+                What happens next?
+              </h2>
+
+              <p>
+                Employers can move applications through the
+                HireSync status workflow. This page always shows
+                the latest server-provided state.
+              </p>
+            </div>
+          </article>
+
+          <article class="guidance-card">
+            <span
+              class="guidance-icon"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 5h16v14H4V5Zm0 3 8 5 8-5"
+                />
+              </svg>
+            </span>
+
+            <div>
+              <h2>
+                Get notified
+              </h2>
+
+              <p>
+                Review your HireSync notifications for genuine
+                application-status updates.
+              </p>
+
+              <button
+                type="button"
+                class="guidance-link"
+                (click)="openNotifications()"
+              >
+                Go to notifications &rarr;
+              </button>
+            </div>
+          </article>
+        </aside>
+      </section>
+    }
+  }
+</main>

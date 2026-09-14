@@ -1,0 +1,189 @@
+﻿<main class="activation-page">
+  <section class="activation-card">
+    <header class="brand">
+      <span
+        class="brand-mark"
+        aria-hidden="true"
+      >
+        H
+      </span>
+
+      <div>
+        <p class="eyebrow">HireSync security</p>
+        <h1>Activate Administrator</h1>
+      </div>
+    </header>
+
+    <p class="intro">
+      Complete the seeded Administrator account's
+      one-time activation before first sign in.
+    </p>
+
+    @if (infoMessage()) {
+      <div
+        class="message success-message"
+        role="status"
+      >
+        {{ infoMessage() }}
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div
+        class="message error-message"
+        role="alert"
+      >
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      novalidate
+    >
+      <div class="field">
+        <label for="adminEmail">
+          Administrator email
+        </label>
+
+        <input
+          id="adminEmail"
+          type="email"
+          autocomplete="username"
+          formControlName="email"
+          [readOnly]="activationRequested()"
+          placeholder="Administrator email"
+        />
+
+        @if (
+          form.controls.email.touched &&
+          form.controls.email.hasError('required')
+        ) {
+          <p class="validation-message">
+            Email is required.
+          </p>
+        } @else if (
+          form.controls.email.touched &&
+          form.controls.email.hasError('email')
+        ) {
+          <p class="validation-message">
+            Enter a valid email address.
+          </p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="adminPassword">
+          Administrator password
+        </label>
+
+        <input
+          id="adminPassword"
+          type="password"
+          autocomplete="current-password"
+          formControlName="password"
+          [readOnly]="activationRequested()"
+          placeholder="Enter the seeded password"
+        />
+
+        @if (
+          form.controls.password.touched &&
+          form.controls.password.hasError('required')
+        ) {
+          <p class="validation-message">
+            Password is required.
+          </p>
+        }
+      </div>
+
+      @if (activationRequested()) {
+        <div class="field">
+          <label for="activationCode">
+            Activation code
+          </label>
+
+          <input
+            id="activationCode"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            formControlName="code"
+            placeholder="Enter the code from your email"
+          />
+
+          @if (
+            form.controls.code.touched &&
+            form.controls.code.hasError('required')
+          ) {
+            <p class="validation-message">
+              Activation code is required.
+            </p>
+          }
+        </div>
+
+        @if (expiresAtUtc()) {
+          <p class="expiry">
+            Current code expires
+            <strong>
+              {{
+                expiresAtUtc()
+                  | date: 'medium'
+              }}
+            </strong>
+          </p>
+        }
+      }
+
+      <button
+        class="primary-button"
+        type="submit"
+        [disabled]="
+          isRequesting() ||
+          isVerifying()
+        "
+      >
+        @if (isRequesting()) {
+          Sending activation code...
+        } @else if (isVerifying()) {
+          Activating...
+        } @else if (activationRequested()) {
+          Activate Administrator
+        } @else {
+          Send activation code
+        }
+      </button>
+    </form>
+
+    @if (activationRequested()) {
+      <div class="resend-section">
+        <p>Didn't receive the code?</p>
+
+        <button
+          class="secondary-button"
+          type="button"
+          [disabled]="
+            isRequesting() ||
+            isVerifying() ||
+            cooldownSeconds() > 0
+          "
+          (click)="requestCode()"
+        >
+          @if (isRequesting()) {
+            Sending...
+          } @else if (cooldownSeconds() > 0) {
+            Resend in {{ cooldownSeconds() }}s
+          } @else {
+            Resend activation code
+          }
+        </button>
+      </div>
+    }
+
+    <footer>
+      <a routerLink="/login">
+        Back to sign in
+      </a>
+    </footer>
+  </section>
+</main>

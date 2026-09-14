@@ -1,0 +1,145 @@
+﻿<main class="verification-page">
+  <section class="verification-card">
+    <header class="brand">
+      <span
+        class="brand-mark"
+        aria-hidden="true"
+      >
+        H
+      </span>
+
+      <div>
+        <p class="eyebrow">HireSync security</p>
+        <h1>Verify your email</h1>
+      </div>
+    </header>
+
+    <p class="intro">
+      Employer accounts must verify their email
+      address before sign in.
+    </p>
+
+    @if (email()) {
+      <div class="email-summary">
+        <span>Verification email</span>
+        <strong>{{ email() }}</strong>
+      </div>
+    }
+
+    @if (infoMessage()) {
+      <div
+        class="message success-message"
+        role="status"
+      >
+        {{ infoMessage() }}
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div
+        class="message error-message"
+        role="alert"
+      >
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (email()) {
+      <form
+        [formGroup]="form"
+        (ngSubmit)="verify()"
+        novalidate
+      >
+        <div class="field">
+          <label for="verificationCode">
+            Verification code
+          </label>
+
+          <input
+            id="verificationCode"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            formControlName="code"
+            placeholder="Enter the code from your email"
+          />
+
+          @if (
+            code.touched &&
+            code.hasError('required')
+          ) {
+            <p class="validation-message">
+              Verification code is required.
+            </p>
+          }
+        </div>
+
+        @if (expiresAtUtc()) {
+          <p class="expiry">
+            Current code expires
+            <strong>
+              {{
+                expiresAtUtc()
+                  | date: 'medium'
+              }}
+            </strong>
+          </p>
+        }
+
+        <button
+          class="primary-button"
+          type="submit"
+          [disabled]="
+            isVerifying() ||
+            isRequesting()
+          "
+        >
+          {{
+            isVerifying()
+              ? 'Verifying...'
+              : 'Verify email'
+          }}
+        </button>
+      </form>
+
+      <div class="resend-section">
+        <p>
+          Didn't receive the code?
+        </p>
+
+        <button
+          class="secondary-button"
+          type="button"
+          [disabled]="
+            isRequesting() ||
+            isVerifying() ||
+            cooldownSeconds() > 0
+          "
+          (click)="requestCode()"
+        >
+          @if (isRequesting()) {
+            Sending...
+          } @else if (cooldownSeconds() > 0) {
+            Resend in
+            {{ cooldownSeconds() }}s
+          } @else {
+            Resend verification code
+          }
+        </button>
+      </div>
+    }
+
+    <footer class="auth-links">
+      <a routerLink="/login">
+        Back to sign in
+      </a>
+
+      <span aria-hidden="true">•</span>
+
+      <a routerLink="/register">
+        Create another account
+      </a>
+    </footer>
+  </section>
+</main>
+

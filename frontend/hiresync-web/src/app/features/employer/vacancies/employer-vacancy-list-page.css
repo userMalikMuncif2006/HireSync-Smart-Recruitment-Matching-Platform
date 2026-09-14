@@ -1,0 +1,269 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: #f4f9f7;
+  color: #123f3a;
+}
+
+.employer-page {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.vacancy-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin: 1rem 0;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid #d3e5e1;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.toolbar-copy h2 {
+  margin: 0;
+  color: #0b443d;
+  font-size: 1rem;
+}
+
+.toolbar-copy > p:last-child {
+  max-width: 530px;
+  margin: 0.35rem 0 0;
+  color: #6b817d;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.filter-panel {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: end;
+  gap: 0.65rem;
+}
+
+.filter-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.filter-field label {
+  color: #345c56;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.filter-field select {
+  min-width: 175px;
+  min-height: 2.65rem;
+  border: 1px solid #bfd3cf;
+  border-radius: 0.7rem;
+  padding: 0 0.8rem;
+  background: #fbfefd;
+  color: #173f3a;
+  font: inherit;
+}
+
+button {
+  min-height: 2.65rem;
+  border-radius: 0.7rem;
+  padding: 0 1rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary-button {
+  border: 1px solid #087f6d;
+  background: #087f6d;
+  color: #fff;
+}
+
+.secondary-button {
+  border: 1px solid #bfd0cc;
+  background: #fff;
+  color: #27413d;
+}
+
+.danger-outline {
+  border: 1px solid #d06a62;
+  background: #fff;
+  color: #aa342b;
+}
+
+.danger-button {
+  border: 1px solid #b42318;
+  background: #b42318;
+  color: #fff;
+}
+
+.portfolio-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 0 0 1rem;
+}
+
+.portfolio-summary > div {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid #d3e5e1;
+  border-radius: 0.9rem;
+  background: #fff;
+}
+
+.summary-label {
+  color: #718783;
+  font-size: 0.72rem;
+}
+
+.portfolio-summary strong {
+  overflow: hidden;
+  color: #0e4740;
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.state-card,
+.empty-state {
+  border: 1px solid #d3e5e1;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.state-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.state-card > div:last-child {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.state-card span,
+.empty-state p {
+  color: #667f7a;
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.state-card--error {
+  border-color: #efc4bf;
+  background: #fff8f7;
+}
+
+.state-icon,
+.empty-state__mark {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.75rem;
+  color: #087f6d;
+  background: #e5f8f4;
+  font-weight: 800;
+}
+
+.state-icon {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.state-action {
+  width: fit-content;
+  margin-top: 0.45rem;
+}
+
+.empty-state {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.35rem;
+}
+
+.empty-state__mark {
+  width: 3rem;
+  height: 3rem;
+}
+
+.empty-state h2 {
+  margin: 0;
+  color: #0b443d;
+  font-size: 1.05rem;
+}
+
+.empty-state p {
+  margin: 0.35rem 0 0;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.pagination span {
+  color: #617873;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 920px) {
+  .vacancy-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filter-panel {
+    align-items: stretch;
+  }
+
+  .portfolio-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .employer-page {
+    padding: 1rem 0.65rem 3rem;
+  }
+
+  .filter-panel {
+    flex-direction: column;
+  }
+
+  .filter-field select,
+  .apply-filter-button,
+  .empty-state .primary-button {
+    width: 100%;
+  }
+
+  .portfolio-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .empty-state {
+    grid-template-columns: 1fr;
+  }
+
+  .pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

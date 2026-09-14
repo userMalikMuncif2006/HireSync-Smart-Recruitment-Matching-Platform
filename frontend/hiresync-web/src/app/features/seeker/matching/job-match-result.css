@@ -1,0 +1,273 @@
+:host {
+  display: block;
+}
+
+.match-card {
+  display: grid;
+  gap: 16px;
+}
+
+.match-heading,
+.role-overview,
+.required-skills,
+.readiness-panel,
+.match-overview,
+.state-message,
+.match-unavailable,
+.computed-note {
+  border: 1px solid #d6e5e1;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(27 67 59 / 0.03);
+}
+
+.match-heading {
+  display: grid;
+  grid-template-columns:
+    58px
+    minmax(0, 1fr)
+    auto;
+  gap: 15px;
+  align-items: center;
+  padding: 21px;
+}
+
+.company-mark {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 13px;
+  background: #e9f7f3;
+  color: #087f6d;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.match-heading__copy {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: #087f6d;
+  font-size: 0.7rem;
+  font-weight: 790;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.match-heading h2 {
+  margin: 0;
+  color: #173f37;
+  font-size: 1.2rem;
+  font-weight: 780;
+}
+
+.location {
+  margin: 5px 0 0;
+  color: #6d7e79;
+  font-size: 0.8rem;
+}
+
+.top-score {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  border-radius: 13px;
+  background: #e8f6f2;
+  padding: 10px 13px;
+}
+
+.top-score span {
+  color: #607c75;
+  font-size: 0.67rem;
+  font-weight: 720;
+}
+
+.top-score strong {
+  color: #08715f;
+  font-size: 1.1rem;
+}
+
+.role-overview {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.4fr)
+    minmax(300px, 0.8fr);
+  gap: 24px;
+  padding: 22px;
+}
+
+.role-description h3,
+.section-heading h3 {
+  margin: 0;
+  color: #294941;
+  font-size: 0.95rem;
+  font-weight: 760;
+}
+
+.role-description p {
+  margin: 9px 0 0;
+  color: #677a75;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.role-facts {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.role-facts div {
+  display: grid;
+  gap: 4px;
+}
+
+.role-facts dt {
+  color: #82908c;
+  font-size: 0.68rem;
+  font-weight: 720;
+  text-transform: uppercase;
+}
+
+.role-facts dd {
+  margin: 0;
+  color: #324f48;
+  font-size: 0.79rem;
+  font-weight: 650;
+}
+
+.required-skills,
+.readiness-panel {
+  padding: 21px;
+}
+
+.section-heading {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 13px;
+}
+
+.section-heading span {
+  color: #85938f;
+  font-size: 0.67rem;
+  font-weight: 780;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill-list li {
+  border-radius: 999px;
+  background: #edf8f5;
+  padding: 7px 10px;
+  color: #176b5b;
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.readiness-message,
+.empty-state,
+.application-message {
+  margin: 0;
+  color: #657772;
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.apply-button {
+  margin-top: 13px;
+  border: 0;
+  border-radius: 10px;
+  background: #087f6d;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  font-weight: 720;
+}
+
+.apply-button:hover:not(:disabled) {
+  background: #076c5d;
+}
+
+.apply-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.application-message {
+  margin-top: 10px;
+  color: #365b54;
+  font-weight: 650;
+}
+
+.state-message,
+.match-unavailable,
+.computed-note {
+  padding: 20px;
+  color: #667873;
+  font-size: 0.79rem;
+}
+
+.state-message {
+  display: grid;
+  gap: 5px;
+}
+
+.state-message strong {
+  color: #294941;
+}
+
+.error-message {
+  border-color: #efcbc6;
+  background: #fff8f7;
+  color: #8b2f2f;
+}
+
+.computed-note {
+  box-shadow: none;
+  background: #f8fbfa;
+}
+
+@media (max-width: 760px) {
+  .match-heading {
+    grid-template-columns:
+      54px
+      minmax(0, 1fr);
+  }
+
+  .top-score {
+    grid-column: 1 / -1;
+    justify-items: start;
+  }
+
+  .role-overview {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .match-heading,
+  .role-overview,
+  .required-skills,
+  .readiness-panel {
+    padding: 17px;
+  }
+
+  .role-facts {
+    grid-template-columns: 1fr;
+  }
+}

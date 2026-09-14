@@ -1,0 +1,507 @@
+<section class="vacancy-page">
+  <section
+    class="find-jobs-hero"
+    aria-labelledby="find-jobs-title"
+  >
+    <div class="find-jobs-hero__copy">
+      <p class="find-jobs-hero__eyebrow">
+        Job Seeker workspace
+      </p>
+
+      <h1 id="find-jobs-title">
+        Find your next opportunity
+      </h1>
+
+      <p>
+        Search open vacancies, filter by location and
+        explore roles that match your skills and career goals.
+      </p>
+    </div>
+  </section>
+
+  <form
+    class="search-panel"
+    [formGroup]="form"
+    (ngSubmit)="applyFilters()"
+    novalidate
+  >
+    <div class="field">
+      <label for="vacancy-query">
+        Keyword
+      </label>
+
+      <div class="field-control">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm10 2-4.35-4.35"
+          />
+        </svg>
+
+        <input
+          id="vacancy-query"
+          type="search"
+          formControlName="q"
+          maxlength="100"
+          placeholder="Job title, company or keyword"
+        />
+      </div>
+
+      @if (form.controls.q.hasError('maxlength')) {
+        <small>
+          Keyword must be 100 characters or fewer.
+        </small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="vacancy-location">
+        Location
+      </label>
+
+      <div class="field-control">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+          />
+        </svg>
+
+        <input
+          id="vacancy-location"
+          type="text"
+          formControlName="location"
+          maxlength="100"
+          placeholder="e.g. Colombo"
+        />
+      </div>
+
+      @if (form.controls.location.hasError('maxlength')) {
+        <small>
+          Location must be 100 characters or fewer.
+        </small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="vacancy-sort">
+        Sort by
+      </label>
+
+      <div class="field-control">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M8 6h13M8 12h9M8 18h5M3 6h.01M3 12h.01M3 18h.01"
+          />
+        </svg>
+
+        <select
+          id="vacancy-sort"
+          formControlName="sort"
+        >
+          <option value="Newest">
+            Newest
+          </option>
+
+          <option value="Match">
+            Best match
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="search-actions">
+      <button
+        class="primary-button"
+        type="submit"
+        [disabled]="isLoading()"
+      >
+        Search vacancies
+      </button>
+
+      <button
+        class="secondary-button"
+        type="button"
+        [disabled]="isLoading()"
+        (click)="clearFilters()"
+      >
+        Clear
+      </button>
+    </div>
+  </form>
+
+  @if (isLoading()) {
+    <div
+      class="state-card"
+      aria-live="polite"
+    >
+      <strong>
+        Loading vacancies...
+      </strong>
+
+      <span>
+        Finding current open opportunities.
+      </span>
+    </div>
+  } @else if (errorMessage()) {
+    <div
+      class="state-card error"
+      role="alert"
+    >
+      <strong>
+        Unable to load vacancies
+      </strong>
+
+      <span>
+        {{ errorMessage() }}
+      </span>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="reload()"
+      >
+        Try again
+      </button>
+    </div>
+  } @else {
+    @if (result(); as searchResult) {
+      <div class="result-summary">
+        <div>
+          <strong>
+            {{ searchResult.totalCount }}
+            {{
+              searchResult.totalCount === 1
+                ? 'vacancy'
+                : 'vacancies'
+            }}
+          </strong>
+
+          <span>
+            Page {{ searchResult.page }}
+            of {{ totalPages() }}
+          </span>
+        </div>
+
+        @if (form.controls.sort.value === 'Match') {
+          <span class="match-note">
+            Ranked using your current structured profile
+          </span>
+        }
+      </div>
+
+      <div class="search-results-layout">
+        <div class="search-results-main">
+          @if (searchResult.items.length === 0) {
+            <div class="state-card state-card--inline">
+              <strong>
+                No vacancies found
+              </strong>
+
+              <span>
+                Try a different keyword, location or sort option.
+              </span>
+            </div>
+          } @else {
+            <div
+              class="vacancy-grid"
+              aria-label="Open vacancy results"
+            >
+              @for (
+                vacancy of searchResult.items;
+                track vacancy.id
+              ) {
+                <article class="vacancy-card">
+                  <div
+                    class="company-mark"
+                    aria-hidden="true"
+                  >
+                    {{ companyInitial(vacancy.companyName) }}
+                  </div>
+
+                  <div class="vacancy-card__content">
+                    <div class="card-heading">
+                      <div>
+                        <p class="company">
+                          {{ vacancy.companyName }}
+                        </p>
+
+                        <h2>
+                          {{ vacancy.title }}
+                        </h2>
+                      </div>
+                    </div>
+
+                    <dl class="vacancy-facts">
+                      <div>
+                        <dt>Location</dt>
+                        <dd>
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                            />
+                          </svg>
+
+                          {{ vacancy.location }}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt>Experience</dt>
+                        <dd>
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M9 6V4h6v2m-10 0h14v14H5V6Zm0 5h14"
+                            />
+                          </svg>
+
+                          {{
+                            experienceLabel(
+                              vacancy.minimumExperienceMonths
+                            )
+                          }}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt>Education</dt>
+                        <dd>
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="m3 10 9-5 9 5-9 5-9-5Zm4 2v5c3 2 7 2 10 0v-5"
+                            />
+                          </svg>
+
+                          {{
+                            educationLabel(
+                              vacancy.requiredEducationLevel
+                            )
+                          }}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt>Published</dt>
+                        <dd>
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M6 3v3m12-3v3M4 8h16v12H4V8Zm4 4h3m2 0h3m-8 4h3"
+                            />
+                          </svg>
+
+                          {{
+                            vacancy.publishedAtUtc
+                              | date: 'mediumDate'
+                          }}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <div class="vacancy-card__actions">
+                    @if (vacancy.matchScore !== null) {
+                      <div
+                        class="score-badge"
+                        aria-label="Authoritative HireSync match score"
+                      >
+                        <span>Match</span>
+
+                        <strong>
+                          {{
+                            matchScoreLabel(
+                              vacancy.matchScore
+                            )
+                          }}
+                        </strong>
+                      </div>
+                    }
+
+                    <button
+                      class="details-button"
+                      type="button"
+                      (click)="openVacancy(vacancy.id)"
+                    >
+                      View vacancy &amp; match details
+                      <span aria-hidden="true">
+                        &rarr;
+                      </span>
+                    </button>
+                  </div>
+                </article>
+              }
+            </div>
+
+            @if (
+              searchResult.totalCount >
+              searchResult.pageSize
+            ) {
+              <nav
+                class="pagination"
+                aria-label="Vacancy result pages"
+              >
+                <button
+                  type="button"
+                  class="secondary-button"
+                  [disabled]="
+                    searchResult.page <= 1 ||
+                    isLoading()
+                  "
+                  (click)="previousPage()"
+                >
+                  Previous
+                </button>
+
+                <span>
+                  Page {{ searchResult.page }}
+                  of {{ totalPages() }}
+                </span>
+
+                <button
+                  type="button"
+                  class="secondary-button"
+                  [disabled]="
+                    searchResult.page >= totalPages() ||
+                    isLoading()
+                  "
+                  (click)="nextPage()"
+                >
+                  Next
+                </button>
+              </nav>
+            }
+          }
+        </div>
+
+        <aside
+          class="search-guidance"
+          aria-label="Job search guidance"
+        >
+          <article class="guidance-card">
+            <span
+              class="guidance-icon"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M9 18h6M10 22h4M8.5 14.5C6.9 13.4 6 11.6 6 9.5a6 6 0 1 1 12 0c0 2.1-.9 3.9-2.5 5"
+                />
+              </svg>
+            </span>
+
+            <div>
+              <h2>
+                Search tips
+              </h2>
+
+              <p>
+                Get better results with these tips:
+              </p>
+
+              <ul class="tip-list">
+                <li>
+                  Use specific job titles or skills
+                </li>
+                <li>
+                  Try different keywords
+                </li>
+                <li>
+                  Filter by location
+                </li>
+                <li>
+                  Keep your profile up to date
+                </li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="guidance-card">
+            <span
+              class="guidance-icon"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M5 20V10m5 10V4m5 16v-7m4 7V7"
+                />
+              </svg>
+            </span>
+
+            <div>
+              <h2>
+                Your match advantage
+              </h2>
+
+              <p>
+                HireSync match scores come from your
+                structured profile. Keep it current to
+                compare opportunities accurately.
+              </p>
+
+              <button
+                class="guidance-link"
+                type="button"
+                (click)="openProfile()"
+              >
+                Update profile &rarr;
+              </button>
+            </div>
+          </article>
+
+          <article class="guidance-card">
+            <span
+              class="guidance-icon"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M6 4h12v17l-6-4-6 4V4Z"
+                />
+              </svg>
+            </span>
+
+            <div>
+              <h2>
+                Saved search
+                <span class="coming-soon">
+                  Coming soon
+                </span>
+              </h2>
+
+              <p>
+                Save frequent searches in a future HireSync
+                update. Your current filters remain in the URL
+                while you browse vacancy details.
+              </p>
+            </div>
+          </article>
+        </aside>
+      </div>
+    }
+  }
+</section>

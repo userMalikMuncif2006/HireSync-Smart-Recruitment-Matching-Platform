@@ -1,0 +1,273 @@
+<section class="applicant-page">
+  <button
+    type="button"
+    class="back-button"
+    (click)="backToVacancies()"
+  >
+    Back to vacancies
+  </button>
+
+  <header class="page-header">
+    <p class="eyebrow">
+      Employer applicants
+    </p>
+
+    <h1>
+      @if (
+        result();
+        as applicantPage
+      ) {
+        {{
+          applicantPage
+            .vacancyTitle
+        }}
+      } @else {
+        Ranked applicants
+      }
+    </h1>
+
+    <p>
+      Applicants are ranked using the authoritative server-side
+      HireSync matching result. CV files and personal contact
+      details are not exposed here.
+    </p>
+  </header>
+
+  <div class="filter-panel">
+    <label for="application-status">
+      Application status
+    </label>
+
+    <select
+      id="application-status"
+      [formControl]="statusFilter"
+    >
+      <option value="all">
+        All statuses
+      </option>
+
+      <option value="1">
+        Applied
+      </option>
+
+      <option value="2">
+        Under review
+      </option>
+
+      <option value="3">
+        Shortlisted
+      </option>
+
+      <option value="4">
+        Selected
+      </option>
+
+      <option value="5">
+        Rejected
+      </option>
+    </select>
+
+    <button
+      type="button"
+      class="primary-button"
+      [disabled]="isLoading()"
+      (click)="applyFilter()"
+    >
+      Apply filter
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div
+      class="state-card"
+      aria-live="polite"
+    >
+      <strong>
+        Loading ranked applicants...
+      </strong>
+    </div>
+  } @else if (errorMessage()) {
+    <div
+      class="state-card error"
+      role="alert"
+    >
+      <strong>
+        Unable to load applicants
+      </strong>
+
+      <span>
+        {{ errorMessage() }}
+      </span>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="reload()"
+      >
+        Try again
+      </button>
+    </div>
+  } @else {
+    @if (
+      result();
+      as applicantPage
+    ) {
+      @if (updateErrorMessage()) {
+        <div
+          class="state-card error"
+          role="alert"
+        >
+          {{ updateErrorMessage() }}
+        </div>
+      }
+
+      @if (updateSuccessMessage()) {
+        <div
+          class="state-card"
+          aria-live="polite"
+        >
+          {{ updateSuccessMessage() }}
+        </div>
+      }
+
+      @if (contactErrorMessage()) {
+        <div
+          class="state-card error"
+          role="alert"
+        >
+          {{ contactErrorMessage() }}
+        </div>
+      }
+
+      @if (contactSuccessMessage()) {
+        <div
+          class="state-card"
+          aria-live="polite"
+        >
+          {{ contactSuccessMessage() }}
+        </div>
+      }
+
+      <div class="result-summary">
+        <div>
+          <strong>
+            {{
+              applicantPage
+                .totalCount
+            }}
+            {{
+              applicantPage
+                .totalCount === 1
+                ? 'applicant'
+                : 'applicants'
+            }}
+          </strong>
+
+          <span>
+            Page
+            {{ applicantPage.page }}
+            of
+            {{ totalPages() }}
+          </span>
+        </div>
+      </div>
+
+      @if (
+        applicantPage
+          .items
+          .length === 0
+      ) {
+        <div class="state-card">
+          <strong>
+            No applicants found
+          </strong>
+
+          <span>
+            No applications match the selected status.
+          </span>
+        </div>
+      } @else {
+        <div class="applicant-grid">
+          @for (
+            applicant of
+              applicantPage.items;
+            track
+              applicant.applicationId
+          ) {
+            <app-ranked-applicant-row
+              [applicant]="applicant"
+              [selectedStatus]="
+                selectedApplicationStatus(
+                  applicant
+                )
+              "
+              [updatingApplicationId]="
+                updatingApplicationId()
+              "
+              [creatingContactApplicationId]="
+                creatingContactApplicationId()
+              "
+              (statusSelected)="
+                changeSelectedApplicationStatus(
+                  applicant.applicationId,
+                  $event
+                )
+              "
+              (updateRequested)="
+                updateApplicationStatus(
+                  applicant
+                )
+              "
+              (contactRequested)="
+                createContactRequest(
+                  applicant
+                )
+              "
+            >
+            </app-ranked-applicant-row>
+          }
+        </div>
+
+        @if (
+          applicantPage.totalCount >
+          applicantPage.pageSize
+        ) {
+          <nav
+            class="pagination"
+            aria-label="Ranked applicant pages"
+          >
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="
+                applicantPage.page <= 1
+              "
+              (click)="previousPage()"
+            >
+              Previous
+            </button>
+
+            <span>
+              Page
+              {{ applicantPage.page }}
+              of
+              {{ totalPages() }}
+            </span>
+
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="
+                applicantPage.page >=
+                totalPages()
+              "
+              (click)="nextPage()"
+            >
+              Next
+            </button>
+          </nav>
+        }
+      }
+    }
+  }
+</section>

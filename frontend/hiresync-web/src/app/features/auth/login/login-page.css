@@ -1,0 +1,257 @@
+:host {
+  display: block;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.login-page,
+.login-layout {
+  width: 100%;
+  height: 100dvh;
+}
+
+.login-page {
+  overflow: hidden;
+  background: #f5f9f8;
+}
+
+.login-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(23rem, 42%)
+    minmax(0, 1fr);
+}
+
+.login-visual {
+  width: 100%;
+  height: 100dvh;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(4 48 43 / 0.04),
+      rgb(4 48 43 / 0.14)
+    ),
+    url('/images/auth/register-side-panel.webp');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.login-form-panel {
+  height: 100dvh;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  place-items: center;
+  padding: clamp(2rem, 5vw, 4rem);
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.login-form-shell {
+  width: min(100%, 32rem);
+}
+
+.login-heading {
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.45rem;
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: #10231f;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  letter-spacing: -0.035em;
+}
+
+.intro {
+  margin: 0.8rem 0 0;
+  color: #60716c;
+  line-height: 1.6;
+}
+
+form {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+label {
+  color: #263b35;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+input {
+  width: 100%;
+  min-height: 3.2rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #c7d6d1;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  color: #10231f;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: 3px solid rgb(15 118 110 / 0.13);
+  border-color: #0f766e;
+}
+
+.validation-message,
+.error-message {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.83rem;
+}
+
+.error-message,
+.success-message {
+  padding: 0.8rem;
+  border-radius: 0.7rem;
+}
+
+.error-message {
+  background: #fff1f0;
+}
+
+.success-message {
+  margin: 0 0 1.25rem;
+  border: 1px solid #a7f3d0;
+  background: #ecfdf5;
+  color: #166534;
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+.submit-button {
+  min-height: 3.15rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: #0f766e;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #115e59;
+}
+
+.submit-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+@media (max-width: 900px) {
+  :host {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .login-page,
+  .login-layout {
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .login-page {
+    overflow: visible;
+  }
+
+  .login-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .login-visual {
+    height: clamp(18rem, 52vw, 27rem);
+    background-position: center 42%;
+  }
+
+  .login-form-panel {
+    height: auto;
+    min-height: 28rem;
+    overflow: visible;
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .login-visual {
+    height: 16rem;
+  }
+
+  .login-form-panel {
+    padding: 2rem 1rem;
+  }
+}
+
+.register-prompt {
+  margin: 0.2rem 0 0;
+  color: #60716c;
+  font-size: 0.86rem;
+  text-align: center;
+}
+
+.register-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #0f766e;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.register-link:hover {
+  color: #115e59;
+  text-decoration: underline;
+}
+
+.register-link:focus-visible {
+  border-radius: 0.2rem;
+  outline: 3px solid rgb(15 118 110 / 0.14);
+  outline-offset: 3px;
+}
+.forgot-password-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -0.45rem;
+}
+
+.forgot-password-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #0f766e;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.forgot-password-link:hover {
+  color: #115e59;
+  text-decoration: underline;
+}
+
+.forgot-password-link:focus-visible {
+  border-radius: 0.2rem;
+  outline: 3px solid rgb(15 118 110 / 0.14);
+  outline-offset: 3px;
+}

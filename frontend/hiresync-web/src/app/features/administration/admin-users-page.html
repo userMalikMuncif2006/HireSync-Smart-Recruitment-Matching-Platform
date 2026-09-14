@@ -1,0 +1,325 @@
+<main class="admin-page">
+  <header class="page-header">
+    <p class="eyebrow">
+      Administrator
+    </p>
+
+    <h1>
+      Account management
+    </h1>
+
+    <p>
+      Search HireSync accounts, review their current
+      state and suspend or reactivate eligible Job
+      Seeker and Employer accounts.
+    </p>
+  </header>
+
+  <section class="filter-panel">
+    <div class="field">
+      <label for="admin-user-search">
+        Search
+      </label>
+
+      <input
+        id="admin-user-search"
+        type="search"
+        placeholder="Name or email"
+        [formControl]="searchControl"
+      />
+    </div>
+
+    <div class="field">
+      <label for="admin-user-status">
+        Account status
+      </label>
+
+      <select
+        id="admin-user-status"
+        [formControl]="statusControl"
+      >
+        <option value="all">
+          All statuses
+        </option>
+
+        <option value="active">
+          Active
+        </option>
+
+        <option value="suspended">
+          Suspended
+        </option>
+      </select>
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="button"
+        class="primary-button"
+        [disabled]="isLoading()"
+        (click)="applyFilters()"
+      >
+        Apply filters
+      </button>
+
+      <button
+        type="button"
+        class="secondary-button"
+        [disabled]="isLoading()"
+        (click)="clearFilters()"
+      >
+        Clear
+      </button>
+    </div>
+  </section>
+
+  @if (actionError()) {
+    <section
+      class="state-card error"
+      role="alert"
+    >
+      {{ actionError() }}
+    </section>
+  }
+
+  @if (isLoading()) {
+    <section
+      class="state-card"
+      aria-live="polite"
+    >
+      <span class="loading-mark"></span>
+
+      <div>
+        <strong>
+          Loading accounts...
+        </strong>
+
+        <span>
+          Retrieving the latest account state.
+        </span>
+      </div>
+    </section>
+  } @else if (loadError()) {
+    <section
+      class="state-card error"
+      role="alert"
+    >
+      <strong>
+        Unable to load accounts
+      </strong>
+
+      <span>
+        {{ loadError() }}
+      </span>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="reload()"
+      >
+        Try again
+      </button>
+    </section>
+  } @else {
+    @if (result(); as page) {
+      <div class="result-summary">
+        <strong>
+          {{ page.totalCount }}
+          {{
+            page.totalCount === 1
+              ? 'account'
+              : 'accounts'
+          }}
+        </strong>
+
+        <span>
+          Page {{ page.page }}
+          of {{ totalPages() }}
+        </span>
+      </div>
+
+      @if (page.items.length === 0) {
+        <section class="state-card">
+          <strong>
+            No accounts found
+          </strong>
+
+          <span>
+            No accounts match the current filters.
+          </span>
+        </section>
+      } @else {
+        <section class="account-list">
+          @for (
+            user of page.items;
+            track user.id
+          ) {
+            <article class="account-card">
+              <div class="account-main">
+                <div>
+                  <div class="badge-row">
+                    <span
+                      class="status-badge"
+                      [class.suspended]="
+                        user.accountStatus === 2
+                      "
+                    >
+                      {{
+                        statusLabel(
+                          user.accountStatus
+                        )
+                      }}
+                    </span>
+
+                    <span class="role-badge">
+                      {{ user.role }}
+                    </span>
+                  </div>
+
+                  <h2>
+                    {{ user.displayName }}
+                  </h2>
+
+                  <p class="email">
+                    {{ user.email }}
+                  </p>
+                </div>
+
+                <dl class="facts">
+                  <div>
+                    <dt>
+                      Created
+                    </dt>
+
+                    <dd>
+                      {{
+                        user.createdAtUtc
+                          | date: 'mediumDate'
+                      }}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="account-actions">
+                @if (!canManage(user)) {
+                  <span class="protected-note">
+                    Protected Administrator account
+                  </span>
+                } @else if (
+                  pendingChange()?.user?.id !==
+                    user.id
+                ) {
+                  <button
+                    type="button"
+                    [class.danger-outline]="
+                      user.accountStatus === 1
+                    "
+                    [class.primary-button]="
+                      user.accountStatus === 2
+                    "
+                    (click)="
+                      requestStatusChange(user)
+                    "
+                  >
+                    {{
+                      user.accountStatus === 1
+                        ? 'Suspend account'
+                        : 'Reactivate account'
+                    }}
+                  </button>
+                } @else {
+                  <div class="confirmation">
+                    <strong>
+                      {{
+                        pendingChange()?.status === 2
+                          ? 'Suspend this account?'
+                          : 'Reactivate this account?'
+                      }}
+                    </strong>
+
+                    <span>
+                      {{
+                        pendingChange()?.status === 2
+                          ? 'The current session will be invalidated.'
+                          : 'The user can sign in again with a new session.'
+                      }}
+                    </span>
+
+                    <div>
+                      <button
+                        type="button"
+                        [class.danger-button]="
+                          pendingChange()?.status === 2
+                        "
+                        [class.primary-button]="
+                          pendingChange()?.status === 1
+                        "
+                        [disabled]="
+                          updatingId() === user.id
+                        "
+                        (click)="confirmStatusChange()"
+                      >
+                        {{
+                          updatingId() === user.id
+                            ? 'Updating...'
+                            : 'Confirm'
+                        }}
+                      </button>
+
+                      <button
+                        type="button"
+                        class="secondary-button"
+                        [disabled]="
+                          updatingId() === user.id
+                        "
+                        (click)="cancelStatusChange()"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </article>
+          }
+        </section>
+
+        @if (
+          page.totalCount >
+          page.pageSize
+        ) {
+          <nav
+            class="pagination"
+            aria-label="Administrator account pages"
+          >
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="page.page <= 1"
+              (click)="previousPage()"
+            >
+              Previous
+            </button>
+
+            <span>
+              Page {{ page.page }}
+              of {{ totalPages() }}
+            </span>
+
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="
+                page.page >= totalPages()
+              "
+              (click)="nextPage()"
+            >
+              Next
+            </button>
+          </nav>
+        }
+      }
+    }
+  }
+</main>

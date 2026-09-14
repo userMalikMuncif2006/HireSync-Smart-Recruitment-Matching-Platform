@@ -1,0 +1,427 @@
+<section class="profile-page">
+  @if (isLoading()) {
+    <div class="state-card">
+      <div class="state-card__icon" aria-hidden="true">LD</div>
+      <div>
+        <strong>Loading company profile</strong>
+        <p>Fetching your latest company and verification details.</p>
+      </div>
+    </div>
+  } @else if (errorMessage() && !profile()) {
+    <div class="state-card state-card--error" role="alert">
+      <div class="state-card__icon" aria-hidden="true">ER</div>
+      <div>
+        <strong>Company profile unavailable</strong>
+        <p>{{ errorMessage() }}</p>
+        <button class="secondary-button" type="button" (click)="loadProfile()">
+          Try again
+        </button>
+      </div>
+    </div>
+  } @else {
+    @if (profile(); as currentProfile) {
+      <header class="profile-hero">
+        <div class="profile-hero__copy">
+          <p class="eyebrow">Company profile</p>
+
+          <h1>Present your company with confidence</h1>
+
+          <p class="profile-hero__lead">
+            Keep your employer identity accurate, complete and ready for
+            recruitment.
+          </p>
+
+          <div class="profile-hero__identity">
+            <div class="company-mark" aria-hidden="true">
+              {{ currentProfile.companyName.charAt(0) || 'H' }}
+            </div>
+
+            <div>
+              <strong>{{ currentProfile.companyName }}</strong>
+              <span>{{ currentProfile.businessEmail }}</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="profile-summary" aria-label="Company profile overview">
+        <article class="summary-card">
+          <div class="summary-icon" aria-hidden="true">EM</div>
+          <div>
+            <span>Business email</span>
+            <strong>{{ currentProfile.businessEmail }}</strong>
+          </div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-icon" aria-hidden="true">VS</div>
+          <div>
+            <span>Verification</span>
+            <strong>{{ verificationStatusLabel() }}</strong>
+          </div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-icon" aria-hidden="true">PC</div>
+          <div>
+            <span>Profile complete</span>
+            <strong>{{ currentProfile.isProfileComplete ? 'Yes' : 'No' }}</strong>
+          </div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-icon" aria-hidden="true">VR</div>
+          <div>
+            <span>Vacancy ready</span>
+            <strong>{{ currentProfile.isVacancyReady ? 'Yes' : 'No' }}</strong>
+          </div>
+        </article>
+      </section>
+
+      <div class="profile-layout">
+        <form
+          class="profile-form"
+          [formGroup]="form"
+          (ngSubmit)="save()"
+          novalidate
+        >
+          <section class="form-section">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">Company details</p>
+                <h2>Organization information</h2>
+              </div>
+              <p>
+                These details help candidates understand who they may be
+                applying to.
+              </p>
+            </div>
+
+            <div class="form-grid">
+              <div class="field field--wide">
+                <label for="companyName">Company name</label>
+                <input
+                  id="companyName"
+                  type="text"
+                  formControlName="companyName"
+                  autocomplete="organization"
+                  [attr.aria-invalid]="
+                    form.controls.companyName.touched &&
+                    form.controls.companyName.invalid
+                  "
+                />
+                @if (
+                  form.controls.companyName.touched &&
+                  form.controls.companyName.invalid
+                ) {
+                  <small class="field-error">
+                    Enter a company name between 2 and 150 characters.
+                  </small>
+                }
+              </div>
+
+              <div class="field field--wide">
+                <label for="description">Company description</label>
+                <textarea
+                  id="description"
+                  rows="6"
+                  formControlName="description"
+                  placeholder="Describe your company, what it does and the type of workplace you offer."
+                  [attr.aria-invalid]="
+                    form.controls.description.touched &&
+                    form.controls.description.invalid
+                  "
+                ></textarea>
+                <div class="field-meta">
+                  <small>20-2000 characters</small>
+                  <small>{{ form.controls.description.value.length }}/2000</small>
+                </div>
+                @if (
+                  form.controls.description.touched &&
+                  form.controls.description.invalid
+                ) {
+                  <small class="field-error">
+                    Company description must contain 20-2000 characters.
+                  </small>
+                }
+              </div>
+
+              <div class="field">
+                <label for="location">Location</label>
+                <input
+                  id="location"
+                  type="text"
+                  formControlName="location"
+                  autocomplete="address-level2"
+                  [attr.aria-invalid]="
+                    form.controls.location.touched &&
+                    form.controls.location.invalid
+                  "
+                />
+                @if (
+                  form.controls.location.touched &&
+                  form.controls.location.invalid
+                ) {
+                  <small class="field-error">
+                    Enter a location between 2 and 100 characters.
+                  </small>
+                }
+              </div>
+
+              <div class="field">
+                <label for="companyWebsite">Company website</label>
+                <input
+                  id="companyWebsite"
+                  type="url"
+                  formControlName="companyWebsite"
+                  placeholder="https://example.com"
+                  autocomplete="url"
+                  [attr.aria-invalid]="
+                    form.controls.companyWebsite.touched &&
+                    form.controls.companyWebsite.invalid
+                  "
+                />
+                <small class="field-hint">Optional - maximum 300 characters</small>
+                @if (
+                  form.controls.companyWebsite.touched &&
+                  form.controls.companyWebsite.invalid
+                ) {
+                  <small class="field-error">
+                    Company website must be 300 characters or fewer.
+                  </small>
+                }
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">Recruitment contact</p>
+                <h2>Primary contact person</h2>
+              </div>
+              <p>
+                Keep the responsible company representative current for
+                recruitment operations.
+              </p>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="contactPersonName">Contact person name</label>
+                <input
+                  id="contactPersonName"
+                  type="text"
+                  formControlName="contactPersonName"
+                  autocomplete="name"
+                  [attr.aria-invalid]="
+                    form.controls.contactPersonName.touched &&
+                    form.controls.contactPersonName.invalid
+                  "
+                />
+                @if (
+                  form.controls.contactPersonName.touched &&
+                  form.controls.contactPersonName.invalid
+                ) {
+                  <small class="field-error">
+                    Enter a contact name between 2 and 100 characters.
+                  </small>
+                }
+              </div>
+
+              <div class="field">
+                <label for="contactPersonDesignation">
+                  Contact person designation
+                </label>
+                <input
+                  id="contactPersonDesignation"
+                  type="text"
+                  formControlName="contactPersonDesignation"
+                  autocomplete="organization-title"
+                  [attr.aria-invalid]="
+                    form.controls.contactPersonDesignation.touched &&
+                    form.controls.contactPersonDesignation.invalid
+                  "
+                />
+                @if (
+                  form.controls.contactPersonDesignation.touched &&
+                  form.controls.contactPersonDesignation.invalid
+                ) {
+                  <small class="field-error">
+                    Enter a designation between 2 and 100 characters.
+                  </small>
+                }
+              </div>
+
+              <div class="field">
+                <label for="mobileNumber">Mobile number</label>
+                <input
+                  id="mobileNumber"
+                  type="text"
+                  formControlName="mobileNumber"
+                  autocomplete="tel"
+                  [attr.aria-invalid]="
+                    form.controls.mobileNumber.touched &&
+                    form.controls.mobileNumber.invalid
+                  "
+                />
+                @if (
+                  form.controls.mobileNumber.touched &&
+                  form.controls.mobileNumber.invalid
+                ) {
+                  <small class="field-error">
+                    Enter a mobile number between 5 and 30 characters.
+                  </small>
+                }
+              </div>
+
+              <div class="field">
+                <label>Business email</label>
+                <div class="read-only-value">
+                  {{ currentProfile.businessEmail }}
+                </div>
+                <small class="field-hint">
+                  This account email is shown from the server and is not edited here.
+                </small>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">Business identity</p>
+                <h2>Registration details</h2>
+              </div>
+              <p>
+                Keep your registered business identifier accurate for employer
+                verification.
+              </p>
+            </div>
+
+            <div class="form-grid">
+              <div class="field field--wide">
+                <label for="businessRegistrationNumber">
+                  Business registration number
+                </label>
+                <input
+                  id="businessRegistrationNumber"
+                  type="text"
+                  formControlName="businessRegistrationNumber"
+                  [attr.aria-invalid]="
+                    form.controls.businessRegistrationNumber.touched &&
+                    form.controls.businessRegistrationNumber.invalid
+                  "
+                />
+                @if (
+                  form.controls.businessRegistrationNumber.touched &&
+                  form.controls.businessRegistrationNumber.invalid
+                ) {
+                  <small class="field-error">
+                    Enter a registration number between 2 and 100 characters.
+                  </small>
+                }
+              </div>
+            </div>
+          </section>
+
+          @if (errorMessage()) {
+            <p class="form-message form-message--error" role="alert">
+              {{ errorMessage() }}
+            </p>
+          }
+
+          @if (successMessage()) {
+            <p class="form-message form-message--success" role="status">
+              {{ successMessage() }}
+            </p>
+          }
+
+          <div class="form-actions">
+            <div>
+              <strong>Keep your profile current</strong>
+              <span>
+                Vacancy readiness continues to come from the server after save.
+              </span>
+            </div>
+
+            <button
+              class="save-button"
+              type="submit"
+              [disabled]="isSaving()"
+            >
+              {{ isSaving() ? 'Saving...' : 'Save profile' }}
+            </button>
+          </div>
+        </form>
+
+        <aside class="profile-aside" aria-label="Company profile readiness">
+          <section class="readiness-card">
+            <p class="section-kicker">Profile readiness</p>
+            <h2>Before posting vacancies</h2>
+
+            <div class="readiness-item">
+              <span
+                class="readiness-dot"
+                [class.readiness-dot--ready]="currentProfile.isProfileComplete"
+                aria-hidden="true"
+              ></span>
+              <div>
+                <strong>Company profile</strong>
+                <span>
+                  {{
+                    currentProfile.isProfileComplete
+                      ? 'Your required company details are complete.'
+                      : 'Complete the required company fields.'
+                  }}
+                </span>
+              </div>
+            </div>
+
+            <div class="readiness-item">
+              <span
+                class="readiness-dot"
+                [class.readiness-dot--ready]="verificationStatusLabel() === 'Approved'"
+                aria-hidden="true"
+              ></span>
+              <div>
+                <strong>Employer verification</strong>
+                <span>
+                  Current server status: {{ verificationStatusLabel() }}.
+                </span>
+              </div>
+            </div>
+
+            <div class="readiness-item">
+              <span
+                class="readiness-dot"
+                [class.readiness-dot--ready]="currentProfile.isVacancyReady"
+                aria-hidden="true"
+              ></span>
+              <div>
+                <strong>Vacancy readiness</strong>
+                <span>
+                  {{
+                    currentProfile.isVacancyReady
+                      ? 'Your account is ready for vacancy management.'
+                      : 'Vacancy publishing is not ready yet.'
+                  }}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section class="guidance-card">
+            <p class="section-kicker">Good profile practice</p>
+            <h2>Keep information candidate-ready</h2>
+            <p>
+              Use a clear company description, accurate location and current
+              recruitment contact details. HireSync keeps verification and
+              vacancy readiness server-authoritative.
+            </p>
+          </section>
+        </aside>
+      </div>
+    }
+  }
+</section>

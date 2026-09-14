@@ -1,0 +1,488 @@
+<main class="contact-page">
+  <section
+    class="contact-hero"
+    aria-labelledby="contact-title"
+  >
+    <div class="contact-hero__copy">
+      <p class="contact-hero__eyebrow">
+        Job Seeker workspace
+      </p>
+
+      <h1 id="contact-title">
+        Manage contact requests
+      </h1>
+
+      <p>
+        Review employer requests linked to your applications.
+        Accepting or declining changes workflow status only and
+        does not reveal personal contact details.
+      </p>
+    </div>
+  </section>
+
+  <section
+    class="contact-summary-grid"
+    aria-label="Contact request summary"
+  >
+    <article class="summary-card">
+      <span class="summary-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M4 5h16v12H8l-4 3V5Zm4 4h8M8 13h5"
+          />
+        </svg>
+      </span>
+
+      <div>
+        <span class="summary-label">
+          Total requests
+        </span>
+
+        <strong data-testid="contact-total-count">
+          {{ requests().length }}
+        </strong>
+
+        <small>
+          Employer contact workflows linked to your applications.
+        </small>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 7v5l3 2M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"
+          />
+        </svg>
+      </span>
+
+      <div>
+        <span class="summary-label">
+          Pending
+        </span>
+
+        <strong data-testid="contact-pending-count">
+          {{ pendingCount() }}
+        </strong>
+
+        <small>
+          Waiting for your accept or decline decision.
+        </small>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="m5 12 4 4L19 6"
+          />
+        </svg>
+      </span>
+
+      <div>
+        <span class="summary-label">
+          Accepted
+        </span>
+
+        <strong data-testid="contact-accepted-count">
+          {{ acceptedCount() }}
+        </strong>
+
+        <small>
+          Workflow status accepted without contact disclosure.
+        </small>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="m7 7 10 10M17 7 7 17"
+          />
+        </svg>
+      </span>
+
+      <div>
+        <span class="summary-label">
+          Declined
+        </span>
+
+        <strong data-testid="contact-declined-count">
+          {{ declinedCount() }}
+        </strong>
+
+        <small>
+          Requests completed with a declined status.
+        </small>
+      </div>
+    </article>
+  </section>
+
+  <nav
+    class="contact-filter"
+    aria-label="Filter contact requests"
+  >
+    <button
+      type="button"
+      [class.contact-filter__item--active]="selectedFilter() === 'all'"
+      (click)="selectFilter('all')"
+    >
+      All
+      <span>{{ requests().length }}</span>
+    </button>
+
+    <button
+      type="button"
+      [class.contact-filter__item--active]="
+        selectedFilter() === ContactRequestStatus.Pending
+      "
+      (click)="selectFilter(ContactRequestStatus.Pending)"
+    >
+      Pending
+      <span>{{ pendingCount() }}</span>
+    </button>
+
+    <button
+      type="button"
+      [class.contact-filter__item--active]="
+        selectedFilter() === ContactRequestStatus.Accepted
+      "
+      (click)="selectFilter(ContactRequestStatus.Accepted)"
+    >
+      Accepted
+      <span>{{ acceptedCount() }}</span>
+    </button>
+
+    <button
+      type="button"
+      [class.contact-filter__item--active]="
+        selectedFilter() === ContactRequestStatus.Declined
+      "
+      (click)="selectFilter(ContactRequestStatus.Declined)"
+    >
+      Declined
+      <span>{{ declinedCount() }}</span>
+    </button>
+  </nav>
+
+  @if (responseErrorMessage()) {
+    <section
+      class="message error-message"
+      role="alert"
+    >
+      {{ responseErrorMessage() }}
+    </section>
+  }
+
+  @if (responseSuccessMessage()) {
+    <section
+      class="message success-message"
+      aria-live="polite"
+    >
+      {{ responseSuccessMessage() }}
+    </section>
+  }
+
+  @if (isLoading()) {
+    <section
+      class="state-card"
+      aria-live="polite"
+    >
+      <strong>
+        Loading your contact requests...
+      </strong>
+
+      <span>
+        Checking the latest server-provided workflow state.
+      </span>
+    </section>
+  } @else if (errorMessage()) {
+    <section
+      class="state-card error-state"
+      role="alert"
+    >
+      <div>
+        <strong>
+          Contact requests unavailable
+        </strong>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="retry()"
+      >
+        Retry
+      </button>
+    </section>
+  } @else {
+    <section class="contact-layout">
+      <section class="contact-main">
+        <div class="section-heading">
+          <div>
+            <p class="section-eyebrow">
+              Contact workflow
+            </p>
+
+            <h2>
+              Your contact requests
+            </h2>
+          </div>
+
+          <span>
+            {{ filteredRequests().length }}
+            shown
+          </span>
+        </div>
+
+        @if (requests().length === 0) {
+          <section class="state-card empty-state">
+            <div>
+              <strong>
+                No contact requests
+              </strong>
+
+              <p>
+                Employer contact requests will appear here when one
+                is created for one of your applications.
+              </p>
+            </div>
+          </section>
+        } @else if (filteredRequests().length === 0) {
+          <section class="state-card empty-state">
+            <div>
+              <strong>
+                No requests in this status
+              </strong>
+
+              <p>
+                Choose another status to review your contact-request
+                history.
+              </p>
+            </div>
+          </section>
+        } @else {
+          <section
+            class="contact-list"
+            aria-label="Contact requests"
+          >
+            @for (
+              request of filteredRequests();
+              track request.id
+            ) {
+              <article class="contact-card">
+                <span
+                  class="company-avatar"
+                  aria-hidden="true"
+                >
+                  {{
+                    companyInitial(
+                      request.employerCompanyName
+                    )
+                  }}
+                </span>
+
+                <div class="contact-card__content">
+                  <div class="card-heading">
+                    <div>
+                      <p class="company-name">
+                        {{ request.employerCompanyName }}
+                      </p>
+
+                      <h3>
+                        {{ request.vacancyTitle }}
+                      </h3>
+                    </div>
+
+                    <span
+                      class="status-badge"
+                      [attr.data-status]="request.status"
+                    >
+                      {{ statusLabel(request.status) }}
+                    </span>
+                  </div>
+
+                  <div class="request-details">
+                    <div>
+                      <span class="detail-label">
+                        Requested
+                      </span>
+
+                      <strong>
+                        {{
+                          request.requestedAtUtc
+                            | date:'mediumDate'
+                        }}
+                      </strong>
+                    </div>
+
+                    @if (request.respondedAtUtc) {
+                      <div>
+                        <span class="detail-label">
+                          Responded
+                        </span>
+
+                        <strong>
+                          {{
+                            request.respondedAtUtc
+                              | date:'mediumDate'
+                          }}
+                        </strong>
+                      </div>
+                    }
+
+                    <div>
+                      <span class="detail-label">
+                        Workflow
+                      </span>
+
+                      <strong>
+                        One request per application
+                      </strong>
+                    </div>
+                  </div>
+
+                  <p class="privacy-note">
+                    No employer email, phone number, message,
+                    attachment, CV or other personal contact detail is
+                    exposed by this workflow.
+                  </p>
+                </div>
+
+                <div class="response-actions">
+                  @if (
+                    request.status ===
+                      ContactRequestStatus.Pending
+                  ) {
+                    <button
+                      type="button"
+                      class="primary-button accept-button"
+                      [disabled]="!canRespond(request)"
+                      (click)="
+                        respond(
+                          request,
+                          ContactRequestStatus.Accepted
+                        )
+                      "
+                    >
+                      @if (
+                        respondingContactRequestId() ===
+                          request.id
+                      ) {
+                        Saving...
+                      } @else {
+                        Accept
+                      }
+                    </button>
+
+                    <button
+                      type="button"
+                      class="secondary-button decline-button"
+                      [disabled]="!canRespond(request)"
+                      (click)="
+                        respond(
+                          request,
+                          ContactRequestStatus.Declined
+                        )
+                      "
+                    >
+                      Decline
+                    </button>
+                  } @else {
+                    <span class="terminal-note">
+                      This request is complete.
+                    </span>
+                  }
+                </div>
+              </article>
+            }
+          </section>
+        }
+      </section>
+
+      <aside
+        class="contact-guidance"
+        aria-label="Contact request guidance"
+      >
+        <article class="guidance-card">
+          <span class="guidance-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 5h16v12H8l-4 3V5Zm4 4h8M8 13h5"
+              />
+            </svg>
+          </span>
+
+          <div>
+            <h2>
+              About contact requests
+            </h2>
+
+            <p>
+              Employers can create one contact request for an
+              application. You decide whether its workflow status
+              becomes Accepted or Declined.
+            </p>
+
+            <ul class="guidance-list">
+              <li>Review the employer and vacancy</li>
+              <li>Respond only to Pending requests</li>
+              <li>Completed requests cannot be changed again</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="guidance-card">
+          <span class="guidance-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6l-7-3Zm-3 9 2 2 4-4"
+              />
+            </svg>
+          </span>
+
+          <div>
+            <h2>
+              Privacy by design
+            </h2>
+
+            <p>
+              Acceptance changes workflow status only. HireSync does
+              not reveal employer email, phone number, messages,
+              attachments or personal contact details here.
+            </p>
+          </div>
+        </article>
+
+        <article class="guidance-card">
+          <span class="guidance-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M5 20V10m5 10V4m5 16v-7m4 7V7"
+              />
+            </svg>
+          </span>
+
+          <div>
+            <h2>
+              Workflow states
+            </h2>
+
+            <p>
+              A request begins as Pending and can move once to
+              Accepted or Declined. Accepted and Declined are
+              terminal states.
+            </p>
+          </div>
+        </article>
+      </aside>
+    </section>
+  }
+</main>

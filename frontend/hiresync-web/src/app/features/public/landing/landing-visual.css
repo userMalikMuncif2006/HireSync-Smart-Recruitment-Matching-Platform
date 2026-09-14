@@ -1,0 +1,123 @@
+.hero-media,
+.section-media,
+.about-media {
+  position: relative;
+}
+
+.hero-media {
+  min-height: 470px;
+}
+
+.hero-media > img,
+.section-media > img,
+.about-media > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-media > img {
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  object-position: center;
+  box-shadow: 0 28px 65px rgb(24 75 65 / 0.14);
+}
+
+.floating-card,
+.media-badge {
+  position: absolute;
+  border: 1px solid rgb(203 224 218 / 0.92);
+  background: rgb(255 255 255 / 0.92);
+  box-shadow: 0 18px 42px rgb(24 75 65 / 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.floating-card {
+  right: -18px;
+  bottom: 52px;
+  width: 245px;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.floating-card strong {
+  color: #173f37;
+  font-size: 1.08rem;
+  line-height: 1.15;
+}
+
+.floating-card p {
+  margin: 9px 0 0;
+  color: var(--hs-text-500);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.hero-note {
+  position: absolute;
+  top: 28px;
+  right: -4px;
+  color: var(--hs-brand-800);
+  font-size: 0.82rem;
+  font-style: italic;
+  font-weight: 700;
+  transform: rotate(-7deg);
+}
+
+.platform-strip {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #eff9f6;
+  border-block: 1px solid #e1efeb;
+}
+
+.platform-strip article {
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px;
+}
+
+.platform-strip article:first-child {
+  padding-left: max(22px, calc((100vw - 1180px) / 2));
+}
+
+.platform-strip article:last-child {
+  padding-right: max(22px, calc((100vw - 1180px) / 2));
+}
+
+.strip-icon,
+.feature-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #dcf4ed;
+  color: var(--hs-brand-700);
+  font-weight: 900;
+}
+
+.strip-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.platform-strip strong,
+.platform-strip p {
+  display: block;
+}
+
+.platform-strip strong {
+  color: #21483f;
+  font-size: 0.76rem;
+}
+
+.platform-strip p {
+  margin: 4px 0 0;
+  color: var(--hs-text-500);
+  font-size: 0.67rem;
+  line-height: 1.4;
+}

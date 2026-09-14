@@ -1,0 +1,637 @@
+<main class="profile-page">
+  <section
+    class="profile-hero"
+    aria-labelledby="profile-page-title"
+  >
+    <div class="profile-hero__copy">
+      <p class="profile-hero__eyebrow">
+        Job Seeker workspace
+      </p>
+
+      <h1 id="profile-page-title">
+        Build your professional profile
+      </h1>
+
+      <p>
+        Keep your structured career information, canonical skills
+        and protected CV ready for relevant HireSync opportunities.
+      </p>
+
+      <div
+        class="hero-readiness"
+        [class.hero-readiness--ready]="profile()?.isMatchReady === true"
+      >
+        <span
+          class="hero-readiness__dot"
+          aria-hidden="true"
+        ></span>
+
+        @if (profile()?.isMatchReady) {
+          Match ready
+        } @else {
+          Needs details
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="profile-summary-grid"
+    aria-label="Profile summary"
+  >
+    <article class="profile-summary-card">
+      <span
+        class="profile-summary-icon"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0"
+          />
+        </svg>
+      </span>
+
+      <div>
+        <span class="profile-summary-label">
+          Match readiness
+        </span>
+
+        <strong
+          class="profile-summary-value"
+          data-testid="profile-readiness-summary"
+        >
+          @if (isLoadingProfile()) {
+            Loading
+          } @else if (profileErrorMessage()) {
+            Unavailable
+          } @else if (profile()?.isMatchReady) {
+            Ready
+          } @else {
+            Needs details
+          }
+        </strong>
+
+        <small>
+          Returned by the HireSync server.
+        </small>
+      </div>
+    </article>
+
+    <article class="profile-summary-card">
+      <span
+        class="profile-summary-icon"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M7 7h10M7 12h10M7 17h6M4 4h16v16H4V4Z"
+          />
+        </svg>
+      </span>
+
+      <div>
+        <span class="profile-summary-label">
+          Canonical skills
+        </span>
+
+        <strong
+          class="profile-summary-value"
+          data-testid="profile-skill-count"
+        >
+          {{ selectedSkills().length }}
+        </strong>
+
+        <small>
+          Selected from the shared catalogue.
+        </small>
+      </div>
+    </article>
+
+    <article class="profile-summary-card">
+      <span
+        class="profile-summary-icon"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M6 3h9l3 3v15H6V3Zm8 0v4h4M9 12h6M9 16h4"
+          />
+        </svg>
+      </span>
+
+      <div>
+        <span class="profile-summary-label">
+          Protected CV
+        </span>
+
+        <strong
+          class="profile-summary-value"
+          data-testid="profile-cv-status"
+        >
+          @if (cv()) {
+            Uploaded
+          } @else {
+            Not uploaded
+          }
+        </strong>
+
+        <small>
+          Owner-only PDF or DOCX storage.
+        </small>
+      </div>
+    </article>
+  </section>
+
+  <section class="profile-content-grid">
+    <section class="profile-panel profile-panel--main">
+      <div class="section-heading">
+        <div>
+          <p class="section-eyebrow">
+            Matching profile
+          </p>
+
+          <h2>
+            Structured information
+          </h2>
+        </div>
+
+        <p class="section-note">
+          Keep these fields accurate. Match readiness remains
+          server-authoritative.
+        </p>
+      </div>
+
+      @if (isLoadingProfile()) {
+        <div class="state-card">
+          Loading your profile...
+        </div>
+      } @else {
+        @if (profileErrorMessage()) {
+          <div
+            class="message error-message"
+            role="alert"
+          >
+            <span>
+              {{ profileErrorMessage() }}
+            </span>
+
+            <button
+              type="button"
+              class="text-button"
+              (click)="loadProfile()"
+            >
+              Retry
+            </button>
+          </div>
+        }
+
+        @if (profileSuccessMessage()) {
+          <div
+            class="message success-message"
+            role="status"
+          >
+            {{ profileSuccessMessage() }}
+          </div>
+        }
+
+        <form
+          class="profile-form"
+          [formGroup]="profileForm"
+          (ngSubmit)="saveProfile()"
+        >
+          <div class="field-grid">
+            <label class="field">
+              <span>
+                Experience in months
+              </span>
+
+              <input
+                type="number"
+                min="0"
+                max="720"
+                formControlName="experienceMonths"
+                placeholder="e.g. 24"
+              />
+
+              @if (
+                profileForm.controls.experienceMonths.touched &&
+                profileForm.controls.experienceMonths.invalid
+              ) {
+                <small>
+                  Enter a value from 0 to 720 months.
+                </small>
+              }
+            </label>
+
+            <label class="field">
+              <span>
+                Education level
+              </span>
+
+              <select
+                formControlName="educationLevel"
+              >
+                <option [ngValue]="null">
+                  Select education level
+                </option>
+
+                @for (
+                  option of educationOptions;
+                  track option.value
+                ) {
+                  <option [ngValue]="option.value">
+                    {{ option.label }}
+                  </option>
+                }
+              </select>
+
+              @if (
+                profileForm.controls.educationLevel.touched &&
+                profileForm.controls.educationLevel.invalid
+              ) {
+                <small>
+                  Select your education level.
+                </small>
+              }
+            </label>
+          </div>
+
+          <label class="field">
+            <span>
+              Preferred location
+            </span>
+
+            <input
+              type="text"
+              maxlength="100"
+              formControlName="preferredLocation"
+              placeholder="e.g. Colombo"
+            />
+
+            @if (
+              profileForm.controls.preferredLocation.touched &&
+              profileForm.controls.preferredLocation.invalid
+            ) {
+              <small>
+                Preferred location is required and must not exceed
+                100 characters.
+              </small>
+            }
+          </label>
+
+          <div class="skills-section">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="section-eyebrow">
+                  Skills
+                </p>
+
+                <h3>
+                  Canonical skills
+                </h3>
+              </div>
+
+              <p class="section-note">
+                Choose only from the shared HireSync catalogue.
+              </p>
+            </div>
+
+            <div class="skill-search">
+              <input
+                type="search"
+                maxlength="50"
+                [formControl]="skillQueryControl"
+                placeholder="Search canonical skills"
+                aria-label="Search canonical skills"
+              />
+
+              <button
+                type="button"
+                class="secondary-button"
+                (click)="loadSkills()"
+              >
+                Search
+              </button>
+
+              <button
+                type="button"
+                class="text-button"
+                (click)="clearSkillSearch()"
+              >
+                Clear
+              </button>
+            </div>
+
+            @if (skillErrorMessage()) {
+              <div
+                class="message error-message"
+                role="alert"
+              >
+                {{ skillErrorMessage() }}
+              </div>
+            }
+
+            <div class="selected-skills">
+              <div class="selected-skills__heading">
+                <strong>
+                  Selected skills
+                </strong>
+
+                <span>
+                  {{ selectedSkills().length }}
+                </span>
+              </div>
+
+              @if (selectedSkills().length === 0) {
+                <span class="muted">
+                  No canonical skills selected yet.
+                </span>
+              } @else {
+                <div class="chip-row">
+                  @for (
+                    skill of selectedSkills();
+                    track skill.id
+                  ) {
+                    <button
+                      type="button"
+                      class="skill-chip skill-chip--selected"
+                      (click)="toggleSkill(skill)"
+                      [attr.aria-label]="'Remove ' + skill.name"
+                    >
+                      {{ skill.name }}
+                      <span aria-hidden="true">
+                        &times;
+                      </span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="skill-results">
+              @if (isLoadingSkills()) {
+                <span class="muted">
+                  Loading canonical skills...
+                </span>
+              } @else if (availableSkills().length === 0) {
+                <span class="muted">
+                  No canonical skills match this search.
+                </span>
+              } @else {
+                <div class="chip-row">
+                  @for (
+                    skill of availableSkills();
+                    track skill.id
+                  ) {
+                    <button
+                      type="button"
+                      class="skill-chip"
+                      [class.skill-chip--selected]="isSkillSelected(skill.id)"
+                      (click)="toggleSkill(skill)"
+                    >
+                      {{ skill.name }}
+
+                      @if (isSkillSelected(skill.id)) {
+                        <span aria-hidden="true">
+                          &#10003;
+                        </span>
+                      }
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="primary-button"
+              [disabled]="isSavingProfile()"
+            >
+              @if (isSavingProfile()) {
+                Saving...
+              } @else {
+                Save profile
+              }
+            </button>
+
+            <span class="muted">
+              Matching scores are calculated only by the backend.
+            </span>
+          </div>
+        </form>
+      }
+    </section>
+
+    <aside
+      class="profile-guidance"
+      aria-label="Profile guidance"
+    >
+      <article class="guidance-card">
+        <span
+          class="guidance-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 3v18M3 12h18"
+            />
+          </svg>
+        </span>
+
+        <div>
+          <h2>
+            Profile essentials
+          </h2>
+
+          <p>
+            Keep your experience, education, preferred location
+            and canonical skills accurate.
+          </p>
+
+          <ul class="guidance-list">
+            <li>Experience in months</li>
+            <li>Education level</li>
+            <li>Preferred location</li>
+            <li>Canonical skills</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="guidance-card">
+        <span
+          class="guidance-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M4 19V9m5 10V5m5 14v-7m5 7V3"
+            />
+          </svg>
+        </span>
+
+        <div>
+          <h2>
+            Server-authoritative matching
+          </h2>
+
+          <p>
+            HireSync does not calculate match readiness or match
+            scores in the browser. The backend remains authoritative.
+          </p>
+        </div>
+      </article>
+
+      <article class="guidance-card">
+        <span
+          class="guidance-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 3 5 6v5c0 4.8 2.8 8.2 7 10 4.2-1.8 7-5.2 7-10V6l-7-3Zm-3 9 2 2 4-4"
+            />
+          </svg>
+        </span>
+
+        <div>
+          <h2>
+            CV privacy
+          </h2>
+
+          <p>
+            Your protected CV is owner-only. HireSync does not parse,
+            OCR, NLP-analyse or use CV contents for matching.
+          </p>
+        </div>
+      </article>
+    </aside>
+  </section>
+
+  <section class="profile-panel cv-panel">
+    <div class="section-heading">
+      <div>
+        <p class="section-eyebrow">
+          Protected document
+        </p>
+
+        <h2>
+          CV management
+        </h2>
+      </div>
+
+      <p class="section-note">
+        PDF or DOCX - maximum exactly 5,000,000 bytes.
+      </p>
+    </div>
+
+    @if (cvErrorMessage()) {
+      <div
+        class="message error-message"
+        role="alert"
+      >
+        {{ cvErrorMessage() }}
+      </div>
+    }
+
+    @if (cvSuccessMessage()) {
+      <div
+        class="message success-message"
+        role="status"
+      >
+        {{ cvSuccessMessage() }}
+      </div>
+    }
+
+    <div class="cv-layout">
+      <div class="cv-current">
+        <span class="cv-current__label">
+          Current protected CV
+        </span>
+
+        @if (cv(); as currentCv) {
+          <div class="cv-card">
+            <span
+              class="cv-file-icon"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M6 3h9l3 3v15H6V3Zm8 0v4h4M9 12h6M9 16h4"
+                />
+              </svg>
+            </span>
+
+            <div class="cv-card__details">
+              <strong>
+                {{ currentCv.originalFileName }}
+              </strong>
+
+              <p>
+                {{ formatBytes(currentCv.sizeBytes) }}
+                - Uploaded
+                {{ currentCv.uploadedAtUtc | date:'medium' }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="isCvBusy()"
+              (click)="downloadCv()"
+            >
+              Download
+            </button>
+          </div>
+        } @else {
+          <div class="state-card">
+            No current CV uploaded.
+          </div>
+        }
+      </div>
+
+      <div class="upload-area">
+        <label class="field">
+          <span>
+            Upload or replace CV
+          </span>
+
+          <input
+            type="file"
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            (change)="onCvSelected($event)"
+          />
+        </label>
+
+        @if (selectedCvFile(); as selectedFile) {
+          <p class="selected-file">
+            Ready to upload:
+            <strong>
+              {{ selectedFile.name }}
+            </strong>
+            -
+            {{ formatBytes(selectedFile.size) }}
+          </p>
+        }
+
+        <button
+          type="button"
+          class="primary-button"
+          [disabled]="!selectedCvFile() || isCvBusy()"
+          (click)="uploadCv()"
+        >
+          @if (isCvBusy()) {
+            Working...
+          } @else {
+            Upload CV
+          }
+        </button>
+
+        <p class="security-note">
+          Backend file validation remains authoritative.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>

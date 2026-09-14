@@ -1,0 +1,217 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: #f5f9f8;
+  color: #172322;
+}
+
+.vacancy-page {
+  width: min(1180px, calc(100% - 52px));
+  margin: 0 auto;
+  padding: 38px 0 72px;
+}
+
+.find-jobs-hero {
+  display: flex;
+  min-height: 238px;
+  align-items: center;
+  overflow: hidden;
+  padding: 38px;
+  border: 1px solid #c9e3dc;
+  border-radius: 24px;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(246 252 250 / 0.99) 0%,
+      rgb(246 252 250 / 0.97) 38%,
+      rgb(246 252 250 / 0.72) 50%,
+      rgb(246 252 250 / 0.22) 63%,
+      rgb(246 252 250 / 0.02) 76%
+    ),
+    url('/images/seeker/find-jobs-hero.webp')
+      right center / contain no-repeat,
+    #f6fcfa;
+  box-shadow: 0 18px 42px rgb(24 67 58 / 0.07);
+}
+
+.find-jobs-hero__copy {
+  position: relative;
+  z-index: 1;
+  max-width: 590px;
+}
+
+.find-jobs-hero__eyebrow {
+  margin: 0 0 9px;
+  color: #087f6d;
+  font-size: 0.72rem;
+  font-weight: 820;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.find-jobs-hero h1 {
+  margin: 0;
+  color: #123d35;
+  font-size: clamp(2.25rem, 4vw, 3.25rem);
+  font-weight: 780;
+  letter-spacing: -0.05em;
+  line-height: 1.03;
+}
+
+.find-jobs-hero p:last-child {
+  max-width: 520px;
+  margin: 14px 0 0;
+  color: #58716b;
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 760px) {
+  .vacancy-page {
+    width: calc(100% - 28px);
+    padding-top: 28px;
+  }
+
+  .find-jobs-hero {
+    min-height: 225px;
+    padding: 27px;
+    background:
+      linear-gradient(
+        90deg,
+        rgb(246 252 250 / 0.99) 0%,
+        rgb(246 252 250 / 0.95) 52%,
+        rgb(246 252 250 / 0.62) 68%,
+        rgb(246 252 250 / 0.16) 100%
+      ),
+      url('/images/seeker/find-jobs-hero.webp')
+        right center / contain no-repeat,
+      #f6fcfa;
+  }
+
+  .find-jobs-hero__copy {
+    max-width: 78%;
+  }
+}
+
+@media (max-width: 520px) {
+  .vacancy-page {
+    width: calc(100% - 20px);
+  }
+
+  .find-jobs-hero {
+    min-height: 255px;
+    padding: 22px;
+    border-radius: 19px;
+    background:
+      linear-gradient(
+        90deg,
+        rgb(246 252 250 / 0.99) 0%,
+        rgb(246 252 250 / 0.96) 58%,
+        rgb(246 252 250 / 0.72) 76%,
+        rgb(246 252 250 / 0.34) 100%
+      ),
+      url('/images/seeker/find-jobs-hero.webp')
+        right bottom / contain no-repeat,
+      #f6fcfa;
+  }
+
+  .find-jobs-hero__copy {
+    max-width: 100%;
+  }
+}
+
+/* ISSUE45_FIND_JOBS_HERO_SIZE_START */
+/* Match Find Jobs hero height to Contact Requests hero size only */
+.vacancy-search-hero,
+.find-jobs-hero,
+.search-hero,
+.page-hero.page-hero--find-jobs {
+  height: 238px !important;
+  min-height: 238px !important;
+}
+
+.vacancy-search-hero__content,
+.find-jobs-hero__content,
+.search-hero__content {
+  min-height: 238px !important;
+}
+
+.vacancy-search-hero__media,
+.find-jobs-hero__media,
+.search-hero__media,
+.vacancy-search-hero__image,
+.find-jobs-hero__image,
+.search-hero__image {
+  height: 238px !important;
+  min-height: 238px !important;
+}
+
+@media (max-width: 1024px) {
+  .vacancy-search-hero,
+  .find-jobs-hero,
+  .search-hero,
+  .page-hero.page-hero--find-jobs {
+    height: 238px !important;
+    min-height: 238px !important;
+  }
+
+  .vacancy-search-hero__content,
+  .find-jobs-hero__content,
+  .search-hero__content,
+  .vacancy-search-hero__media,
+  .find-jobs-hero__media,
+  .search-hero__media,
+  .vacancy-search-hero__image,
+  .find-jobs-hero__image,
+  .search-hero__image {
+    min-height: 238px !important;
+    height: 238px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .vacancy-search-hero,
+  .find-jobs-hero,
+  .search-hero,
+  .page-hero.page-hero--find-jobs {
+    height: 220px !important;
+    min-height: 220px !important;
+  }
+
+  .vacancy-search-hero__content,
+  .find-jobs-hero__content,
+  .search-hero__content,
+  .vacancy-search-hero__media,
+  .find-jobs-hero__media,
+  .search-hero__media,
+  .vacancy-search-hero__image,
+  .find-jobs-hero__image,
+  .search-hero__image {
+    min-height: 220px !important;
+    height: 220px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .vacancy-search-hero,
+  .find-jobs-hero,
+  .search-hero,
+  .page-hero.page-hero--find-jobs {
+    height: 208px !important;
+    min-height: 208px !important;
+  }
+
+  .vacancy-search-hero__content,
+  .find-jobs-hero__content,
+  .search-hero__content,
+  .vacancy-search-hero__media,
+  .find-jobs-hero__media,
+  .search-hero__media,
+  .vacancy-search-hero__image,
+  .find-jobs-hero__image,
+  .search-hero__image {
+    min-height: 208px !important;
+    height: 208px !important;
+  }
+}
+/* ISSUE45_FIND_JOBS_HERO_SIZE_END */

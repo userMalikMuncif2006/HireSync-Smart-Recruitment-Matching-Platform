@@ -1,0 +1,192 @@
+:host {
+  display: block;
+}
+
+.profile-page {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  color: #123f3a;
+}
+
+/*
+  Keep this hero intentionally aligned with the approved Employer Dashboard:
+  same compact visual height, copy on the left, realistic recruitment image
+  clearly visible on the right.
+*/
+.profile-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 18.5rem;
+  min-height: 18.5rem;
+  overflow: hidden;
+  border: 1px solid #b9dfd9;
+  border-radius: 1.5rem;
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(244, 253, 250, 0.99) 0%,
+      rgba(244, 253, 250, 0.98) 38%,
+      rgba(244, 253, 250, 0.90) 49%,
+      rgba(244, 253, 250, 0.60) 61%,
+      rgba(244, 253, 250, 0.16) 74%,
+      rgba(244, 253, 250, 0.02) 100%
+    ),
+    url('/images/employer/company-profile-woman-hero.webp');
+  background-repeat: no-repeat;
+  background-position:
+    center,
+    right center;
+  background-size:
+    cover,
+    auto 94%;
+  box-shadow: 0 18px 44px rgba(17, 75, 67, 0.06);
+}
+
+.profile-hero__copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(60%, 650px);
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 2.4rem;
+}
+
+.eyebrow,
+.section-kicker {
+  margin: 0 0 0.55rem;
+  color: #007d6d;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.profile-hero h1 {
+  max-width: 620px;
+  margin: 0;
+  color: #073f38;
+  font-size: clamp(2.35rem, 4.15vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.profile-hero__lead {
+  max-width: 570px;
+  margin: 0.9rem 0 0;
+  color: #456b65;
+  font-size: 0.95rem;
+  line-height: 1.62;
+}
+
+.profile-hero__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.78rem;
+  margin-top: 1.15rem;
+}
+
+.profile-hero__identity > div:last-child {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.profile-hero__identity strong,
+.profile-hero__identity span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-hero__identity strong {
+  color: #073f38;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.profile-hero__identity span {
+  color: #66807c;
+  font-size: 0.78rem;
+}
+
+.company-mark {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.7rem;
+  height: 2.7rem;
+  place-items: center;
+  border: 1px solid #bce4dd;
+  border-radius: 0.9rem;
+  color: #007d6d;
+  background: rgba(229, 248, 244, 0.96);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+@media (max-width: 980px) {
+  .profile-hero {
+    height: 20rem;
+    min-height: 20rem;
+    background-position:
+      center,
+      right center;
+  }
+
+  .profile-hero__copy {
+    width: 68%;
+    padding: 1.8rem 1.5rem;
+  }
+
+  .profile-hero h1 {
+    font-size: clamp(2rem, 5.5vw, 2.8rem);
+  }
+}
+
+@media (max-width: 720px) {
+  .profile-page {
+    padding: 1rem 0.65rem 3rem;
+  }
+
+  .profile-hero {
+    height: auto;
+    min-height: 28rem;
+    align-items: flex-start;
+    border-radius: 1.05rem;
+    background-image:
+      linear-gradient(
+        180deg,
+        rgba(244, 253, 250, 0.99) 0%,
+        rgba(244, 253, 250, 0.98) 48%,
+        rgba(244, 253, 250, 0.66) 68%,
+        rgba(244, 253, 250, 0.10) 100%
+      ),
+      url('/images/employer/company-profile-woman-hero.webp');
+    background-position:
+      center,
+      right bottom;
+    background-size:
+      cover,
+      auto 48%;
+  }
+
+  .profile-hero__copy {
+    width: 100%;
+    padding: 1.35rem 1.15rem 10.5rem;
+  }
+
+  .profile-hero h1 {
+    max-width: 520px;
+    font-size: clamp(1.95rem, 9.5vw, 2.45rem);
+  }
+
+  .profile-hero__lead {
+    max-width: 500px;
+    font-size: 0.9rem;
+  }
+}

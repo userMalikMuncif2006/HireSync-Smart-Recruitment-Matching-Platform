@@ -1,0 +1,251 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.register-page {
+  min-height: 100dvh;
+  padding: 2rem;
+  box-sizing: border-box;
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(15, 118, 110, 0.14),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 90% 85%,
+      rgba(5, 150, 105, 0.1),
+      transparent 30%
+    ),
+    #f5f9f8;
+}
+
+.auth-layout {
+  width: min(100%, 76rem);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns:
+    minmax(18rem, 0.8fr)
+    minmax(0, 1.45fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.welcome-panel,
+.register-card {
+  border: 1px solid #d9e6e2;
+  border-radius: 1.5rem;
+  box-sizing: border-box;
+}
+
+.welcome-panel {
+  position: sticky;
+  top: 2rem;
+  padding: 2.25rem;
+  overflow: hidden;
+  color: #ffffff;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(6, 78, 70, 0.98),
+      rgba(15, 118, 110, 0.96) 55%,
+      rgba(5, 150, 105, 0.94)
+    );
+  box-shadow:
+    0 22px 50px rgba(15, 118, 110, 0.16);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.brand-mark {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.96);
+  color: #0f766e;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.eyebrow {
+  margin: 0 0 0.2rem;
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.welcome-panel .eyebrow {
+  color: #d1fae5;
+}
+
+h1,
+h2,
+h3,
+p {
+  box-sizing: border-box;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  line-height: 1.12;
+}
+
+.welcome-copy {
+  margin: 1.5rem 0 2rem;
+  color: #d9f4ec;
+  line-height: 1.7;
+}
+
+.benefit-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.benefit {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.8rem;
+  align-items: start;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.benefit span {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.14);
+  color: #d1fae5;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.benefit p {
+  margin: 0;
+  color: #eefcf7;
+  line-height: 1.55;
+}
+
+.register-card {
+  padding: clamp(1.4rem, 4vw, 2.5rem);
+  background: #ffffff;
+  box-shadow:
+    0 22px 50px rgba(15, 23, 42, 0.07);
+}
+
+.card-heading {
+  margin-bottom: 1.5rem;
+}
+
+.card-heading h2 {
+  margin: 0;
+  color: #10231f;
+  font-size: clamp(1.7rem, 4vw, 2.15rem);
+}
+
+.card-heading > p:last-child {
+  margin: 0.65rem 0 0;
+  color: #60716c;
+  line-height: 1.55;
+}
+
+form {
+  display: grid;
+  gap: 1.35rem;
+}
+
+.role-selector {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.role-selector legend {
+  grid-column: 1 / -1;
+  margin-bottom: 0.35rem;
+  color: #263b35;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.role-option {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  min-height: 5.25rem;
+  padding: 0.9rem;
+  border: 1px solid #cbdad5;
+  border-radius: 0.9rem;
+  background: #ffffff;
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.role-option:hover {
+  border-color: #7cb6aa;
+  background: #f8fcfb;
+}
+
+.role-option.selected {
+  border-color: #0f766e;
+  background: #f0fdfa;
+  box-shadow:
+    0 0 0 3px rgba(15, 118, 110, 0.09);
+}
+
+.role-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.role-icon {
+  width: 2.6rem;
+  height: 2.6rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.75rem;
+  background: #e7f7f2;
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.role-option strong,
+.role-option small {
+  display: block;
+}
+
+.role-option strong {
+  color: #16332c;
+  font-size: 0.94rem;
+}
+
+.role-option small {
+  margin-top: 0.22rem;
+  color: #64756f;
+  line-height: 1.4;
+}

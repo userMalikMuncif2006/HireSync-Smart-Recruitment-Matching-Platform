@@ -1,0 +1,75 @@
+@media (max-width: 900px) {
+  :host {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .register-page {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .auth-layout {
+    height: auto;
+    min-height: 100dvh;
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-panel {
+    position: relative;
+    width: 100%;
+    height: clamp(18rem, 52vw, 27rem);
+    min-height: 18rem;
+    background-position: center 42%;
+  }
+
+  .register-card {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 1.5rem;
+  }
+
+  .benefit-list {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .benefit {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .role-selector,
+  .field-grid,
+  .benefit-list {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+
+  .visual-brand {
+    top: 1rem;
+    left: 1rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .welcome-panel {
+    height: 16rem;
+    min-height: 16rem;
+  }
+
+  .register-card {
+    padding: 1.05rem 0.8rem;
+  }
+
+  .form-section {
+    padding: 0.9rem;
+  }
+}

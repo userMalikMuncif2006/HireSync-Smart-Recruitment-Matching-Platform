@@ -1,0 +1,486 @@
+<main class="notifications-page">
+  <section
+    class="notifications-hero"
+    aria-labelledby="notifications-title"
+  >
+    <div class="notifications-hero__copy">
+      <p class="notifications-hero__eyebrow">
+        Job Seeker workspace
+      </p>
+
+      <h1 id="notifications-title">
+        Stay on top of your updates
+      </h1>
+
+      <p>
+        Follow genuine HireSync application-status changes and keep
+        your recruitment activity organised in one place.
+      </p>
+    </div>
+  </section>
+
+  @if (result(); as current) {
+    <section
+      class="notifications-summary-grid"
+      aria-label="Notification summary"
+    >
+      <article class="summary-card">
+        <span
+          class="summary-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"
+            />
+          </svg>
+        </span>
+
+        <div>
+          <span class="summary-label">
+            Total notifications
+          </span>
+
+          <strong data-testid="notification-total-count">
+            {{ current.totalCount }}
+          </strong>
+
+          <small>
+            Across your HireSync notification history.
+          </small>
+        </div>
+      </article>
+
+      <article class="summary-card">
+        <span
+          class="summary-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M4 4h16v16H4V4Zm4 4h8M8 12h8M8 16h5"
+            />
+          </svg>
+        </span>
+
+        <div>
+          <span class="summary-label">
+            Unread this page
+          </span>
+
+          <strong data-testid="notification-unread-count">
+            {{ unreadOnPage() }}
+          </strong>
+
+          <small>
+            Unread items currently shown.
+          </small>
+        </div>
+      </article>
+
+      <article class="summary-card">
+        <span
+          class="summary-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="m5 12 4 4L19 6"
+            />
+          </svg>
+        </span>
+
+        <div>
+          <span class="summary-label">
+            Read this page
+          </span>
+
+          <strong data-testid="notification-read-count">
+            {{ readOnPage() }}
+          </strong>
+
+          <small>
+            Items already reviewed on this page.
+          </small>
+        </div>
+      </article>
+
+      <article class="summary-card">
+        <span
+          class="summary-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M5 5h14v14H5V5Zm4 4h6M9 13h6"
+            />
+          </svg>
+        </span>
+
+        <div>
+          <span class="summary-label">
+            Current page
+          </span>
+
+          <strong data-testid="notification-page-summary">
+            {{ current.page }} / {{ totalPages() }}
+          </strong>
+
+          <small>
+            Up to {{ current.pageSize }} notifications per page.
+          </small>
+        </div>
+      </article>
+    </section>
+  }
+
+  @if (actionErrorMessage()) {
+    <section
+      class="message error-message"
+      role="alert"
+    >
+      {{ actionErrorMessage() }}
+    </section>
+  }
+
+  @if (isLoading()) {
+    <section class="state-card">
+      <strong>
+        Loading your notifications...
+      </strong>
+
+      <span>
+        Checking the latest server-provided updates.
+      </span>
+    </section>
+  } @else if (errorMessage()) {
+    <section
+      class="state-card error-state"
+      role="alert"
+    >
+      <div>
+        <strong>
+          Notifications unavailable
+        </strong>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="retry()"
+      >
+        Retry
+      </button>
+    </section>
+  } @else {
+    @if (result(); as current) {
+      <section class="notifications-layout">
+        <section class="notifications-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-eyebrow">
+                Recruitment activity
+              </p>
+
+              <h2>
+                Latest notifications
+              </h2>
+
+              <p>
+                Application-status updates returned by HireSync.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="
+                current.totalCount === 0 ||
+                isMarkingAll() ||
+                busyNotificationId() !== null
+              "
+              (click)="markAllRead()"
+            >
+              @if (isMarkingAll()) {
+                Marking...
+              } @else {
+                Mark all as read
+              }
+            </button>
+          </div>
+
+          @if (current.items.length === 0) {
+            <section class="state-card empty-state">
+              <div>
+                <strong>
+                  No notifications yet
+                </strong>
+
+                <p>
+                  Genuine application-status updates will appear here
+                  when they occur.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class="primary-button"
+                (click)="viewApplications()"
+              >
+                View my applications
+              </button>
+            </section>
+          } @else {
+            <section
+              class="notification-list"
+              aria-label="Job Seeker notifications"
+            >
+              @for (
+                notification of current.items;
+                track notification.id
+              ) {
+                <article
+                  class="notification-card"
+                  [class.notification-card--unread]="!notification.isRead"
+                >
+                  <span
+                    class="notification-icon"
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M5 4h14v16H5V4Zm4 4h6M9 12h6M9 16h4"
+                      />
+                    </svg>
+                  </span>
+
+                  <div class="notification-content">
+                    <div class="notification-title-row">
+                      <div>
+                        <p class="notification-type">
+                          {{
+                            notificationTypeLabel(
+                              notification.type
+                            )
+                          }}
+                        </p>
+
+                        <h3>
+                          {{ notification.title }}
+                        </h3>
+                      </div>
+
+                      <span
+                        class="read-badge"
+                        [class.read-badge--unread]="!notification.isRead"
+                      >
+                        {{ notification.isRead ? 'Read' : 'Unread' }}
+                      </span>
+                    </div>
+
+                    <p class="notification-message">
+                      {{ notification.message }}
+                    </p>
+
+                    <div class="notification-meta">
+                      <span>
+                        {{
+                          notification.createdAtUtc
+                            | date:'medium'
+                        }}
+                      </span>
+
+                      @if (
+                        notification.isRead &&
+                        notification.readAtUtc
+                      ) {
+                        <span>
+                          Read
+                          {{
+                            notification.readAtUtc
+                              | date:'medium'
+                          }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="notification-actions">
+                    @if (!notification.isRead) {
+                      <button
+                        type="button"
+                        class="primary-button"
+                        [disabled]="
+                          busyNotificationId() !== null ||
+                          isMarkingAll()
+                        "
+                        (click)="markRead(notification)"
+                      >
+                        @if (
+                          busyNotificationId() ===
+                          notification.id
+                        ) {
+                          Marking...
+                        } @else {
+                          Mark as read
+                        }
+                      </button>
+                    }
+
+                    <button
+                      type="button"
+                      class="text-link"
+                      (click)="viewApplications()"
+                    >
+                      View applications
+                      <span aria-hidden="true">
+                        &rarr;
+                      </span>
+                    </button>
+                  </div>
+                </article>
+              }
+            </section>
+
+            @if (current.totalCount > current.pageSize) {
+              <nav
+                class="pagination"
+                aria-label="Notification pages"
+              >
+                <button
+                  type="button"
+                  class="secondary-button"
+                  [disabled]="
+                    current.page <= 1 ||
+                    isLoading() ||
+                    isMarkingAll() ||
+                    busyNotificationId() !== null
+                  "
+                  (click)="previousPage()"
+                >
+                  Previous
+                </button>
+
+                <span>
+                  Page {{ current.page }}
+                  of {{ totalPages() }}
+                </span>
+
+                <button
+                  type="button"
+                  class="secondary-button"
+                  [disabled]="
+                    current.page >= totalPages() ||
+                    isLoading() ||
+                    isMarkingAll() ||
+                    busyNotificationId() !== null
+                  "
+                  (click)="nextPage()"
+                >
+                  Next
+                </button>
+              </nav>
+            }
+          }
+        </section>
+
+        <aside
+          class="notifications-guidance"
+          aria-label="Notification guidance"
+        >
+          <article class="guidance-card">
+            <span
+              class="guidance-icon"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"
+                />
+              </svg>
+            </span>
+
+            <div>
+              <h2>
+                Notification tips
+              </h2>
+
+              <p>
+                Keep this workspace current while employers review
+                your applications.
+              </p>
+
+              <ul class="guidance-list">
+                <li>Review unread updates promptly</li>
+                <li>Mark reviewed items as read</li>
+                <li>Track the related application state</li>
+                <li>Keep your profile information current</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="guidance-card">
+            <span
+              class="guidance-icon"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M5 20V10m5 10V4m5 16v-7m4 7V7"
+                />
+              </svg>
+            </span>
+
+            <div>
+              <h2>
+                Application updates
+              </h2>
+
+              <p>
+                HireSync notifications in this workflow represent
+                genuine application-status changes created by the
+                backend.
+              </p>
+            </div>
+          </article>
+
+          <article class="guidance-card">
+            <span
+              class="guidance-icon"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M5 4h14v16H5V4Zm4 4h6M9 12h6M9 16h4"
+                />
+              </svg>
+            </span>
+
+            <div>
+              <h2>
+                Review applications
+              </h2>
+
+              <p>
+                Open your application tracking workspace when you
+                want the latest server-provided application state.
+              </p>
+
+              <button
+                type="button"
+                class="guidance-link"
+                (click)="viewApplications()"
+              >
+                View applications &rarr;
+              </button>
+            </div>
+          </article>
+        </aside>
+      </section>
+    }
+  }
+</main>

@@ -1,0 +1,152 @@
+.issue45-applications-hero-root {
+  position: relative !important;
+
+  display: block !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+
+  box-sizing: border-box !important;
+
+  height: 238px !important;
+  min-height: 238px !important;
+  max-height: 238px !important;
+
+  overflow: hidden !important;
+
+  background: #f5fbf9 !important;
+
+  isolation: isolate;
+}
+
+.issue45-applications-hero-image {
+  position: absolute !important;
+
+  inset: 0 !important;
+
+  z-index: 0 !important;
+
+  display: block !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  height: 100% !important;
+  max-height: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  border: 0 !important;
+
+  object-fit: cover !important;
+  object-position: center center !important;
+
+  opacity: 1 !important;
+
+  transform: none !important;
+
+  pointer-events: none;
+}
+
+.issue45-applications-hero-root::before,
+.issue45-applications-hero-root::after {
+  display: none !important;
+
+  content: none !important;
+
+  background: none !important;
+  background-image: none !important;
+
+  opacity: 0 !important;
+}
+
+.issue45-applications-hero-copy {
+  position: absolute !important;
+
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+
+  z-index: 2 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+
+  width: 61% !important;
+  max-width: 650px !important;
+
+  box-sizing: border-box !important;
+
+  margin: 0 !important;
+
+  padding:
+    30px
+    38px !important;
+
+  transform: none !important;
+
+  grid-column: auto !important;
+  grid-row: auto !important;
+
+  text-align: left !important;
+}
+
+.issue45-applications-hero-copy > * {
+  position: relative;
+
+  z-index: 3;
+}
+
+@media (max-width: 900px) {
+  .issue45-applications-hero-copy {
+    width: 66% !important;
+
+    padding:
+      26px
+      30px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .issue45-applications-hero-root {
+    height: 218px !important;
+    min-height: 218px !important;
+    max-height: 218px !important;
+  }
+
+  .issue45-applications-hero-image {
+    object-position:
+      66% center !important;
+  }
+
+  .issue45-applications-hero-copy {
+    width: 70% !important;
+
+    padding:
+      24px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .issue45-applications-hero-root {
+    height: 214px !important;
+    min-height: 214px !important;
+    max-height: 214px !important;
+  }
+
+  .issue45-applications-hero-image {
+    object-position:
+      72% center !important;
+  }
+
+  .issue45-applications-hero-copy {
+    width: 78% !important;
+
+    padding:
+      20px
+      16px !important;
+  }
+}
