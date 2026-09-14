@@ -1,0 +1,67 @@
+@media (max-width: 1020px) {
+  .vacancy-hero {
+    grid-template-columns: 53% 47% !important;
+    height: auto !important;
+    min-height: 21rem !important;
+  }
+
+  .vacancy-hero__copy {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    padding: 1.6rem 1.3rem !important;
+  }
+
+  .vacancy-hero__photo {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    min-height: 15rem !important;
+    background-size: cover, contain !important;
+  }
+
+  .vacancy-hero__workflow {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    padding: 0.85rem 1rem !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .vacancy-hero {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+    border-radius: 1.05rem !important;
+  }
+
+  .vacancy-hero__copy,
+  .vacancy-hero__photo,
+  .vacancy-hero__workflow {
+    grid-column: 1 !important;
+  }
+
+  .vacancy-hero__copy {
+    grid-row: 1 !important;
+    padding: 1.3rem 1.1rem !important;
+  }
+
+  .vacancy-hero h1 {
+    font-size: clamp(1.95rem, 9vw, 2.4rem) !important;
+  }
+
+  .vacancy-hero__photo {
+    grid-row: 2 !important;
+    min-height: 14rem !important;
+    background-position: center, center bottom !important;
+    background-size: cover, contain !important;
+  }
+
+  .vacancy-hero__workflow {
+    grid-row: 3 !important;
+    grid-template-columns: 1fr !important;
+    padding: 0.75rem !important;
+  }
+
+  .workflow-card strong {
+    white-space: normal !important;
+  }
+}

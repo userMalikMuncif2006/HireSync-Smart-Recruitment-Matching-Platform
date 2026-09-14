@@ -1,6 +1,7 @@
 <section
   class="dashboard-page"
   [class.jobseeker-dashboard]="isJobSeeker"
+  [class.employer-dashboard]="isEmployer"
 >
   @if (isJobSeeker) {
     <section
@@ -465,109 +466,391 @@
       </article>
     </section>
   } @else {
-    <header class="dashboard-header">
-      <p class="eyebrow">
-        {{ configuration.eyebrow }}
-      </p>
-
-      <h1>
-        {{ configuration.title }}
-      </h1>
-
-      <p>
-        {{ configuration.description }}
-      </p>
-    </header>
-
     <section
-      class="welcome-panel"
-      aria-label="Workspace overview"
+      class="employer-hero"
+      aria-labelledby="employer-dashboard-title"
     >
-      <div class="welcome-copy">
-        <span class="welcome-label">
-          HireSync workspace
-        </span>
-
-        <h2>
-          Your recruitment workflow,
-          organised in one place.
-        </h2>
-
-        <p>
-          Use the persistent sidebar to move between
-          features while your workspace remains available.
+      <div class="employer-hero__copy">
+        <p class="employer-hero__eyebrow">
+          Employer workspace
         </p>
-      </div>
 
-      <div
-        class="welcome-visual"
-        aria-hidden="true"
-      >
-        <div class="visual-ring">
-          <div class="visual-core">
-            H
-          </div>
-        </div>
+        <h1 id="employer-dashboard-title">
+          Recruit talent for a brighter tomorrow
+        </h1>
+
+        <p class="employer-hero__greeting">
+          {{ employerWelcomeLabel() }}
+        </p>
+
+        <p class="employer-hero__description">
+          Manage your company profile, create and track
+          vacancies, and review applicants in one place.
+        </p>
       </div>
     </section>
 
-    <div class="section-heading">
-      <div>
-        <span>
-          Quick access
+    <section
+      class="summary-grid"
+      aria-label="Employer dashboard summary"
+    >
+      <article class="summary-card">
+        <span
+          class="summary-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M4 21V7l8-4 8 4v14M8 21v-5h8v5M8 9h.01M12 9h.01M16 9h.01"
+            />
+          </svg>
         </span>
 
-        <strong>
-          Continue your workflow
-        </strong>
-      </div>
-    </div>
+        <div class="summary-card__body">
+          <span class="summary-label">
+            Company profile
+          </span>
 
-    <section class="action-grid">
-      @for (
-        action of configuration.actions;
-        track action.route
-      ) {
+          @if (employerProfileLoading()) {
+            <strong
+              class="summary-value summary-value--muted"
+              data-testid="employer-profile-value"
+            >
+              Loading
+            </strong>
+          } @else if (employerProfileError()) {
+            <strong
+              class="summary-value summary-value--muted"
+              data-testid="employer-profile-value"
+            >
+              Unavailable
+            </strong>
+          } @else {
+            <strong
+              class="summary-value employer-summary-word"
+              data-testid="employer-profile-value"
+            >
+              {{ employerProfileStatusLabel() }}
+            </strong>
+          }
+
+          <a
+            class="summary-link"
+            routerLink="/employer/profile"
+          >
+            Review profile &rarr;
+          </a>
+        </div>
+      </article>
+
+      <article class="summary-card">
+        <span
+          class="summary-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M6 3h12v18H6V3Zm3 4h6M9 11h6M9 15h4"
+            />
+          </svg>
+        </span>
+
+        <div class="summary-card__body">
+          <span class="summary-label">
+            Total vacancies
+          </span>
+
+          @if (employerVacanciesLoading()) {
+            <strong
+              class="summary-value summary-value--muted"
+              data-testid="employer-total-vacancies"
+            >
+              Loading
+            </strong>
+          } @else if (employerVacanciesError()) {
+            <strong
+              class="summary-value summary-value--muted"
+              data-testid="employer-total-vacancies"
+            >
+              Unavailable
+            </strong>
+          } @else {
+            <strong
+              class="summary-value"
+              data-testid="employer-total-vacancies"
+            >
+              {{ employerVacancies()?.totalCount ?? 0 }}
+            </strong>
+          }
+
+          <a
+            class="summary-link"
+            routerLink="/employer/vacancies"
+          >
+            View all &rarr;
+          </a>
+        </div>
+      </article>
+
+      <article class="summary-card">
+        <span
+          class="summary-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M9 6V4h6v2m-10 0h14v14H5V6Zm4 5h6"
+            />
+          </svg>
+        </span>
+
+        <div class="summary-card__body">
+          <span class="summary-label">
+            Open vacancies
+          </span>
+
+          @if (employerVacanciesLoading()) {
+            <strong
+              class="summary-value summary-value--muted"
+              data-testid="employer-open-vacancies"
+            >
+              Loading
+            </strong>
+          } @else if (employerVacanciesError()) {
+            <strong
+              class="summary-value summary-value--muted"
+              data-testid="employer-open-vacancies"
+            >
+              Unavailable
+            </strong>
+          } @else {
+            <strong
+              class="summary-value"
+              data-testid="employer-open-vacancies"
+            >
+              {{ employerOpenVacancyCount() ?? 0 }}
+            </strong>
+          }
+
+          <span class="summary-caption">
+            accepting applications
+          </span>
+        </div>
+      </article>
+
+      <article class="summary-card">
+        <span
+          class="summary-icon"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M5 7h14v13H5V7Zm3 0V5a4 4 0 0 1 8 0v2M9 13h6"
+            />
+          </svg>
+        </span>
+
+        <div class="summary-card__body">
+          <span class="summary-label">
+            Closed vacancies
+          </span>
+
+          @if (employerVacanciesLoading()) {
+            <strong
+              class="summary-value summary-value--muted"
+              data-testid="employer-closed-vacancies"
+            >
+              Loading
+            </strong>
+          } @else if (employerVacanciesError()) {
+            <strong
+              class="summary-value summary-value--muted"
+              data-testid="employer-closed-vacancies"
+            >
+              Unavailable
+            </strong>
+          } @else {
+            <strong
+              class="summary-value"
+              data-testid="employer-closed-vacancies"
+            >
+              {{ employerClosedVacancyCount() ?? 0 }}
+            </strong>
+          }
+
+          <span class="summary-caption">
+            no longer accepting
+          </span>
+        </div>
+      </article>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="dashboard-section__heading">
+        <span>
+          Your next steps
+        </span>
+
+        <h2>
+          Keep your recruitment moving
+        </h2>
+      </div>
+
+      <div class="next-step-grid">
         <a
-          class="action-card"
-          [routerLink]="action.route"
+          class="next-step-card"
+          routerLink="/employer/vacancies/new"
         >
           <span
-            class="action-icon"
+            class="next-step-icon"
             aria-hidden="true"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-            >
+            <svg viewBox="0 0 24 24" fill="none">
               <path
-                [attr.d]="action.iconPath"
+                d="M12 5v14M5 12h14"
               />
             </svg>
           </span>
 
           <div>
-            <h2>
-              {{ action.title }}
-            </h2>
+            <h3>
+              Create a vacancy
+            </h3>
 
             <p>
-              {{ action.description }}
+              Post a new role and start receiving
+              applications from matched candidates.
             </p>
-          </div>
 
-          <svg
-            class="arrow"
-            viewBox="0 0 24 24"
-            fill="none"
+            <span class="card-cta">
+              Create vacancy &rarr;
+            </span>
+          </div>
+        </a>
+
+        <a
+          class="next-step-card"
+          routerLink="/employer/profile"
+        >
+          <span
+            class="next-step-icon"
             aria-hidden="true"
           >
-            <path
-              d="m9 18 6-6-6-6"
-            />
-          </svg>
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 21V7l8-4 8 4v14M8 21v-5h8v5M8 9h.01M12 9h.01M16 9h.01"
+              />
+            </svg>
+          </span>
+
+          <div>
+            <h3>
+              Review company profile
+            </h3>
+
+            <p>
+              Keep your company information accurate
+              and ready for vacancy management.
+            </p>
+
+            <span class="card-cta">
+              Review profile &rarr;
+            </span>
+          </div>
         </a>
-      }
+      </div>
+    </section>
+
+    <section
+      class="activity-grid employer-activity-grid"
+      aria-label="Recent Employer vacancies"
+    >
+      <article class="activity-panel">
+        <header class="activity-panel__header">
+          <div>
+            <span>
+              Vacancies
+            </span>
+
+            <h2>
+              Recent vacancies
+            </h2>
+          </div>
+
+          <a routerLink="/employer/vacancies">
+            View all &rarr;
+          </a>
+        </header>
+
+        @if (employerVacanciesLoading()) {
+          <div class="panel-state">
+            Loading vacancies...
+          </div>
+        } @else if (employerVacanciesError()) {
+          <div class="panel-state panel-state--error">
+            Vacancies could not be loaded.
+          </div>
+        } @else if (recentEmployerVacancies().length === 0) {
+          <div class="panel-state">
+            <strong>
+              No vacancies yet.
+            </strong>
+
+            <span>
+              Create your first vacancy when you are ready.
+            </span>
+          </div>
+        } @else {
+          <div class="activity-list">
+            @for (
+              vacancy of recentEmployerVacancies();
+              track vacancy.id
+            ) {
+              <div
+                class="activity-row employer-vacancy-row"
+                data-testid="recent-employer-vacancy-row"
+              >
+                <div class="activity-row__main">
+                  <strong>
+                    {{ vacancy.title }}
+                  </strong>
+
+                  <span>
+                    {{ vacancy.location }}
+                  </span>
+                </div>
+
+                <div class="activity-row__meta">
+                  <span
+                    class="status-pill"
+                    [class.employer-status-pill--closed]="vacancy.status === 2"
+                  >
+                    {{ employerVacancyStatusLabel(vacancy.status) }}
+                  </span>
+
+                  <time>
+                    {{
+                      vacancy.publishedAtUtc
+                        | date: 'MMM d, y'
+                    }}
+                  </time>
+                </div>
+
+                <a
+                  class="employer-row-action"
+                  [routerLink]="[
+                    '/employer/vacancies',
+                    vacancy.id,
+                    'applicants'
+                  ]"
+                >
+                  Review applicants &rarr;
+                </a>
+              </div>
+            }
+          </div>
+        }
+      </article>
     </section>
   }
 </section>

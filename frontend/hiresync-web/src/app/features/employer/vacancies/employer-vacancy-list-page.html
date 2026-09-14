@@ -1,97 +1,132 @@
 <section class="employer-page">
-  <header class="page-header">
-    <p class="eyebrow">Employer</p>
-    <h1>Vacancy management</h1>
-    <p>
-      Review your vacancies, inspect ranked applicants and close
-      vacancies that are no longer accepting applications.
-    </p>
+  <header class="vacancy-hero">
+    <div class="vacancy-hero__copy">
+      <p class="eyebrow">Vacancy workspace</p>
+
+      <h1>Build your next great team</h1>
+
+      <p class="vacancy-hero__lead">
+        Create roles, manage active vacancies and move directly into ranked
+        applicant review from one recruitment workspace.
+      </p>
+
+      <button
+        type="button"
+        class="primary-button hero-action"
+        (click)="createVacancy()"
+      >
+        Create a vacancy
+      </button>
+    </div>
+
+    <div
+      class="vacancy-hero__photo"
+      role="img"
+      aria-label="Professional recruiter working on vacancy management"
+    ></div>
+
+    <aside
+      class="vacancy-hero__workflow"
+      aria-label="Vacancy workflow"
+    >
+      <div class="workflow-card">
+        <span>01</span>
+        <div>
+          <strong>Publish roles</strong>
+          <small>Keep vacancy details current</small>
+        </div>
+      </div>
+
+      <div class="workflow-card">
+        <span>02</span>
+        <div>
+          <strong>Review talent</strong>
+          <small>Open the ranked applicant list</small>
+        </div>
+      </div>
+
+      <div class="workflow-card">
+        <span>03</span>
+        <div>
+          <strong>Close carefully</strong>
+          <small>Closed vacancies remain terminal</small>
+        </div>
+      </div>
+    </aside>
   </header>
 
-  <div class="page-actions">
-    <button
-      type="button"
-      class="primary-button"
-      (click)="createVacancy()"
-    >
-      Create vacancy
-    </button>
-  </div>
+  <section class="vacancy-toolbar" aria-label="Vacancy filters and actions">
+    <div class="toolbar-copy">
+      <p class="section-kicker">Vacancy portfolio</p>
+      <h2>Manage your published opportunities</h2>
+      <p>
+        Filter the portfolio by lifecycle status without changing the
+        server-authoritative vacancy state.
+      </p>
+    </div>
 
-  <div class="filter-panel">
-    <label for="vacancy-status">
-      Vacancy status
-    </label>
+    <div class="filter-panel">
+      <div class="filter-field">
+        <label for="vacancy-status">Vacancy status</label>
 
-    <select
-      id="vacancy-status"
-      [formControl]="statusFilter"
-    >
-      <option value="all">
-        All vacancies
-      </option>
-      <option value="open">
-        Open
-      </option>
-      <option value="closed">
-        Closed
-      </option>
-    </select>
+        <select
+          id="vacancy-status"
+          [formControl]="statusFilter"
+        >
+          <option value="all">All vacancies</option>
+          <option value="open">Open</option>
+          <option value="closed">Closed</option>
+        </select>
+      </div>
 
-    <button
-      type="button"
-      class="primary-button"
-      [disabled]="isLoading()"
-      (click)="applyFilter()"
-    >
-      Apply filter
-    </button>
-  </div>
+      <button
+        type="button"
+        class="secondary-button apply-filter-button"
+        [disabled]="isLoading()"
+        (click)="applyFilter()"
+      >
+        Apply filter
+      </button>
+    </div>
+  </section>
 
   @if (actionError()) {
-    <div
-      class="state-card error"
-      role="alert"
-    >
-      {{ actionError() }}
+    <div class="state-card state-card--error" role="alert">
+      <strong>Vacancy action unavailable</strong>
+      <span>{{ actionError() }}</span>
     </div>
   }
 
   @if (isLoading()) {
-    <div
-      class="state-card"
-      aria-live="polite"
-    >
-      <strong>Loading vacancies...</strong>
-      <span>
-        Retrieving your current vacancy portfolio.
-      </span>
+    <div class="state-card" aria-live="polite">
+      <div class="state-icon" aria-hidden="true">...</div>
+      <div>
+        <strong>Loading vacancies</strong>
+        <span>Retrieving your current vacancy portfolio.</span>
+      </div>
     </div>
   } @else if (loadError()) {
-    <div
-      class="state-card error"
-      role="alert"
-    >
-      <strong>
-        Unable to load vacancies
-      </strong>
+    <div class="state-card state-card--error" role="alert">
+      <div class="state-icon" aria-hidden="true">!</div>
 
-      <span>
-        {{ loadError() }}
-      </span>
+      <div>
+        <strong>Unable to load vacancies</strong>
+        <span>{{ loadError() }}</span>
 
-      <button
-        type="button"
-        class="secondary-button"
-        (click)="reload()"
-      >
-        Try again
-      </button>
+        <button
+          type="button"
+          class="secondary-button state-action"
+          (click)="reload()"
+        >
+          Try again
+        </button>
+      </div>
     </div>
   } @else {
     @if (result(); as vacancyPage) {
-      <div class="result-summary">
+      <section class="portfolio-summary" aria-label="Vacancy portfolio summary">
         <div>
+          <span class="summary-label">Portfolio results</span>
           <strong>
             {{ vacancyPage.totalCount }}
             {{
@@ -100,23 +135,54 @@
                 : 'vacancies'
             }}
           </strong>
-
-          <span>
-            Page {{ vacancyPage.page }}
-            of {{ totalPages() }}
-          </span>
         </div>
-      </div>
+
+        <div>
+          <span class="summary-label">Current page</span>
+          <strong>
+            {{ vacancyPage.page }} of {{ totalPages() }}
+          </strong>
+        </div>
+
+        <div>
+          <span class="summary-label">Current filter</span>
+          <strong>
+            {{
+              statusFilter.value === 'open'
+                ? 'Open'
+                : statusFilter.value === 'closed'
+                  ? 'Closed'
+                  : 'All vacancies'
+            }}
+          </strong>
+        </div>
+
+        <div class="summary-guidance">
+          <span class="summary-label">Workflow</span>
+          <strong>Vacancy &rarr; Ranked applicants</strong>
+        </div>
+      </section>
 
       @if (vacancyPage.items.length === 0) {
-        <div class="state-card">
-          <strong>
-            No vacancies found
-          </strong>
+        <div class="empty-state">
+          <div class="empty-state__mark" aria-hidden="true">V</div>
 
-          <span>
-            No vacancies match the selected status.
-          </span>
+          <div>
+            <p class="section-kicker">No matching vacancies</p>
+            <h2>Your selected portfolio is empty</h2>
+            <p>
+              No vacancies match the selected status. Change the filter or
+              create a new vacancy when you are ready to recruit.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="createVacancy()"
+          >
+            Create a vacancy
+          </button>
         </div>
       } @else {
         <div class="vacancy-grid">
@@ -124,21 +190,29 @@
             vacancy of vacancyPage.items;
             track vacancy.id
           ) {
-            <article class="vacancy-card">
+            <article
+              class="vacancy-card"
+              [class.vacancy-card--closed]="vacancy.status === 2"
+            >
+              <div class="card-topline">
+                <span
+                  class="status-badge"
+                  [class.closed]="vacancy.status === 2"
+                >
+                  {{ statusLabel(vacancy.status) }}
+                </span>
+
+                <span class="card-reference">
+                  Vacancy
+                </span>
+              </div>
+
               <div class="card-heading">
                 <div>
-                  <span
-                    class="status-badge"
-                    [class.closed]="vacancy.status === 2"
-                  >
-                    {{ statusLabel(vacancy.status) }}
-                  </span>
-
-                  <h2>
-                    {{ vacancy.title }}
-                  </h2>
+                  <h2>{{ vacancy.title }}</h2>
 
                   <p class="location">
+                    <span aria-hidden="true">â—</span>
                     {{ vacancy.location }}
                   </p>
                 </div>
@@ -175,8 +249,15 @@
                       }}
                     </dd>
                   </div>
+                } @else {
+                  <div>
+                    <dt>Recruitment state</dt>
+                    <dd>Accepting workflow actions</dd>
+                  </div>
                 }
               </dl>
+
+              <div class="card-divider"></div>
 
               <div class="card-actions">
                 <button
@@ -208,33 +289,40 @@
                     </button>
                   } @else {
                     <div class="close-confirmation">
-                      <span>
-                        Closing is final. Continue?
-                      </span>
+                      <div>
+                        <strong>Close this vacancy?</strong>
+                        <span>Closing is final and cannot be reversed.</span>
+                      </div>
 
-                      <button
-                        type="button"
-                        class="danger-button"
-                        [disabled]="closingId() === vacancy.id"
-                        (click)="confirmClose(vacancy)"
-                      >
-                        {{
-                          closingId() === vacancy.id
-                            ? 'Closing...'
-                            : 'Confirm close'
-                        }}
-                      </button>
+                      <div class="close-confirmation__actions">
+                        <button
+                          type="button"
+                          class="danger-button"
+                          [disabled]="closingId() === vacancy.id"
+                          (click)="confirmClose(vacancy)"
+                        >
+                          {{
+                            closingId() === vacancy.id
+                              ? 'Closing...'
+                              : 'Confirm close'
+                          }}
+                        </button>
 
-                      <button
-                        type="button"
-                        class="secondary-button"
-                        [disabled]="closingId() === vacancy.id"
-                        (click)="cancelClose()"
-                      >
-                        Cancel
-                      </button>
+                        <button
+                          type="button"
+                          class="secondary-button"
+                          [disabled]="closingId() === vacancy.id"
+                          (click)="cancelClose()"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   }
+                } @else {
+                  <span class="closed-note">
+                    Closed vacancy Â· read-only lifecycle
+                  </span>
                 }
               </div>
             </article>

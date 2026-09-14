@@ -17,7 +17,7 @@ import { EmployerProfileService } from './employer-profile.service';
   selector: 'app-employer-profile-page',
   imports: [ReactiveFormsModule],
   templateUrl: './employer-profile-page.html',
-  styleUrl: './employer-profile-page.css',
+  styleUrls: ['./employer-profile-page.css', './employer-profile-overview.css', './employer-profile-form.css'],
 })
 export class EmployerProfilePage {
   private readonly employerProfileService =
