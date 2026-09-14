@@ -1,3 +1,6 @@
+import {
+  DatePipe,
+} from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
@@ -16,18 +19,27 @@ import { JobMatchService } from './job-match.service';
 @Component({
   selector: 'app-job-match-result',
   standalone: true,
+  imports: [
+    DatePipe,
+  ],
   templateUrl: './job-match-result.html',
-  styleUrl: './job-match-result.css',
+  styleUrls: [
+    './job-match-result.css',
+    './job-match-result-scores.css',
+  ],
 })
 export class JobMatchResult {
-  readonly vacancyId = input.required<string>();
+  readonly vacancyId =
+    input.required<string>();
 
   readonly result =
     signal<PublicVacancyDetail | null>(null);
 
-  readonly loading = signal(false);
+  readonly loading =
+    signal(false);
 
-  readonly applying = signal(false);
+  readonly applying =
+    signal(false);
 
   readonly errorMessage =
     signal<string | null>(null);
@@ -82,6 +94,81 @@ export class JobMatchResult {
         subscription.unsubscribe();
       });
     });
+  }
+
+  companyInitial(
+    companyName: string,
+  ): string {
+    const normalized =
+      companyName.trim();
+
+    return normalized.length > 0
+      ? normalized.charAt(0).toUpperCase()
+      : 'H';
+  }
+
+  experienceLabel(
+    months: number,
+  ): string {
+    if (months === 0) {
+      return 'No experience required';
+    }
+
+    if (months < 12) {
+      return `${months} month${
+        months === 1 ? '' : 's'
+      }`;
+    }
+
+    const years =
+      Math.floor(months / 12);
+
+    const remainingMonths =
+      months % 12;
+
+    const yearLabel =
+      `${years} year${
+        years === 1 ? '' : 's'
+      }`;
+
+    if (remainingMonths === 0) {
+      return yearLabel;
+    }
+
+    return `${yearLabel} ${remainingMonths} month${
+      remainingMonths === 1
+        ? ''
+        : 's'
+    }`;
+  }
+
+  educationLabel(
+    level: number | null,
+  ): string {
+    switch (level) {
+      case null:
+        return 'No minimum';
+      case 0:
+        return 'No formal qualification';
+      case 1:
+        return 'Ordinary Level';
+      case 2:
+        return 'Advanced Level';
+      case 3:
+        return 'Certificate';
+      case 4:
+        return 'Diploma';
+      case 5:
+        return 'Bachelor';
+      case 6:
+        return 'Postgraduate Diploma';
+      case 7:
+        return 'Master';
+      case 8:
+        return 'Doctorate';
+      default:
+        return 'Not specified';
+    }
   }
 
   apply(): void {

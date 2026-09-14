@@ -1,9 +1,12 @@
-import { DatePipe } from '@angular/common';
+import {
+  DatePipe,
+} from '@angular/common';
 import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import {
   Component,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -17,6 +20,10 @@ import {
   JobSeekerContactRequestsService,
 } from './job-seeker-contact-requests.service';
 
+type ContactRequestFilter =
+  | 'all'
+  | ContactRequestStatus;
+
 @Component({
   selector:
     'app-job-seeker-contact-requests-page',
@@ -26,8 +33,11 @@ import {
   ],
   templateUrl:
     './job-seeker-contact-requests-page.html',
-  styleUrl:
+  styleUrls: [
     './job-seeker-contact-requests-page.css',
+    './job-seeker-contact-requests-list.css',
+    './job-seeker-contact-requests-guidance.css',
+  ],
 })
 export class JobSeekerContactRequestsPage {
   private readonly service =
@@ -45,6 +55,9 @@ export class JobSeekerContactRequestsPage {
   readonly requests =
     signal<JobSeekerContactRequest[]>([]);
 
+  readonly selectedFilter =
+    signal<ContactRequestFilter>('all');
+
   readonly respondingContactRequestId =
     signal<string | null>(null);
 
@@ -54,12 +67,74 @@ export class JobSeekerContactRequestsPage {
   readonly responseSuccessMessage =
     signal<string | null>(null);
 
+  readonly pendingCount =
+    computed(
+      () =>
+        this.requests().filter(
+          request =>
+            request.status ===
+            ContactRequestStatus.Pending,
+        ).length,
+    );
+
+  readonly acceptedCount =
+    computed(
+      () =>
+        this.requests().filter(
+          request =>
+            request.status ===
+            ContactRequestStatus.Accepted,
+        ).length,
+    );
+
+  readonly declinedCount =
+    computed(
+      () =>
+        this.requests().filter(
+          request =>
+            request.status ===
+            ContactRequestStatus.Declined,
+        ).length,
+    );
+
+  readonly filteredRequests =
+    computed(() => {
+      const selected =
+        this.selectedFilter();
+
+      if (selected === 'all') {
+        return this.requests();
+      }
+
+      return this.requests().filter(
+        request =>
+          request.status === selected,
+      );
+    });
+
   constructor() {
     this.load();
   }
 
   retry(): void {
     this.load();
+  }
+
+  selectFilter(
+    filter: ContactRequestFilter,
+  ): void {
+    this.selectedFilter.set(filter);
+  }
+
+  companyInitial(
+    companyName: string,
+  ): string {
+    const normalized =
+      companyName.trim();
+
+    return normalized.length > 0
+      ? normalized[0].toUpperCase()
+      : 'H';
   }
 
   statusLabel(

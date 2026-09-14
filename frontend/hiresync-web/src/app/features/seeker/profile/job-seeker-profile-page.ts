@@ -38,8 +38,11 @@ import {
   ],
   templateUrl:
     './job-seeker-profile-page.html',
-  styleUrl:
+  styleUrls: [
     './job-seeker-profile-page.css',
+    './job-seeker-profile-content.css',
+    './job-seeker-profile-skills-cv.css',
+  ],
 })
 export class JobSeekerProfilePage {
   private readonly service =

@@ -1,0 +1,226 @@
+.activity-panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--hs-border);
+  border-radius: 18px;
+  background: var(--hs-surface);
+  box-shadow:
+    0 8px 24px
+    rgb(27 67 59 / 0.03);
+}
+
+.activity-panel__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 19px 20px 16px;
+  border-bottom: 1px solid #edf2f0;
+}
+
+.activity-panel__header > div {
+  display: grid;
+  gap: 3px;
+}
+
+.activity-panel__header a {
+  flex: 0 0 auto;
+  margin-top: 4px;
+}
+
+.activity-list {
+  display: grid;
+}
+
+.activity-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 17px 20px;
+}
+
+.activity-row + .activity-row {
+  border-top: 1px solid #edf2f0;
+}
+
+.activity-row__main {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.activity-row__main strong {
+  overflow: hidden;
+  color: #294941;
+  font-size: 0.84rem;
+  font-weight: 740;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-row__main span {
+  overflow: hidden;
+  color: #778783;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-row__meta {
+  display: grid;
+  flex: 0 0 auto;
+  justify-items: end;
+  gap: 5px;
+}
+
+.status-pill {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #edf8f5;
+  color: #18705f;
+  font-size: 0.68rem;
+  font-weight: 760;
+}
+
+.activity-row time {
+  flex: 0 0 auto;
+  color: #8b9995;
+  font-size: 0.69rem;
+}
+
+.notification-row {
+  display: grid;
+  grid-template-columns:
+    8px
+    minmax(0, 1fr)
+    auto;
+}
+
+.notification-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hs-brand-600);
+}
+
+.notification-dot--read {
+  background: #c2ceca;
+}
+
+.panel-state {
+  display: grid;
+  min-height: 108px;
+  place-content: center;
+  gap: 5px;
+  padding: 24px;
+  color: #7b8b87;
+  font-size: 0.79rem;
+  text-align: center;
+}
+
+.panel-state strong {
+  color: #48635d;
+  font-size: 0.84rem;
+}
+
+.panel-state--error {
+  color: #9a5b55;
+}
+
+@media (max-width: 1080px) {
+  .summary-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (max-width: 820px) {
+  .next-step-grid,
+  .activity-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .jobseeker-dashboard {
+    width:
+      calc(
+        100% - 28px
+      );
+    padding-top: 28px;
+  }
+
+  .career-hero {
+    min-height: 225px;
+    padding: 27px;
+    background:
+      linear-gradient(
+        90deg,
+        rgb(246 252 250 / 0.99) 0%,
+        rgb(246 252 250 / 0.94) 55%,
+        rgb(246 252 250 / 0.55) 100%
+      ),
+      url('/images/dashboard/jobseeker-career-hero.webp')
+        68% center / cover no-repeat;
+  }
+
+  .career-hero__copy {
+    max-width: 78%;
+  }
+}
+
+@media (max-width: 520px) {
+  .jobseeker-dashboard {
+    width:
+      calc(
+        100% - 20px
+      );
+  }
+
+  .career-hero {
+    min-height: 255px;
+    padding: 22px;
+    border-radius: 19px;
+    background:
+      linear-gradient(
+        90deg,
+        rgb(246 252 250 / 0.99) 0%,
+        rgb(246 252 250 / 0.94) 68%,
+        rgb(246 252 250 / 0.72) 100%
+      ),
+      url('/images/dashboard/jobseeker-career-hero.webp')
+        70% center / cover no-repeat;
+  }
+
+  .career-hero__copy {
+    max-width: 100%;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-panel__header {
+    align-items: center;
+  }
+
+  .activity-row {
+    align-items: start;
+  }
+
+  .notification-row {
+    grid-template-columns:
+      8px
+      minmax(0, 1fr);
+  }
+
+  .notification-row time {
+    grid-column: 2;
+  }
+}

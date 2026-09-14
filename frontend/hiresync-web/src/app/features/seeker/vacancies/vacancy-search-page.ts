@@ -33,7 +33,12 @@ import { VacancySearchService } from './vacancy-search.service';
     DatePipe,
   ],
   templateUrl: './vacancy-search-page.html',
-  styleUrl: './vacancy-search-page.css',
+  styleUrls: [
+    './vacancy-search-page.css',
+    './vacancy-search-filters.css',
+    './vacancy-search-cards.css',
+    './vacancy-search-guidance.css',
+  ],
 })
 export class VacancySearchPage {
   private readonly vacancySearchService =
@@ -178,10 +183,34 @@ export class VacancySearchPage {
   openVacancy(
     vacancyId: string,
   ): void {
-    void this.router.navigate([
-      '/seeker/vacancies',
-      vacancyId,
-    ]);
+    void this.router.navigate(
+      [
+        '/seeker/vacancies',
+        vacancyId,
+      ],
+      {
+        queryParamsHandling:
+          'preserve',
+      },
+    );
+  }
+
+  openProfile(): void {
+    void this.router.navigate(
+      [
+        '/seeker/profile',
+      ],
+    );
+  }
+  companyInitial(
+    companyName: string,
+  ): string {
+    const normalized =
+      companyName.trim();
+
+    return normalized.length > 0
+      ? normalized.charAt(0).toUpperCase()
+      : 'H';
   }
 
   totalPages(): number {

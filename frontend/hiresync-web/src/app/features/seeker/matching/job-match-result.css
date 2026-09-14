@@ -3,92 +3,167 @@
 }
 
 .match-card {
-  border: 1px solid #dfe7e5;
-  border-radius: 16px;
-  background: #ffffff;
-  padding: 1.25rem;
+  display: grid;
+  gap: 16px;
+}
+
+.match-heading,
+.role-overview,
+.required-skills,
+.readiness-panel,
+.match-overview,
+.state-message,
+.match-unavailable,
+.computed-note {
+  border: 1px solid #d6e5e1;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(27 67 59 / 0.03);
 }
 
 .match-heading {
-  display: flex;
+  display: grid;
+  grid-template-columns:
+    58px
+    minmax(0, 1fr)
+    auto;
+  gap: 15px;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  padding: 21px;
+}
+
+.company-mark {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 13px;
+  background: #e9f7f3;
+  color: #087f6d;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.match-heading__copy {
+  min-width: 0;
 }
 
 .eyebrow {
-  margin: 0 0 0.25rem;
-  color: #526966;
-  font-size: 0.75rem;
-  font-weight: 700;
+  margin: 0 0 4px;
+  color: #087f6d;
+  font-size: 0.7rem;
+  font-weight: 790;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-h2,
-h3,
-p {
-  margin-top: 0;
+.match-heading h2 {
+  margin: 0;
+  color: #173f37;
+  font-size: 1.2rem;
+  font-weight: 780;
 }
 
-h2 {
-  margin-bottom: 0;
-  font-size: 1.35rem;
+.location {
+  margin: 5px 0 0;
+  color: #6d7e79;
+  font-size: 0.8rem;
 }
 
-.total-score {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1.25rem;
-  border-radius: 12px;
-  background: #f3f8f7;
-  padding: 1rem;
+.top-score {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  border-radius: 13px;
+  background: #e8f6f2;
+  padding: 10px 13px;
 }
 
-.total-score strong {
-  font-size: 1.6rem;
+.top-score span {
+  color: #607c75;
+  font-size: 0.67rem;
+  font-weight: 720;
 }
 
-.score-grid {
+.top-score strong {
+  color: #08715f;
+  font-size: 1.1rem;
+}
+
+.role-overview {
   display: grid;
   grid-template-columns:
-    repeat(auto-fit, minmax(130px, 1fr));
-  gap: 0.75rem;
-  margin-top: 1rem;
+    minmax(0, 1.4fr)
+    minmax(300px, 0.8fr);
+  gap: 24px;
+  padding: 22px;
 }
 
-.score-grid article {
-  display: grid;
-  gap: 0.4rem;
-  border: 1px solid #e3e9e8;
-  border-radius: 12px;
-  padding: 0.9rem;
+.role-description h3,
+.section-heading h3 {
+  margin: 0;
+  color: #294941;
+  font-size: 0.95rem;
+  font-weight: 760;
 }
 
-.score-grid span {
-  color: #526966;
-  font-size: 0.85rem;
+.role-description p {
+  margin: 9px 0 0;
+  color: #677a75;
+  font-size: 0.82rem;
+  line-height: 1.6;
 }
 
-.skill-sections {
+.role-facts {
   display: grid;
   grid-template-columns:
-    repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-  margin-top: 1.25rem;
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
 }
 
-.skill-sections section {
-  border-top: 1px solid #e3e9e8;
-  padding-top: 1rem;
+.role-facts div {
+  display: grid;
+  gap: 4px;
+}
+
+.role-facts dt {
+  color: #82908c;
+  font-size: 0.68rem;
+  font-weight: 720;
+  text-transform: uppercase;
+}
+
+.role-facts dd {
+  margin: 0;
+  color: #324f48;
+  font-size: 0.79rem;
+  font-weight: 650;
+}
+
+.required-skills,
+.readiness-panel {
+  padding: 21px;
+}
+
+.section-heading {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 13px;
+}
+
+.section-heading span {
+  color: #85938f;
+  font-size: 0.67rem;
+  font-weight: 780;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .skill-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -96,67 +171,103 @@ h2 {
 
 .skill-list li {
   border-radius: 999px;
-  padding: 0.4rem 0.7rem;
-  font-size: 0.85rem;
+  background: #edf8f5;
+  padding: 7px 10px;
+  color: #176b5b;
+  font-size: 0.75rem;
+  font-weight: 650;
 }
 
-.matched-list li {
-  background: #e8f5f1;
-}
-
-.missing-list li {
-  background: #f5eeee;
-}
-
-.state-message,
-.empty-state {
-  margin: 1rem 0 0;
-  color: #526966;
-}
-
-.error-message {
-  color: #8b2f2f;
-}
-
-@media (max-width: 480px) {
-  .match-card {
-    padding: 1rem;
-  }
-
-  .total-score {
-    align-items: flex-start;
-    flex-direction: column;
-  }
+.readiness-message,
+.empty-state,
+.application-message {
+  margin: 0;
+  color: #657772;
+  font-size: 0.8rem;
+  line-height: 1.55;
 }
 
 .apply-button {
-  margin-top: 0.9rem;
+  margin-top: 13px;
   border: 0;
   border-radius: 10px;
-  background: #176b5b;
-  color: #ffffff;
+  background: #087f6d;
+  color: #fff;
   cursor: pointer;
-  padding: 0.7rem 1rem;
+  padding: 0.75rem 1rem;
   font: inherit;
-  font-weight: 700;
+  font-weight: 720;
 }
 
 .apply-button:hover:not(:disabled) {
-  background: #12594c;
-}
-
-.apply-button:focus-visible {
-  outline: 3px solid #9bd5c8;
-  outline-offset: 2px;
+  background: #076c5d;
 }
 
 .apply-button:disabled {
   cursor: not-allowed;
-  opacity: 0.65;
+  opacity: 0.62;
 }
 
 .application-message {
-  margin: 0.75rem 0 0;
+  margin-top: 10px;
   color: #365b54;
-  font-weight: 600;
+  font-weight: 650;
+}
+
+.state-message,
+.match-unavailable,
+.computed-note {
+  padding: 20px;
+  color: #667873;
+  font-size: 0.79rem;
+}
+
+.state-message {
+  display: grid;
+  gap: 5px;
+}
+
+.state-message strong {
+  color: #294941;
+}
+
+.error-message {
+  border-color: #efcbc6;
+  background: #fff8f7;
+  color: #8b2f2f;
+}
+
+.computed-note {
+  box-shadow: none;
+  background: #f8fbfa;
+}
+
+@media (max-width: 760px) {
+  .match-heading {
+    grid-template-columns:
+      54px
+      minmax(0, 1fr);
+  }
+
+  .top-score {
+    grid-column: 1 / -1;
+    justify-items: start;
+  }
+
+  .role-overview {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .match-heading,
+  .role-overview,
+  .required-skills,
+  .readiness-panel {
+    padding: 17px;
+  }
+
+  .role-facts {
+    grid-template-columns: 1fr;
+  }
 }

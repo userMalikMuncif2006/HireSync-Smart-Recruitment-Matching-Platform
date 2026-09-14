@@ -36,8 +36,14 @@ import {
   ],
   templateUrl:
     './job-seeker-applications-page.html',
-  styleUrl:
+  styleUrls: [
     './job-seeker-applications-page.css',
+    './job-seeker-applications-content.css',
+    './job-seeker-applications-layout.css',
+    './job-seeker-applications-cards.css',
+    './job-seeker-applications-guidance.css',
+    './job-seeker-applications-hero.css',
+  ],
 })
 export class JobSeekerApplicationsPage {
   private readonly service =
@@ -74,6 +80,38 @@ export class JobSeekerApplicationsPage {
 
   applyStatusFilter(): void {
     this.load(1);
+  }
+
+  selectStatusFilter(
+    status:
+      ApplicationStatus | null,
+  ): void {
+    this.statusControl.setValue(
+      status,
+    );
+
+    this.load(1);
+  }
+
+  isStatusSelected(
+    status:
+      ApplicationStatus | null,
+  ): boolean {
+    return (
+      this.statusControl.value ===
+      status
+    );
+  }
+
+  selectedStatusLabel(): string {
+    const status =
+      this.statusControl.value;
+
+    return status === null
+      ? 'All statuses'
+      : this.applicationStatusLabel(
+          status,
+        );
   }
 
   clearStatusFilter(): void {
@@ -136,6 +174,12 @@ export class JobSeekerApplicationsPage {
     ]);
   }
 
+  openNotifications(): void {
+    void this.router.navigate([
+      '/seeker/notifications',
+    ]);
+  }
+
   totalPages(): number {
     const current =
       this.result();
@@ -150,6 +194,17 @@ export class JobSeekerApplicationsPage {
       current.totalCount /
         current.pageSize,
     );
+  }
+
+  companyInitial(
+    companyName: string,
+  ): string {
+    const trimmed =
+      companyName.trim();
+
+    return trimmed.length > 0
+      ? trimmed[0].toUpperCase()
+      : 'H';
   }
 
   applicationStatusLabel(

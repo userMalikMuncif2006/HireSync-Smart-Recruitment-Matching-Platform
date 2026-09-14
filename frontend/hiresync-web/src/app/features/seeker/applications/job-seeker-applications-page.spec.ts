@@ -124,6 +124,44 @@ describe(
         );
     });
 
+    it('renders the polished application hero and guidance', async () => {
+      await createComponent();
+
+      const element =
+        fixture.nativeElement as HTMLElement;
+
+      expect(element.textContent)
+        .toContain(
+          'Track your applications',
+        );
+
+      expect(element.textContent)
+        .toContain(
+          'Application tips',
+        );
+
+      expect(element.textContent)
+        .toContain(
+          'What happens next?',
+        );
+
+      expect(element.textContent)
+        .toContain(
+          'Get notified',
+        );
+
+      expect(
+        element.querySelector(
+          '.applications-guidance',
+        ),
+      ).not.toBeNull();
+
+      expect(element.textContent)
+        .not.toContain(
+          'Withdraw',
+        );
+    });
+
     it('applies the selected status filter from page one', async () => {
       await createComponent();
 
@@ -144,6 +182,31 @@ describe(
         page: 1,
         pageSize: 20,
       });
+    });
+
+    it('selects a status pill and reloads server data from page one', async () => {
+      await createComponent();
+
+      fixture.componentInstance
+        .selectStatusFilter(
+          ApplicationStatus.UnderReview,
+        );
+
+      expect(
+        service.queries.at(-1),
+      ).toEqual({
+        status:
+          ApplicationStatus.UnderReview,
+        page: 1,
+        pageSize: 20,
+      });
+
+      expect(
+        fixture.componentInstance
+          .isStatusSelected(
+            ApplicationStatus.UnderReview,
+          ),
+      ).toBe(true);
     });
 
     it('renders empty state with vacancy discovery action and no withdraw action', async () => {
@@ -186,6 +249,18 @@ describe(
         .toHaveBeenCalledWith([
           '/seeker/vacancies',
           '22222222-2222-2222-2222-222222222222',
+        ]);
+    });
+
+    it('opens Job Seeker notifications from application guidance', async () => {
+      await createComponent();
+
+      fixture.componentInstance
+        .openNotifications();
+
+      expect(navigate)
+        .toHaveBeenCalledWith([
+          '/seeker/notifications',
         ]);
     });
 

@@ -150,8 +150,56 @@ describe('VacancySearchPage', () => {
       .toContain(
         'Ranked using your current structured profile',
       );
+
+    expect(
+      fixture.nativeElement.querySelector(
+        '.find-jobs-hero',
+      ),
+    ).not.toBeNull();
   });
 
+  it('renders the approved job-search guidance cards', async () => {
+    await createComponent();
+
+    const text =
+      fixture.nativeElement
+        .textContent as string;
+
+    expect(text)
+      .toContain(
+        'Search tips',
+      );
+
+    expect(text)
+      .toContain(
+        'Your match advantage',
+      );
+
+    expect(text)
+      .toContain(
+        'Saved search',
+      );
+
+    expect(
+      fixture.nativeElement.querySelector(
+        '.search-guidance',
+      ),
+    ).not.toBeNull();
+  });
+
+  it('opens the structured profile from match guidance', async () => {
+    await createComponent();
+
+    fixture.componentInstance
+      .openProfile();
+
+    expect(navigate)
+      .toHaveBeenCalledWith(
+        [
+          '/seeker/profile',
+        ],
+      );
+  });
   it('falls back to page one and Newest for invalid URL values', async () => {
     await createComponent({
       sort: 'Unknown',
@@ -198,6 +246,35 @@ describe('VacancySearchPage', () => {
             page: 1,
           },
         }),
+      );
+  });
+
+  it('opens vacancy details while preserving the active search URL state', async () => {
+    await createComponent({
+      q: 'backend',
+      location: 'Colombo',
+      sort: 'Match',
+      page: '2',
+    });
+
+    const vacancyId =
+      '11111111-1111-1111-1111-111111111111';
+
+    fixture.componentInstance
+      .openVacancy(
+        vacancyId,
+      );
+
+    expect(navigate)
+      .toHaveBeenCalledWith(
+        [
+          '/seeker/vacancies',
+          vacancyId,
+        ],
+        {
+          queryParamsHandling:
+            'preserve',
+        },
       );
   });
 });

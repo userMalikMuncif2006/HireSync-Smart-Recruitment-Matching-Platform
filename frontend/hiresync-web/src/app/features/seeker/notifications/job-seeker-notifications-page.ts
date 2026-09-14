@@ -31,8 +31,11 @@ import {
   ],
   templateUrl:
     './job-seeker-notifications-page.html',
-  styleUrl:
+  styleUrls: [
     './job-seeker-notifications-page.css',
+    './job-seeker-notifications-list.css',
+    './job-seeker-notifications-guidance.css',
+  ],
 })
 export class JobSeekerNotificationsPage {
   private readonly service =
@@ -80,6 +83,24 @@ export class JobSeekerNotificationsPage {
   retry(): void {
     this.load(
       this.result()?.page ?? 1,
+    );
+  }
+
+  unreadOnPage(): number {
+    return (
+      this.result()?.items.filter(
+        notification =>
+          !notification.isRead,
+      ).length ?? 0
+    );
+  }
+
+  readOnPage(): number {
+    return (
+      this.result()?.items.filter(
+        notification =>
+          notification.isRead,
+      ).length ?? 0
     );
   }
 
